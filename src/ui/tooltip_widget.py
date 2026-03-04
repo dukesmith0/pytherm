@@ -30,20 +30,31 @@ class CellTooltip(QWidget):
         self._name.setStyleSheet("font-weight: bold; color: #eee; font-size: 12px;")
         layout.addWidget(self._name)
 
-        self._k     = QLabel()
-        self._alpha = QLabel()
-        self._temp  = QLabel()
-        for lbl in (self._k, self._alpha, self._temp):
+        self._k      = QLabel()
+        self._alpha  = QLabel()
+        self._temp   = QLabel()
+        self._energy = QLabel()
+        for lbl in (self._k, self._alpha, self._temp, self._energy):
             lbl.setStyleSheet("color: #aaa; font-size: 11px;")
             layout.addWidget(lbl)
 
-    def update_cell(self, cell: Cell) -> None:
+    def update_cell(self, cell: Cell, dx_m: float, ambient_k: float) -> None:
         """Refresh the displayed values for the given cell."""
         mat = cell.material
         self._name.setText(mat.name)
         self._k.setText(f"k  =  {mat.k} W/(m·K)")
         self._alpha.setText(f"α  =  {mat.alpha:.3e} m²/s")
         self._temp.setText(f"T  =  {_units.to_display(cell.temperature):.1f} {_units.suffix()}")
+
+        rho_cp = mat.rho * mat.cp
+        if rho_cp > 0 and dx_m > 0:
+            # ΔE = ρ·Cₚ·(T − T_amb)·dx²  [J, assuming 1 m unit depth]
+            delta_e = rho_cp * (cell.temperature - ambient_k) * dx_m ** 2
+            self._energy.setText(f"ΔE =  {_units.fmt_energy(delta_e)}")
+            self._energy.setVisible(True)
+        else:
+            self._energy.setVisible(False)
+
         self.adjustSize()
 
     def move_near(self, global_pos: QPoint) -> None:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QGraphicsView
@@ -71,7 +73,7 @@ class GridView(QGraphicsView):
         self._fitted = False
 
         # Drawing / interaction state
-        self._draw_mode: bool = True
+        self._mode: str = "draw"              # "draw" | "select" | "fill"
         self._active_material: Material | None = None
         self._painting: bool = False          # True during regular left-drag paint
         self._drawing_locked: bool = False    # True while sim is running
@@ -87,12 +89,17 @@ class GridView(QGraphicsView):
 
         # Hover tooltip
         self._tooltip = CellTooltip()
+        self._dx_m: float = 0.01   # physical cell size in metres; updated by set_dx()
         self.setMouseTracking(True)
 
     # --- Public API (called by toolbar / sidebar) ---
 
-    def set_draw_mode(self, is_draw: bool) -> None:
-        self._draw_mode = is_draw
+    def set_dx(self, dx_m: float) -> None:
+        """Update the cell size used for energy calculations in the hover tooltip."""
+        self._dx_m = dx_m
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
         self._cancel_anchors()
 
     def set_active_material(self, material: Material) -> None:
@@ -129,15 +136,20 @@ class GridView(QGraphicsView):
                 self.scene().set_preview_rect(*cell, *cell)
 
             else:
-                # No modifier: paint (draw mode) or single-cell select (select mode)
+                # No modifier: paint/fill (draw/fill mode) or single-cell select (select mode)
                 self._cancel_anchors()
-                if self._draw_mode and not self._drawing_locked:
+                if self._mode == "draw" and not self._drawing_locked:
                     self._clear_selection()   # plain paint clears any prior selection
                     self._painting = True
                     if cell:
                         self.paint_started.emit()  # snapshot before first stroke cell
                         self._paint_cell(*cell)
                         self.scene().refresh()
+                elif self._mode == "fill" and not self._drawing_locked and cell:
+                    self._clear_selection()
+                    self.paint_started.emit()
+                    self._flood_fill(*cell)
+                    self.scene().refresh()
                 elif cell:
                     self._do_select([cell])
 
@@ -178,7 +190,8 @@ class GridView(QGraphicsView):
         # Hover tooltip — hide while actively interacting
         busy = self._painting or self._line_anchor or self._rect_anchor
         if cell and not busy:
-            self._tooltip.update_cell(self.scene()._grid.cell(*cell))
+            g = self.scene()._grid
+            self._tooltip.update_cell(g.cell(*cell), self._dx_m, g.ambient_temp_k)
             self._tooltip.move_near(self.mapToGlobal(event.pos()))
             self._tooltip.show()
         else:
@@ -194,7 +207,7 @@ class GridView(QGraphicsView):
         if event.button() == Qt.MouseButton.LeftButton:
             if self._line_anchor and self._current_line:
                 cells = list(self._current_line)
-                if self._draw_mode and not self._drawing_locked:
+                if self._mode == "draw" and not self._drawing_locked:
                     self.paint_started.emit()  # snapshot before line commit
                     for r, c in cells:
                         self._paint_cell(r, c)
@@ -207,7 +220,7 @@ class GridView(QGraphicsView):
             elif self._rect_anchor is not None:
                 cell = self._cell_at(event.pos())
                 cells = _rect_cells(*self._rect_anchor, *(cell if cell else self._rect_anchor))
-                if self._draw_mode and not self._drawing_locked:
+                if self._mode == "draw" and not self._drawing_locked:
                     self.paint_started.emit()  # snapshot before rect commit
                     for r, c in cells:
                         self._paint_cell(r, c)
@@ -289,3 +302,24 @@ class GridView(QGraphicsView):
 
     def _cancel_painting(self) -> None:
         self._painting = False
+
+    def _flood_fill(self, start_row: int, start_col: int) -> None:
+        """BFS flood fill from (start_row, start_col) with the active material."""
+        if self._active_material is None:
+            return
+        grid = self.scene()._grid
+        target_id = grid.cell(start_row, start_col).material.id
+        if self._active_material.id == target_id:
+            return  # painting same material — no-op
+        rows, cols = grid.rows, grid.cols
+        visited: set[tuple[int, int]] = set()
+        queue: deque[tuple[int, int]] = deque([(start_row, start_col)])
+        while queue:
+            r, c = queue.popleft()
+            if (r, c) in visited or not (0 <= r < rows and 0 <= c < cols):
+                continue
+            if grid.cell(r, c).material.id != target_id:
+                continue
+            visited.add((r, c))
+            self._paint_cell(r, c)
+            queue.extend([(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)])

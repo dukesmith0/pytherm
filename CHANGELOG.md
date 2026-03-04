@@ -1,5 +1,31 @@
 # PyTherm Changelog
 
+## v0.2.0 — 2026-03-04
+
+### Added
+
+- **Temperature statistics status bar**: live min / avg / max temperature of all non-vacuum cells in the current display unit, updated every simulation tick.
+- **Single-step button**: advance the simulation by a user-specified simulated duration (seconds) while paused. The step duration spinbox accepts values from 0.001 s to 3 600 s. Keyboard shortcut: N.
+- **Steady-state mode**: "Stop at SS" checkbox in the toolbar. When enabled, Play runs the simulation normally and pauses automatically when the maximum temperature change across non-fixed, non-vacuum cells falls below 0.01 K per sub-step.
+- **About dialog**: `Help > About PyTherm` shows the version, author, and a GitHub link.
+- **Bug report button**: `Help > Report a Bug` opens the GitHub Issues page.
+- **Export view as image**: `File > Export View as Image` (Ctrl+E) saves the current canvas as a PNG file.
+- **Common liquids material library**: 8 new built-in liquid materials (Water, Seawater, Ethylene Glycol, Antifreeze 50/50, Engine Oil, Hydraulic Fluid, Gasoline, R-134a) in a new "Liquids" category.
+- **Searchable material picker**: filter bar above the material list in the sidebar — type to filter by name or abbreviation.
+- **Bottom toolbar**: view-related controls (Material/Heatmap toggle, heatmap scale, border conditions, temperature unit, Fit/Grid/Abbr) moved to a dedicated bottom toolbar so the top toolbar focuses on simulation controls.
+- **Fill (paint bucket) tool**: flood-fill mode button in the toolbar (W key) — click any cell to fill all contiguous same-material cells with the active material using BFS.
+- **Heatmap color legend**: a vertical gradient scale bar with min/max temperature labels appears in the bottom-right corner of the viewport in heatmap mode.
+- **Sub-step count display**: solver sub-step count per tick shown next to the sim-time in the top toolbar.
+
+### Fixed
+
+| ID | Description |
+| -- | ----------- |
+| B-SS | Steady-state convergence check now uses the worst-case per-sub-step delta from the solver instead of the total tick-level delta, fixing false negatives at high speed multipliers. |
+| B-GE | Group edit panel now uses a tri-state "Heat source" checkbox. When the selection has mixed fixed states, the checkbox shows a partial state and Apply skips writing `is_fixed`. |
+| B-SF | Material search filter now also matches abbreviations (e.g. "Cu", "FR4", "LN2"). |
+| B-CT | New grid cells default `fixed_temp` to `ambient_temp_k` instead of absolute zero. |
+
 ## v0.1.0 — 2026-03-04
 
 ### Major Changes

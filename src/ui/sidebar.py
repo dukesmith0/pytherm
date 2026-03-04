@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox,
     QFrame,
     QLabel,
+    QLineEdit,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -30,7 +31,7 @@ class MaterialPicker(QWidget):
 
     material_selected = pyqtSignal(object)  # emits Material
 
-    _CATEGORY_ORDER = ["Metals", "Woods", "Polymers", "Construction", "Electronics", "Gases"]
+    _CATEGORY_ORDER = ["Metals", "Woods", "Polymers", "Construction", "Electronics", "Gases", "Liquids"]
 
     def __init__(self, materials: dict[str, Material], parent=None) -> None:
         super().__init__(parent)
@@ -53,6 +54,16 @@ class MaterialPicker(QWidget):
             "color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;"
         )
         outer.addWidget(header)
+
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("Filter materials...")
+        self._search.setClearButtonEnabled(True)
+        self._search.setStyleSheet(
+            "QLineEdit { background: #1e1e1e; border: 1px solid #444; "
+            "border-radius: 3px; padding: 3px 6px; color: #ccc; font-size: 11px; }"
+        )
+        outer.addWidget(self._search)
+        self._search.textChanged.connect(self._apply_filter)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -137,6 +148,38 @@ class MaterialPicker(QWidget):
             self._add_group("My Materials", custom_mats)
 
         self._clayout.addStretch()
+
+        if hasattr(self, "_search"):
+            self._apply_filter(self._search.text())
+
+    def _apply_filter(self, text: str) -> None:
+        """Show/hide material buttons and group headers based on a name substring match."""
+        query = text.strip().lower()
+
+        if not query:
+            for btn in self._buttons.values():
+                btn.setVisible(True)
+            for cat, (hdr, cw) in self._group_info.items():
+                hdr.setVisible(True)
+                cw.setVisible(not self._group_collapsed.get(cat, True))
+            return
+
+        group_has_match: dict[str, bool] = {cat: False for cat in self._group_info}
+
+        for mid, btn in self._buttons.items():
+            mat = self._all_materials.get(mid)
+            name_match = query in (mat.name.lower() if mat else "")
+            abbr_match = query in (mat.abbr.lower() if mat else "")
+            matches = name_match or abbr_match
+            btn.setVisible(matches)
+            cat = self._mat_group.get(mid)
+            if cat is not None and matches:
+                group_has_match[cat] = True
+
+        for cat, (hdr, cw) in self._group_info.items():
+            has_match = group_has_match.get(cat, False)
+            hdr.setVisible(has_match)
+            cw.setVisible(has_match)
 
     def _add_group(self, category: str, mats: list[Material]) -> None:
         collapsed = self._group_collapsed.get(category, True)
@@ -432,6 +475,7 @@ class GroupEditPanel(QWidget):
         self._materials = materials
         self._mat_ids = list(materials.keys())
         self._cells: list[tuple[int, int]] = []
+        self._prev_check_state: Qt.CheckState = Qt.CheckState.Unchecked
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -461,6 +505,7 @@ class GroupEditPanel(QWidget):
         layout.addWidget(self._temp_spin)
 
         self._fixed_check = QCheckBox("Heat source (fixed T)")
+        self._fixed_check.setTristate(True)
         self._fixed_check.setStyleSheet("color: #ccc; font-size: 11px;")
         layout.addWidget(self._fixed_check)
 
@@ -493,6 +538,7 @@ class GroupEditPanel(QWidget):
         layout.addStretch()
 
         self._fixed_check.toggled.connect(self._on_fixed_toggled)
+        self._fixed_check.clicked.connect(self._on_fixed_check_clicked)
         self._fixed_temp_spin.valueChanged.connect(self._on_fixed_temp_changed)
         self._apply_btn.clicked.connect(self._apply)
 
@@ -519,19 +565,27 @@ class GroupEditPanel(QWidget):
         self._mat_combo.blockSignals(False)
 
         self._fixed_check.blockSignals(True)
-        self._fixed_check.setChecked(first.is_fixed)
+        is_fixed_states = {self._grid.cell(*c).is_fixed for c in cells}
+        if len(is_fixed_states) == 1:
+            self._fixed_check.setCheckState(
+                Qt.CheckState.Checked if first.is_fixed else Qt.CheckState.Unchecked
+            )
+        else:
+            self._fixed_check.setCheckState(Qt.CheckState.PartiallyChecked)
         self._fixed_check.blockSignals(False)
-        self._fixed_row.setVisible(first.is_fixed)
+        self._prev_check_state = self._fixed_check.checkState()
+        is_partial = self._fixed_check.checkState() == Qt.CheckState.PartiallyChecked
+        self._fixed_row.setVisible(first.is_fixed and not is_partial)
 
         self._fixed_temp_spin.blockSignals(True)
         self._fixed_temp_spin.setValue(_units.to_display(first.fixed_temp))
         self._fixed_temp_spin.blockSignals(False)
 
         # Starting temp spin: disabled and mirrors fixed_temp when fixed; shows cell temp otherwise
-        temp_display = first.fixed_temp if first.is_fixed else first.temperature
+        temp_display = (first.fixed_temp if first.is_fixed else first.temperature) if not is_partial else first.temperature
         self._temp_spin.blockSignals(True)
         self._temp_spin.setValue(_units.to_display(temp_display))
-        self._temp_spin.setEnabled(not first.is_fixed)
+        self._temp_spin.setEnabled(not first.is_fixed or is_partial)
         self._temp_spin.blockSignals(False)
 
         self.setEnabled(True)
@@ -575,6 +629,20 @@ class GroupEditPanel(QWidget):
             self._temp_spin.setValue(self._fixed_temp_spin.value())
             self._temp_spin.blockSignals(False)
 
+    def _on_fixed_check_clicked(self, _checked: bool = False) -> None:
+        """Skip PartiallyChecked when user clicks: go directly to Checked or Unchecked."""
+        state = self._fixed_check.checkState()
+        if state != Qt.CheckState.PartiallyChecked:
+            self._prev_check_state = state
+            return
+        target = (
+            Qt.CheckState.Unchecked
+            if self._prev_check_state == Qt.CheckState.Checked
+            else Qt.CheckState.Checked
+        )
+        self._fixed_check.setCheckState(target)
+        self._prev_check_state = target
+
     def _on_fixed_temp_changed(self, value: float) -> None:
         if self._fixed_check.isChecked():
             self._temp_spin.blockSignals(True)
@@ -588,15 +656,18 @@ class GroupEditPanel(QWidget):
         mat_id   = self._mat_combo.currentData()   # None → "(no change)"
         if mat_id is not None and mat_id not in self._materials:
             mat_id = None
-        mat      = self._materials[mat_id] if mat_id is not None else None
-        is_fixed = self._fixed_check.isChecked()
-        temp_k   = _units.from_display(self._temp_spin.value())
-        fixed_k  = _units.from_display(self._fixed_temp_spin.value()) if is_fixed else None
+        mat         = self._materials[mat_id] if mat_id is not None else None
+        fixed_state = self._fixed_check.checkState()
+        is_checked  = fixed_state == Qt.CheckState.Checked
+        temp_k      = _units.from_display(self._temp_spin.value())
+        fixed_k     = _units.from_display(self._fixed_temp_spin.value()) if is_checked else None
 
         for r, c in self._cells:
-            self._grid.set_cell(r, c, material=mat, is_fixed=is_fixed, temperature=temp_k)
-            if fixed_k is not None:
-                self._grid.set_cell(r, c, fixed_temp=fixed_k)
+            self._grid.set_cell(r, c, material=mat, temperature=temp_k)
+            if fixed_state != Qt.CheckState.PartiallyChecked:
+                self._grid.set_cell(r, c, is_fixed=is_checked)
+                if fixed_k is not None:
+                    self._grid.set_cell(r, c, fixed_temp=fixed_k)
 
         self.group_modified.emit()
 

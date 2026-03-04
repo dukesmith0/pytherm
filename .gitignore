@@ -38,3 +38,6 @@ data/recent_files.json
 
 # Vibe
 .vibe/
+
+# Claude Code project context (machine-local)
+CLAUDE.md

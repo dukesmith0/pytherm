@@ -50,3 +50,15 @@ def spinbox_range() -> tuple[float, float]:
     if _active == Unit.KELVIN:
         return 0.0, 10273.15
     return -459.67, 18032.0  # Fahrenheit
+
+
+def fmt_energy(j: float) -> str:
+    """Format energy in Joules with auto-scaled SI prefix (J, kJ, MJ, GJ)."""
+    abs_j = abs(j)
+    if abs_j >= 1e9:
+        return f"{j / 1e9:.2f} GJ"
+    if abs_j >= 1e6:
+        return f"{j / 1e6:.2f} MJ"
+    if abs_j >= 1e3:
+        return f"{j / 1e3:.2f} kJ"
+    return f"{j:.1f} J"

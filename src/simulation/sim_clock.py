@@ -20,9 +20,10 @@ class SimClock(QObject):
       6. Emit tick(total_sim_time)
     """
 
-    tick = pyqtSignal(float)          # total simulated time in seconds
-    state_changed = pyqtSignal(bool)  # True = running, False = stopped
-    nan_detected = pyqtSignal()       # emitted when NaN/Inf appears in temperature field
+    tick = pyqtSignal(float)             # total simulated time in seconds
+    state_changed = pyqtSignal(bool)     # True = running, False = stopped
+    nan_detected = pyqtSignal()          # emitted when NaN/Inf appears in temperature field
+    steady_state_reached = pyqtSignal()  # emitted when convergence threshold is met
 
     INTERVAL_MS = 33  # ~30 FPS wall-clock update rate
 
@@ -34,6 +35,7 @@ class SimClock(QObject):
         self._sim_time = 0.0
         self._speed = 1.0
         self._running = False
+        self._steady_mode = False
 
         self._timer = QTimer(self)
         self._timer.setInterval(self.INTERVAL_MS)
@@ -53,6 +55,9 @@ class SimClock(QObject):
 
     def set_speed(self, multiplier: float) -> None:
         self._speed = multiplier
+
+    def set_steady_mode(self, enabled: bool) -> None:
+        self._steady_mode = enabled
 
     def play(self) -> None:
         if not self._running:
@@ -112,3 +117,9 @@ class SimClock(QObject):
         self._grid.import_temperatures(T_new)
         self._sim_time += dt_sim
         self._scene.refresh()
+
+        if self._steady_mode:
+            active = (rho_cp > 0) & ~fixed_mask
+            if np.any(active) and self._solver.last_max_delta < 0.01:
+                self.pause()
+                self.steady_state_reached.emit()

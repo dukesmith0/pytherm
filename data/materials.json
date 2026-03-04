@@ -411,6 +411,94 @@
       "abbr": "H2",
       "category": "Gases",
       "note": "H\u2082 at 25\u00b0C, 1 atm"
+    },
+    {
+      "id": "water",
+      "name": "Water",
+      "color": "#4FC3F7",
+      "k": 0.598,
+      "rho": 998,
+      "cp": 4182,
+      "abbr": "H2O",
+      "category": "Liquids",
+      "note": "Liquid water at 25\u00b0C"
+    },
+    {
+      "id": "seawater",
+      "name": "Seawater",
+      "color": "#0077B6",
+      "k": 0.614,
+      "rho": 1025,
+      "cp": 3993,
+      "abbr": "SW",
+      "category": "Liquids",
+      "note": "Seawater at 25\u00b0C, 35 ppt salinity"
+    },
+    {
+      "id": "ethylene_glycol",
+      "name": "Ethylene Glycol",
+      "color": "#A5D6A7",
+      "k": 0.258,
+      "rho": 1113,
+      "cp": 2382,
+      "abbr": "EG",
+      "category": "Liquids",
+      "note": "Pure EG at 25\u00b0C — common antifreeze base"
+    },
+    {
+      "id": "antifreeze_50_50",
+      "name": "Antifreeze (50/50 EG-Water)",
+      "color": "#66BB6A",
+      "k": 0.390,
+      "rho": 1070,
+      "cp": 3400,
+      "abbr": "AF",
+      "category": "Liquids",
+      "note": "50/50 ethylene glycol\u2013water mix at 25\u00b0C"
+    },
+    {
+      "id": "engine_oil",
+      "name": "Engine Oil (SAE 30)",
+      "color": "#5D4037",
+      "k": 0.145,
+      "rho": 870,
+      "cp": 1900,
+      "abbr": "Oil",
+      "category": "Liquids",
+      "note": "SAE 30 motor oil at 40\u00b0C"
+    },
+    {
+      "id": "hydraulic_fluid",
+      "name": "Hydraulic Fluid (ISO 46)",
+      "color": "#C8960A",
+      "k": 0.130,
+      "rho": 870,
+      "cp": 1900,
+      "abbr": "HF",
+      "category": "Liquids",
+      "note": "ISO VG 46 hydraulic oil at 40\u00b0C"
+    },
+    {
+      "id": "gasoline",
+      "name": "Gasoline",
+      "color": "#F5C842",
+      "k": 0.120,
+      "rho": 720,
+      "cp": 2000,
+      "abbr": "Gas",
+      "category": "Liquids",
+      "note": "Regular unleaded gasoline at 25\u00b0C"
+    },
+    {
+      "id": "r134a",
+      "name": "R-134a Refrigerant (liquid)",
+      "color": "#66CCEE",
+      "k": 0.082,
+      "rho": 1200,
+      "cp": 1460,
+      "abbr": "R134",
+      "category": "Liquids",
+      "note": "HFC-134a liquid at 25\u00b0C"
     }
   ]
 }

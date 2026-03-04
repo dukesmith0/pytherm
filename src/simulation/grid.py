@@ -12,7 +12,8 @@ class Grid:
         self.cols = cols
         self.ambient_temp_k = ambient_temp_k
         self._cells: list[list[Cell]] = [
-            [Cell(material=default_material, temperature=ambient_temp_k) for _ in range(cols)]
+            [Cell(material=default_material, temperature=ambient_temp_k, fixed_temp=ambient_temp_k)
+             for _ in range(cols)]
             for _ in range(rows)
         ]
 

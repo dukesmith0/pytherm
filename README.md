@@ -1,4 +1,4 @@
-# PyTherm v0.1.0
+# PyTherm v0.2.0
 
 A 2D thermal simulation tool. Draw a grid of materials, set heat sources and boundary conditions, then watch heat conduct through your design in real time.
 
@@ -35,7 +35,7 @@ Select a material from the sidebar on the left, then paint it onto the grid.
 | Ctrl + drag | Paint a straight line |
 | Right-click | Select a cell |
 
-Switch between **Draw** and **Select** mode using the toolbar buttons or the D / S keys.
+Switch between **Draw**, **Fill**, and **Select** mode using the toolbar buttons or the D / W / S keys. In **Fill** mode, clicking a cell flood-fills all contiguous same-material cells with the active material.
 
 ## Editing Cells
 
@@ -46,6 +46,18 @@ To edit multiple cells at once, hold Shift or Ctrl and drag to select a group. U
 ## Simulation
 
 Press **Play** to start. The **Speed** control lets you run faster than real time. Press **Reset** to return all cells to ambient temperature. Drawing is locked while the simulation runs.
+
+Use the **Step** button (or press **N**) to advance the simulation by a fixed duration while paused. Set the step duration with the spinbox next to the button.
+
+Enable **Stop at SS** to run until the simulation reaches steady state — the simulation pauses automatically when the maximum temperature change per step falls below 0.01 K.
+
+The status bar at the bottom shows live min / avg / max temperature of all non-vacuum cells.
+
+## Materials
+
+The built-in library includes metals, woods, polymers, construction materials, electronics, gases, and common liquids. Use **File > Materials Manager** to add or edit custom materials.
+
+Use the filter bar at the top of the material picker to search by name.
 
 ## View Modes
 
@@ -68,8 +80,11 @@ Switch between Celsius, Kelvin, and Fahrenheit with the **Unit** dropdown in the
 | File > New Grid | Set grid size, cell size, and ambient temperature |
 | File > Save / Save As | Save as a `.pytherm` file |
 | File > Open / Open Recent | Reload a saved grid |
+| File > Export View as Image | Save the current canvas as a PNG image (Ctrl+E) |
 | File > Materials Manager | Add, edit, or delete custom materials |
 | Help > What's New | View the full version changelog |
+| Help > Report a Bug | Open the GitHub Issues page |
+| Help > About PyTherm | Version, author, and GitHub link |
 
 ## Keyboard Shortcuts
 
@@ -77,12 +92,15 @@ Switch between Celsius, Kelvin, and Fahrenheit with the **Unit** dropdown in the
 | --- | --- |
 | D | Draw mode |
 | S | Select mode |
+| W | Fill mode |
 | Space | Play / Pause |
 | R | Reset simulation |
+| N | Single step |
 | F | Fit grid to view |
 | G | Toggle grid lines |
 | Ctrl+Z | Undo |
 | Ctrl+Shift+Z | Redo |
+| Ctrl+E | Export view as image |
 
 ## Navigation
 

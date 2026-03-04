@@ -3,11 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, QUrl, pyqtSignal
+from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import (
     QDialog, QDialogButtonBox, QFrame, QHBoxLayout, QLabel,
     QMainWindow, QMessageBox, QTextEdit, QVBoxLayout, QWidget,
 )
+
+from src.version import VERSION
 
 
 class MainWindow(QMainWindow):
@@ -15,6 +18,7 @@ class MainWindow(QMainWindow):
     open_requested = pyqtSignal()
     save_requested = pyqtSignal()
     save_as_requested = pyqtSignal()
+    export_requested = pyqtSignal()
     materials_manager_requested = pyqtSignal()
     undo_requested = pyqtSignal()
     redo_requested = pyqtSignal()
@@ -58,6 +62,14 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
+        file_menu.addSeparator()
+
+        export_action = file_menu.addAction("Export View as Image...")
+        export_action.setShortcut("Ctrl+E")
+        export_action.triggered.connect(self.export_requested)
+
+        file_menu.addSeparator()
+
         mgr_action = file_menu.addAction("Materials Manager...")
         mgr_action.triggered.connect(self.materials_manager_requested)
 
@@ -75,6 +87,14 @@ class MainWindow(QMainWindow):
 
         whats_new = help_menu.addAction("What's New...")
         whats_new.triggered.connect(self._show_changelog)
+
+        help_menu.addSeparator()
+
+        bug_action = help_menu.addAction("Report a Bug...")
+        bug_action.triggered.connect(self._open_bug_report)
+
+        about_action = help_menu.addAction("About PyTherm...")
+        about_action.triggered.connect(self._show_about)
 
     def _show_changelog(self) -> None:
         changelog_path = Path(__file__).parent.parent.parent / "CHANGELOG.md"
@@ -101,6 +121,34 @@ class MainWindow(QMainWindow):
         layout.addWidget(btns)
 
         dlg.exec()
+
+    def _show_about(self) -> None:
+        dlg = QDialog(self)
+        dlg.setWindowTitle("About PyTherm")
+        dlg.setFixedSize(340, 200)
+
+        layout = QVBoxLayout(dlg)
+        layout.setContentsMargins(24, 20, 24, 16)
+        layout.setSpacing(6)
+
+        layout.addWidget(QLabel(f"<h2>PyTherm v{VERSION}</h2>"))
+        layout.addWidget(QLabel("2D thermal simulation — FDM heat conduction"))
+        layout.addWidget(QLabel("Author: Duke Smith"))
+
+        gh = QLabel('<a href="https://github.com/dukesmith0/pytherm">github.com/dukesmith0/pytherm</a>')
+        gh.setOpenExternalLinks(True)
+        layout.addWidget(gh)
+
+        layout.addStretch()
+
+        btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        btns.rejected.connect(dlg.reject)
+        layout.addWidget(btns)
+
+        dlg.exec()
+
+    def _open_bug_report(self) -> None:
+        QDesktopServices.openUrl(QUrl("https://github.com/dukesmith0/pytherm/issues/new"))
 
     def _build_central(self) -> None:
         root = QWidget()

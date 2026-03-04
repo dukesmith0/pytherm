@@ -12,6 +12,13 @@ _DEFAULT_BC: dict[str, str] = {
 }
 
 
+def _hm(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Harmonic mean of two conductivity arrays at a cell interface."""
+    s = a + b
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(s > 0, 2 * a * b / s, 0.0)
+
+
 def _pad_with_bc(T: np.ndarray, bc: dict[str, str], ambient_k: float) -> np.ndarray:
     """Manual per-side padding that respects boundary conditions.
 
@@ -50,6 +57,7 @@ class Solver:
         # dx: physical size of each square cell in meters
         self.dx = dx
         self.last_substep_count = 0   # set after each advance(), useful for debugging
+        self.last_max_delta = 0.0     # max per-sub-step |ΔT| over non-fixed cells
         self.boundary_conditions: dict[str, str] = dict(_DEFAULT_BC)
         self.ambient_k: float = 293.15
 
@@ -86,6 +94,8 @@ class Solver:
         n_steps = max(1, int(np.ceil(duration / dt_safe)))
         dt = duration / n_steps
         self.last_substep_count = n_steps
+        max_delta = 0.0
+        not_fixed = ~fixed_mask
 
         dx2 = self.dx ** 2
         bc  = self.boundary_conditions
@@ -98,16 +108,10 @@ class Solver:
         # Correctly models materials in series: the resistive material dominates.
         # Returns 0 when either cell is vacuum (k=0), blocking all heat transfer.
         K_pad = np.pad(k, 1, mode="edge")
-
-        def hm(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-            s = a + b
-            with np.errstate(divide="ignore", invalid="ignore"):
-                return np.where(s > 0, 2 * a * b / s, 0.0)
-
-        k_r = hm(K_pad[1:-1, 1:-1], K_pad[1:-1, 2:])   # interface with right neighbor
-        k_l = hm(K_pad[1:-1, 1:-1], K_pad[1:-1, :-2])  # interface with left neighbor
-        k_d = hm(K_pad[1:-1, 1:-1], K_pad[2:,  1:-1])  # interface with cell below
-        k_u = hm(K_pad[1:-1, 1:-1], K_pad[:-2, 1:-1])  # interface with cell above
+        k_r = _hm(K_pad[1:-1, 1:-1], K_pad[1:-1, 2:])   # interface with right neighbor
+        k_l = _hm(K_pad[1:-1, 1:-1], K_pad[1:-1, :-2])  # interface with left neighbor
+        k_d = _hm(K_pad[1:-1, 1:-1], K_pad[2:,  1:-1])  # interface with cell below
+        k_u = _hm(K_pad[1:-1, 1:-1], K_pad[:-2, 1:-1])  # interface with cell above
 
         # 1 / (ρCₚ) for each cell; vacuum cells (ρCₚ=0) get 0 so they never update.
         inv_rhocp = np.where(rho_cp > 0, 1.0 / np.where(rho_cp > 0, rho_cp, 1.0), 0.0)
@@ -125,9 +129,17 @@ class Solver:
                 k_u * (T_pad[:-2, 1:-1] - T_c)
             ) / dx2
 
-            T += dt * flux * inv_rhocp
+            dT = dt * flux * inv_rhocp
+            T += dT
 
             # Re-pin fixed-temperature cells after each sub-step.
             T[fixed_mask] = fixed_temps[fixed_mask]
 
+            # Track worst-case per-sub-step delta over non-fixed cells only.
+            if np.any(not_fixed):
+                step_delta = float(np.max(np.abs(dT[not_fixed])))
+                if step_delta > max_delta:
+                    max_delta = step_delta
+
+        self.last_max_delta = max_delta
         return T

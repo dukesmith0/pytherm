@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from PyQt6.QtCore import Qt, QRectF
-from PyQt6.QtGui import QColor, QFont, QPainter, QPen
+from PyQt6.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter, QPen
 from PyQt6.QtWidgets import QGraphicsScene
 
 from src.rendering import units as _units
@@ -197,6 +197,10 @@ class GridScene(QGraphicsScene):
             painter.setPen(pen)
             painter.drawRect(x + 1, y + 1, cp - 2, cp - 2)
 
+        # Color scale legend — bottom-right corner, heatmap mode only
+        if self._view_mode == "heatmap":
+            self._draw_color_legend(painter)
+
     # --- Heatmap helpers ---
 
     # Background color used outside the grid and for vacuum cells in heatmap mode.
@@ -303,3 +307,49 @@ class GridScene(QGraphicsScene):
                         Qt.AlignmentFlag.AlignCenter,
                         f"{_units.to_display(t):.0f}°",
                     )
+
+    def _draw_color_legend(self, painter: QPainter) -> None:
+        """Draw a vertical color scale bar (hot=top, cold=bottom) in the viewport corner."""
+        t_min, t_max = self._heatmap_bounds()
+
+        painter.save()
+        painter.resetTransform()
+
+        device = painter.device()
+        vp_w   = device.width()
+        vp_h   = device.height()
+
+        BAR_W = 16
+        bar_h = min(160, vp_h - 80)
+        if bar_h < 20:
+            painter.restore()
+            return
+
+        x = vp_w - BAR_W - 52  # leave room for text labels to the right
+        y = vp_h - bar_h - 20  # 20 px from bottom
+
+        # Gradient: top = hot (t_max), bottom = cold (t_min)
+        grad = QLinearGradient(x, y, x, y + bar_h)
+        for i, frac in enumerate([0.0, 0.25, 0.5, 0.75, 1.0]):
+            t = t_max - frac * (t_max - t_min)
+            grad.setColorAt(frac, heatmap_color(t, t_min, t_max))
+
+        painter.fillRect(x, y, BAR_W, bar_h, QBrush(grad))
+
+        border_pen = QPen(QColor(100, 100, 100))
+        border_pen.setWidth(1)
+        painter.setPen(border_pen)
+        painter.drawRect(x, y, BAR_W - 1, bar_h - 1)
+
+        font = QFont()
+        font.setPixelSize(10)
+        painter.setFont(font)
+        painter.setPen(QColor(200, 200, 200))
+
+        suf = _units.suffix()
+        painter.drawText(x + BAR_W + 4, y + 11,
+                         f"{_units.to_display(t_max):.0f} {suf}")
+        painter.drawText(x + BAR_W + 4, y + bar_h,
+                         f"{_units.to_display(t_min):.0f} {suf}")
+
+        painter.restore()

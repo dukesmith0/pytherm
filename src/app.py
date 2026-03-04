@@ -3,6 +3,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import numpy as np
+
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QPalette, QShortcut, QKeySequence
 from PyQt6.QtWidgets import QApplication, QDialog, QFileDialog, QMessageBox
 
@@ -15,6 +18,7 @@ from src.simulation.grid import Grid
 from src.simulation.history import GridHistory
 from src.simulation.sim_clock import SimClock
 from src.simulation.solver import Solver
+from src.ui.bottom_bar import BottomBar
 from src.ui.grid_scene import GridScene
 from src.ui.grid_view import GridView
 from src.ui.main_window import MainWindow
@@ -28,7 +32,7 @@ from src.ui.welcome_dialog import WelcomeDialog, make_app_icon
 
 
 def _apply_dark_theme(app: QApplication) -> None:
-    """Dark CAD-style palette — mimics ANSYS/Fluent look."""
+    """Dark CAD-style palette - mimics ANSYS/Fluent look."""
     app.setStyle("Fusion")
     p = QPalette()
     p.setColor(QPalette.ColorRole.Window,          QColor(45,  45,  45))
@@ -72,12 +76,14 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
     history = GridHistory()
 
-    toolbar = Toolbar()
+    toolbar     = Toolbar()
     toolbar.set_dx(solver.dx)
-    sidebar = Sidebar(materials, grid)
+    view.set_dx(solver.dx)
+    bottom_bar  = BottomBar()
+    sidebar     = Sidebar(materials, grid)
 
-    # ── Draw / Select mode ───────────────────────────────────────────────────
-    toolbar.draw_mode_changed.connect(view.set_draw_mode)
+    # ── Draw / Select / Fill mode ────────────────────────────────────────────
+    toolbar.mode_changed.connect(view.set_mode)
 
     # ── Material picker → active drawing material ────────────────────────────
     sidebar.picker.material_selected.connect(view.set_active_material)
@@ -91,9 +97,9 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
 
     # ── Simulation controls ──────────────────────────────────────────────────
-    toolbar.play_pause_toggled.connect(lambda on: sim_clock.play() if on else sim_clock.pause())
-    toolbar.reset_requested.connect(sim_clock.reset)
-    toolbar.speed_changed.connect(sim_clock.set_speed)
+    bottom_bar.play_pause_toggled.connect(lambda on: sim_clock.play() if on else sim_clock.pause())
+    bottom_bar.reset_requested.connect(sim_clock.reset)
+    bottom_bar.speed_changed.connect(sim_clock.set_speed)
 
     def _on_dx_changed(dx_m: float) -> None:
         if sim_clock.is_running:
@@ -105,6 +111,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         )
         if ans == QMessageBox.StandardButton.Yes:
             solver.dx = dx_m
+            view.set_dx(dx_m)
             sim_clock.reset()
             window.mark_dirty()
         else:
@@ -112,8 +119,8 @@ def create_app() -> tuple[QApplication, MainWindow]:
             toolbar.set_dx(solver.dx)
 
     toolbar.dx_changed.connect(_on_dx_changed)
-    sim_clock.tick.connect(toolbar.update_sim_time)
-    sim_clock.state_changed.connect(toolbar.set_running)
+    sim_clock.tick.connect(bottom_bar.update_sim_time)
+    sim_clock.state_changed.connect(bottom_bar.set_running)
     sim_clock.tick.connect(lambda _t: sidebar.props_panel.refresh_display())
     sim_clock.state_changed.connect(sidebar.props_panel.set_sim_running)
 
@@ -129,6 +136,35 @@ def create_app() -> tuple[QApplication, MainWindow]:
         )
 
     sim_clock.nan_detected.connect(_on_nan_detected)
+
+    def _update_stats(_t: float) -> None:
+        T = grid.temperature_array()
+        rho_cp = grid.rho_cp_array()
+        mask = rho_cp > 0
+        if not np.any(mask):
+            return
+        T_active = T[mask]
+        rcp_active = rho_cp[mask]
+        lo  = _units.to_display(float(T_active.min()))
+        hi  = _units.to_display(float(T_active.max()))
+        avg = _units.to_display(float(T_active.mean()))
+        suf = _units.suffix()
+        # ΔE = Σ ρCₚᵢ·(Tᵢ − T_amb)·dx²  [J, 1 m unit depth]
+        e_j = float(np.dot(rcp_active, T_active - grid.ambient_temp_k)) * solver.dx ** 2
+        window.statusBar().showMessage(
+            f"ΔE: {_units.fmt_energy(e_j)}   "
+            f"T  min: {lo:.1f} {suf}   avg: {avg:.1f} {suf}   max: {hi:.1f} {suf}"
+        )
+
+    sim_clock.tick.connect(_update_stats)
+
+    bottom_bar.step_requested.connect(sim_clock.step)
+    bottom_bar.steady_mode_changed.connect(sim_clock.set_steady_mode)
+
+    def _on_steady_state_reached() -> None:
+        window.statusBar().showMessage("Steady state reached.")
+
+    sim_clock.steady_state_reached.connect(_on_steady_state_reached)
 
     # Lock drawing while simulation is running
     sim_clock.state_changed.connect(view.set_drawing_locked)
@@ -150,8 +186,9 @@ def create_app() -> tuple[QApplication, MainWindow]:
         sidebar.group_panel.refresh_units()
         toolbar.refresh_units()
         scene.refresh()
+        _update_stats(sim_clock.sim_time)
 
-    toolbar.unit_changed.connect(_on_unit_changed)
+    bottom_bar.unit_changed.connect(_on_unit_changed)
 
     # ── View utilities ───────────────────────────────────────────────────────
     toolbar.grid_lines_toggled.connect(
@@ -164,6 +201,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     # so Materials Manager, Save, etc. always operate on the live grid.
     window = MainWindow()
     window.addToolBar(toolbar)
+    window.addToolBar(Qt.ToolBarArea.BottomToolBarArea, bottom_bar)
     window.set_canvas_widget(view)
     window.set_sidebar_widget(sidebar)
 
@@ -224,8 +262,21 @@ def create_app() -> tuple[QApplication, MainWindow]:
             return _do_save()
         return clicked == discard_btn
 
+    def _do_export() -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            window, "Export View as Image", "", "PNG Images (*.png)"
+        )
+        if not path:
+            return
+        if not path.endswith(".png"):
+            path += ".png"
+        pixmap = view.grab()
+        if not pixmap.save(path, "PNG"):
+            QMessageBox.warning(window, "Export Failed", f"Could not write:\n{path}")
+
     window.save_requested.connect(_do_save)
     window.save_as_requested.connect(_do_save_as)
+    window.export_requested.connect(_do_export)
     window.set_save_fn(_do_save)
 
     # ── Open helpers ──────────────────────────────────────────────────────────
@@ -410,6 +461,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         scene.set_grid(grid)
         sidebar.set_grid(grid)
         toolbar.set_dx(solver.dx)
+        view.set_dx(solver.dx)
         view.reset_zoom()
         window.mark_clean()
 
@@ -457,13 +509,18 @@ def create_app() -> tuple[QApplication, MainWindow]:
     window.undo_requested.connect(_do_undo)
     window.redo_requested.connect(_do_redo)
 
+    # ── Substep count display ────────────────────────────────────────────────
+    sim_clock.tick.connect(lambda _: bottom_bar.update_substep_count(solver.last_substep_count))
+
     # ── Keyboard shortcuts ────────────────────────────────────────────────────
     QShortcut(QKeySequence("D"),     window).activated.connect(toolbar.activate_draw_mode)
     QShortcut(QKeySequence("S"),     window).activated.connect(toolbar.activate_select_mode)
-    QShortcut(QKeySequence("Space"), window).activated.connect(toolbar.toggle_play_pause)
-    QShortcut(QKeySequence("R"),     window).activated.connect(toolbar.trigger_reset)
+    QShortcut(QKeySequence("W"),     window).activated.connect(toolbar.activate_fill_mode)
+    QShortcut(QKeySequence("Space"), window).activated.connect(bottom_bar.toggle_play_pause)
+    QShortcut(QKeySequence("R"),     window).activated.connect(bottom_bar.trigger_reset)
     QShortcut(QKeySequence("F"),     window).activated.connect(view.fit_grid)
     QShortcut(QKeySequence("G"),     window).activated.connect(toolbar.toggle_grid_lines)
+    QShortcut(QKeySequence("N"),     window).activated.connect(bottom_bar.trigger_step)
 
     # ── Materials Manager ─────────────────────────────────────────────────────
 
@@ -491,6 +548,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         scene.set_grid(grid)
         sidebar.set_grid(grid)
         toolbar.set_dx(solver.dx)
+        view.set_dx(solver.dx)
         window.mark_clean()
 
     window.show()
