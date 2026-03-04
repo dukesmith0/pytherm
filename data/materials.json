@@ -1,0 +1,68 @@
+{
+  "materials": [
+    {
+      "id": "air",
+      "name": "Air",
+      "color": "#87CEEB",
+      "k": 0.026,
+      "rho": 1.2,
+      "cp": 1006
+    },
+    {
+      "id": "wood",
+      "name": "Wood",
+      "color": "#8B4513",
+      "k": 0.12,
+      "rho": 600,
+      "cp": 1700
+    },
+    {
+      "id": "styrofoam",
+      "name": "Styrofoam",
+      "color": "#FFFACD",
+      "k": 0.033,
+      "rho": 30,
+      "cp": 1300
+    },
+    {
+      "id": "glass",
+      "name": "Glass",
+      "color": "#ADD8E6",
+      "k": 1.0,
+      "rho": 2500,
+      "cp": 840
+    },
+    {
+      "id": "steel",
+      "name": "Steel",
+      "color": "#708090",
+      "k": 50.0,
+      "rho": 7800,
+      "cp": 490
+    },
+    {
+      "id": "aluminum",
+      "name": "Aluminum",
+      "color": "#C0C0C0",
+      "k": 205.0,
+      "rho": 2700,
+      "cp": 900
+    },
+    {
+      "id": "copper",
+      "name": "Copper",
+      "color": "#B87333",
+      "k": 401.0,
+      "rho": 8960,
+      "cp": 385
+    },
+    {
+      "id": "gold",
+      "name": "Gold",
+      "color": "#FFD700",
+      "k": 318.0,
+      "rho": 19300,
+      "cp": 129
+    }
+  ]
+}
