@@ -36,14 +36,14 @@ def _pad_with_bc(T: np.ndarray, bc: dict[str, str], ambient_k: float) -> np.ndar
 
 
 class Solver:
-    """2D explicit finite-difference heat conduction solver.
+    """2D explicit finite-difference heat conduction solver for heterogeneous materials.
 
-    The heat equation in 2D is:  ∂T/∂t = ∂/∂x(α ∂T/∂x) + ∂/∂y(α ∂T/∂y)
+    Correct form of the heterogeneous heat equation:
+        (ρCₚ)ᵢ · dTᵢ/dt = Σⱼ k_eff_ij · (Tⱼ − Tᵢ) / dx²
 
-    We discretize this on a uniform grid with cell spacing dx using the explicit
-    (forward Euler) method with interface diffusivities — meaning the diffusivity
-    at the boundary between two cells uses the harmonic mean of their individual
-    diffusivities, which correctly weights the more resistive material.
+    where k_eff_ij = 2·kᵢ·kⱼ / (kᵢ + kⱼ) is the harmonic mean conductivity at the
+    interface between cells i and j.  Dividing by (ρCₚ)ᵢ of the centre cell (not an
+    interface average) correctly captures the energy stored in each cell.
     """
 
     def __init__(self, dx: float):
@@ -55,29 +55,34 @@ class Solver:
 
     def advance(self,
                 T: np.ndarray,
-                alpha: np.ndarray,
+                k: np.ndarray,
+                rho_cp: np.ndarray,
                 fixed_mask: np.ndarray,
                 fixed_temps: np.ndarray,
                 duration: float) -> np.ndarray:
         """Advance the temperature field by `duration` simulated seconds.
 
         Internally sub-steps to satisfy the CFL stability condition:
-            dt_safe ≤ dx² / (4 × α_max)
-        Violating this causes exponentially growing oscillations (numerical blowup).
-        Sub-stepping lets the user choose any duration while guaranteeing stability.
+            dt_safe ≤ 0.9 · dx² · min(ρCₚ) / (4 · k_max)
+        where min(ρCₚ) is taken over non-vacuum cells only.
 
         Returns a new array — does not modify the input T.
         """
         T = T.copy()
 
-        alpha_max = alpha.max()
-        if alpha_max == 0:
+        k_max = k.max()
+        if k_max == 0:
             return T
 
-        # CFL stability condition for 2D explicit FDM: dt ≤ dx² / (4 × α_max)
-        # The factor of 4 comes from having 4 neighbors in 2D — each contributes dx².
-        # Using 90% of the theoretical limit as a safety margin.
-        dt_safe = 0.9 * self.dx ** 2 / (4.0 * alpha_max)
+        rhocp_nonzero = rho_cp[rho_cp > 0]
+        if rhocp_nonzero.size == 0:
+            return T
+        rhocp_min = rhocp_nonzero.min()
+
+        # CFL stability condition for the heterogeneous explicit FDM.
+        # Derived from: dt ≤ dx² · (ρCₚ)_i / (Σ k_eff_ij) for all cells i.
+        # Worst case: (ρCₚ)_i = min non-vacuum, and all 4 k_eff = k_max.
+        dt_safe = 0.9 * self.dx ** 2 * rhocp_min / (4.0 * k_max)
         n_steps = max(1, int(np.ceil(duration / dt_safe)))
         dt = duration / n_steps
         self.last_substep_count = n_steps
@@ -86,42 +91,43 @@ class Solver:
         bc  = self.boundary_conditions
         amb = self.ambient_k
 
-        # Precompute interface diffusivities — they only depend on material layout,
-        # which doesn't change during sub-stepping. Computing them once saves work.
+        # Precompute interface conductivities — depend only on material layout,
+        # which doesn't change during sub-stepping.
         #
-        # Harmonic mean: α_interface = 2α₁α₂ / (α₁ + α₂)
-        # This is the correct choice for materials in series (like resistors in series).
-        # A thin insulating layer dominates the joint resistance — the harmonic mean
-        # ensures the lower-α material has stronger influence than arithmetic averaging.
-        A_pad = np.pad(alpha, 1, mode="edge")
+        # Harmonic mean: k_eff = 2·k₁·k₂ / (k₁ + k₂)
+        # Correctly models materials in series: the resistive material dominates.
+        # Returns 0 when either cell is vacuum (k=0), blocking all heat transfer.
+        K_pad = np.pad(k, 1, mode="edge")
 
         def hm(a: np.ndarray, b: np.ndarray) -> np.ndarray:
             s = a + b
-            return np.where(s > 0, 2 * a * b / s, 0.0)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                return np.where(s > 0, 2 * a * b / s, 0.0)
 
-        a_r = hm(A_pad[1:-1, 1:-1], A_pad[1:-1, 2:])   # interface with right neighbor
-        a_l = hm(A_pad[1:-1, 1:-1], A_pad[1:-1, :-2])  # interface with left neighbor
-        a_d = hm(A_pad[1:-1, 1:-1], A_pad[2:,  1:-1])  # interface with cell below
-        a_u = hm(A_pad[1:-1, 1:-1], A_pad[:-2, 1:-1])  # interface with cell above
+        k_r = hm(K_pad[1:-1, 1:-1], K_pad[1:-1, 2:])   # interface with right neighbor
+        k_l = hm(K_pad[1:-1, 1:-1], K_pad[1:-1, :-2])  # interface with left neighbor
+        k_d = hm(K_pad[1:-1, 1:-1], K_pad[2:,  1:-1])  # interface with cell below
+        k_u = hm(K_pad[1:-1, 1:-1], K_pad[:-2, 1:-1])  # interface with cell above
+
+        # 1 / (ρCₚ) for each cell; vacuum cells (ρCₚ=0) get 0 so they never update.
+        inv_rhocp = np.where(rho_cp > 0, 1.0 / np.where(rho_cp > 0, rho_cp, 1.0), 0.0)
 
         for _ in range(n_steps):
             T_pad = _pad_with_bc(T, bc, amb)
             T_c = T_pad[1:-1, 1:-1]
 
-            # Heat flux into each cell from all four neighbors.
-            # Each term: α_interface × (T_neighbor − T_cell)
-            # Positive → neighbor is hotter → cell gains heat. Negative → cell loses heat.
-            dT = (
-                a_r * (T_pad[1:-1, 2:]  - T_c) +
-                a_l * (T_pad[1:-1, :-2] - T_c) +
-                a_d * (T_pad[2:,  1:-1] - T_c) +
-                a_u * (T_pad[:-2, 1:-1] - T_c)
+            # Conductive flux into each cell from all four neighbors.
+            # flux_i = Σⱼ k_eff_ij · (Tⱼ − Tᵢ) / dx²
+            flux = (
+                k_r * (T_pad[1:-1, 2:]  - T_c) +
+                k_l * (T_pad[1:-1, :-2] - T_c) +
+                k_d * (T_pad[2:,  1:-1] - T_c) +
+                k_u * (T_pad[:-2, 1:-1] - T_c)
             ) / dx2
 
-            T += dt * dT
+            T += dt * flux * inv_rhocp
 
             # Re-pin fixed-temperature cells after each sub-step.
-            # Heat sources override whatever diffusion computed — they are held constant.
             T[fixed_mask] = fixed_temps[fixed_mask]
 
         return T

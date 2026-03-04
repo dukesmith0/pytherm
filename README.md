@@ -1,6 +1,6 @@
-# PyTherm
+# PyTherm v0.1.0
 
-A 2D thermal simulation tool. Paint materials onto a grid, set boundary conditions, and watch heat diffuse in real time.
+A 2D thermal simulation tool. Draw a grid of materials, set heat sources and boundary conditions, then watch heat conduct through your design in real time.
 
 ## Requirements
 
@@ -20,44 +20,72 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## How to use
+## Getting Started
 
-### Drawing
+When PyTherm opens, a startup dialog lets you configure a new grid or open a recent file. Set the number of rows and columns, the physical cell size, and the ambient temperature, then click **Create New Grid**.
 
-Select a material from the sidebar, then click or drag on the grid to paint cells. Use the Draw/Select toggle in the toolbar to switch between painting and selecting.
+## Drawing
 
-- Left click or drag: paint the active material
-- Shift + drag: paint or select a rectangular region
-- Ctrl + drag: paint or select along a straight line
-- Right click: select a single cell
+Select a material from the sidebar on the left, then paint it onto the grid.
 
-### Editing cells
+| Action | Result |
+| --- | --- |
+| Left-click / drag | Paint the active material |
+| Shift + drag | Fill a rectangle |
+| Ctrl + drag | Paint a straight line |
+| Right-click | Select a cell |
 
-Click a cell in Select mode to open its properties in the sidebar. You can set the temperature, mark it as a fixed heat source or sink, and change its material. Selecting multiple cells opens a group editor.
+Switch between **Draw** and **Select** mode using the toolbar buttons or the D / S keys.
 
-### Simulation
+## Editing Cells
 
-Press Play to start the simulation. Use the Speed dropdown to run faster than real time. Press Reset to restore all temperatures to the ambient value. Drawing is disabled while the simulation is running.
+Click a cell in Select mode to view and edit its properties in the sidebar. You can change its material, set a starting temperature, or mark it as a **fixed-temperature heat source**.
 
-### Boundary conditions
+To edit multiple cells at once, hold Shift or Ctrl and drag to select a group. Use **(no change)** in the material dropdown to update temperature or fixed-T settings without overwriting cells that have different materials.
 
-The Borders buttons in the toolbar set each edge to either an insulator (no heat escapes) or a sink (edge is held at ambient temperature).
+## Simulation
 
-### Heatmap view
+Press **Play** to start. The **Speed** control lets you run faster than real time. Press **Reset** to return all cells to ambient temperature. Drawing is locked while the simulation runs.
 
-Switch to Heatmap mode to see temperatures as a color gradient. Auto scaling adjusts the range to the current min and max. You can also set the range manually.
+## View Modes
 
-### Temperature units
+**Material view** colors each cell by its material. Turn on **Abbr.** in the toolbar to show a short label in each cell corner.
 
-Use the Unit dropdown to display temperatures in Celsius, Kelvin, or Fahrenheit.
+**Heatmap view** colors cells from blue (cold) to red (hot). The scale fits automatically or can be set to a fixed range.
 
-### New grid
+## Boundary Conditions
 
-File > New Grid lets you set the grid size, cell size in meters, and ambient temperature.
+Use the edge buttons in the toolbar to set each grid border to **Insulator** (no heat loss) or **Sink** (held at ambient temperature).
 
-### Navigation
+## Temperature Units
 
-- Scroll wheel: zoom in and out
-- Middle click and drag: pan
-- Fit button: fit the grid to the window
-- Grid button: toggle grid lines
+Switch between Celsius, Kelvin, and Fahrenheit with the **Unit** dropdown in the toolbar.
+
+## Files
+
+| Action | Description |
+| --- | --- |
+| File > New Grid | Set grid size, cell size, and ambient temperature |
+| File > Save / Save As | Save as a `.pytherm` file |
+| File > Open / Open Recent | Reload a saved grid |
+| File > Materials Manager | Add, edit, or delete custom materials |
+| Help > What's New | View the full version changelog |
+
+## Keyboard Shortcuts
+
+| Key | Action |
+| --- | --- |
+| D | Draw mode |
+| S | Select mode |
+| Space | Play / Pause |
+| R | Reset simulation |
+| F | Fit grid to view |
+| G | Toggle grid lines |
+| Ctrl+Z | Undo |
+| Ctrl+Shift+Z | Redo |
+
+## Navigation
+
+- **Scroll wheel** to zoom in and out
+- **Middle-click drag** to pan
+- **F key** or the Fit button to fit the grid to the window

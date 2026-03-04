@@ -1,28 +1,106 @@
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Callable
+
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel, QMainWindow, QVBoxLayout, QWidget,
+    QDialog, QDialogButtonBox, QFrame, QHBoxLayout, QLabel,
+    QMainWindow, QMessageBox, QTextEdit, QVBoxLayout, QWidget,
 )
 
 
 class MainWindow(QMainWindow):
     new_grid_requested = pyqtSignal()
+    open_requested = pyqtSignal()
+    save_requested = pyqtSignal()
+    save_as_requested = pyqtSignal()
+    materials_manager_requested = pyqtSignal()
+    undo_requested = pyqtSignal()
+    redo_requested = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("PyTherm")
+        self._dirty: bool = False
+        self._current_file: str | None = None
+        self._save_fn: Callable[[], bool] | None = None  # set in Step 4
         self.setMinimumSize(900, 600)
         self.resize(1280, 800)
         self._build_menu()
         self._build_central()
+        self._update_title()
         self.statusBar().showMessage("Ready")
 
     def _build_menu(self) -> None:
         file_menu = self.menuBar().addMenu("File")
+
         new_action = file_menu.addAction("New Grid...")
         new_action.setShortcut("Ctrl+N")
         new_action.triggered.connect(self.new_grid_requested)
+
+        file_menu.addSeparator()
+
+        open_action = file_menu.addAction("Open...")
+        open_action.setShortcut("Ctrl+O")
+        open_action.triggered.connect(self.open_requested)
+
+        self.open_recent_menu = file_menu.addMenu("Open Recent")
+
+        file_menu.addSeparator()
+
+        save_action = file_menu.addAction("Save")
+        save_action.setShortcut("Ctrl+S")
+        save_action.triggered.connect(self.save_requested)
+
+        save_as_action = file_menu.addAction("Save As...")
+        save_as_action.setShortcut("Ctrl+Shift+S")
+        save_as_action.triggered.connect(self.save_as_requested)
+
+        file_menu.addSeparator()
+
+        mgr_action = file_menu.addAction("Materials Manager...")
+        mgr_action.triggered.connect(self.materials_manager_requested)
+
+        edit_menu = self.menuBar().addMenu("Edit")
+
+        self._undo_action = edit_menu.addAction("Undo")
+        self._undo_action.setShortcut("Ctrl+Z")
+        self._undo_action.triggered.connect(self.undo_requested)
+
+        self._redo_action = edit_menu.addAction("Redo")
+        self._redo_action.setShortcut("Ctrl+Shift+Z")
+        self._redo_action.triggered.connect(self.redo_requested)
+
+        help_menu = self.menuBar().addMenu("Help")
+
+        whats_new = help_menu.addAction("What's New...")
+        whats_new.triggered.connect(self._show_changelog)
+
+    def _show_changelog(self) -> None:
+        changelog_path = Path(__file__).parent.parent.parent / "CHANGELOG.md"
+        try:
+            text = changelog_path.read_text(encoding="utf-8")
+        except OSError:
+            QMessageBox.warning(self, "Changelog", "CHANGELOG.md not found.")
+            return
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("What's New")
+        dlg.resize(680, 520)
+
+        layout = QVBoxLayout(dlg)
+        layout.setContentsMargins(12, 12, 12, 12)
+
+        viewer = QTextEdit()
+        viewer.setReadOnly(True)
+        viewer.setMarkdown(text)
+        layout.addWidget(viewer)
+
+        btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        btns.rejected.connect(dlg.reject)
+        layout.addWidget(btns)
+
+        dlg.exec()
 
     def _build_central(self) -> None:
         root = QWidget()
@@ -30,7 +108,6 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # Sidebar — fixed 280px; later steps replace the placeholder label
         self.sidebar = QWidget()
         self.sidebar.setFixedWidth(280)
         self.sidebar.setObjectName("sidebar")
@@ -38,12 +115,10 @@ class MainWindow(QMainWindow):
         sidebar_inner.setContentsMargins(8, 8, 8, 8)
         _placeholder(sidebar_inner, "Sidebar\n(Step 6: material picker\nStep 7: properties panel)")
 
-        # Thin separator line between sidebar and canvas
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.VLine)
         sep.setStyleSheet("color: #222;")
 
-        # Canvas area — expands to fill remaining space; Step 5 slots in the grid view
         self.canvas_area = QWidget()
         canvas_inner = QHBoxLayout(self.canvas_area)
         _placeholder(canvas_inner, "Canvas\n(Step 5: grid view)")
@@ -53,14 +128,72 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.canvas_area, stretch=1)
         self.setCentralWidget(root)
 
-    # --- Replacement hooks for later steps ---
+    # --- Dirty tracking ---
+
+    def mark_dirty(self) -> None:
+        if not self._dirty:
+            self._dirty = True
+            self._update_title()
+
+    def mark_clean(self, filepath: str | None = None) -> None:
+        self._dirty = False
+        self._current_file = filepath
+        self._update_title()
+
+    @property
+    def is_dirty(self) -> bool:
+        return self._dirty
+
+    def set_save_fn(self, fn: Callable[[], bool]) -> None:
+        """Register the save callback (wired in Step 4)."""
+        self._save_fn = fn
+
+    def _update_title(self) -> None:
+        name = Path(self._current_file).name if self._current_file else None
+        file_part = f" \u2014 {name}" if name else ""
+        dirty_part = " *" if self._dirty else ""
+        self.setWindowTitle(f"PyTherm{file_part}{dirty_part}")
+
+    # --- Close event ---
+
+    def closeEvent(self, event) -> None:
+        if not self._dirty:
+            event.accept()
+            return
+
+        box = QMessageBox(self)
+        box.setWindowTitle("Unsaved Changes")
+        box.setText("You have unsaved changes. What would you like to do?")
+        box.setIcon(QMessageBox.Icon.Warning)
+
+        save_btn    = box.addButton("Save",             QMessageBox.ButtonRole.AcceptRole)
+        discard_btn = box.addButton("Discard and Exit", QMessageBox.ButtonRole.DestructiveRole)
+        cancel_btn  = box.addButton("Cancel",           QMessageBox.ButtonRole.RejectRole)  # noqa: F841
+
+        if self._save_fn is None:
+            save_btn.setEnabled(False)
+            save_btn.setToolTip("Save is not yet available")
+
+        box.exec()
+        clicked = box.clickedButton()
+
+        if clicked == save_btn and self._save_fn is not None:
+            saved = self._save_fn()
+            if saved:
+                event.accept()
+            else:
+                event.ignore()
+        elif clicked == discard_btn:
+            event.accept()
+        else:
+            event.ignore()
+
+    # --- Replacement hooks ---
 
     def set_canvas_widget(self, widget: QWidget) -> None:
-        """Slot the real grid view into the canvas area (called in Step 5)."""
         _replace_layout_contents(self.canvas_area.layout(), widget)
 
     def set_sidebar_widget(self, widget: QWidget) -> None:
-        """Slot the real sidebar into the left panel (called in Step 6)."""
         _replace_layout_contents(self.sidebar.layout(), widget)
 
 

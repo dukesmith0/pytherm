@@ -57,6 +57,20 @@ class Grid:
             dtype=np.float64,
         )
 
+    def k_array(self) -> np.ndarray:
+        """Export thermal conductivities as a (rows, cols) float64 array."""
+        return np.array(
+            [[c.material.k for c in row] for row in self._cells],
+            dtype=np.float64,
+        )
+
+    def rho_cp_array(self) -> np.ndarray:
+        """Export volumetric heat capacity (ρ·Cₚ) as a (rows, cols) float64 array."""
+        return np.array(
+            [[c.material.rho * c.material.cp for c in row] for row in self._cells],
+            dtype=np.float64,
+        )
+
     def fixed_mask(self) -> np.ndarray:
         """Boolean array: True where cells hold a constant temperature."""
         return np.array(
@@ -70,6 +84,13 @@ class Grid:
             [[c.fixed_temp for c in row] for row in self._cells],
             dtype=np.float64,
         )
+
+    def replace_material(self, old_id: str, new_material: Material) -> None:
+        """Replace every cell using old_id with new_material."""
+        for row in self._cells:
+            for c in row:
+                if c.material.id == old_id:
+                    c.material = new_material
 
     def import_temperatures(self, T: np.ndarray) -> None:
         """Write solver output temperatures back into cells.

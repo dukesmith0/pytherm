@@ -51,6 +51,10 @@ def _rect_cells(r1: int, c1: int, r2: int, c2: int) -> list[tuple[int, int]]:
 class GridView(QGraphicsView):
     # Emitted on any selection commit — list of (row, col) tuples (length >= 1)
     cells_selected = pyqtSignal(list)
+    # Emitted whenever at least one cell's material is changed by drawing
+    cell_painted = pyqtSignal()
+    # Emitted once at the very start of each paint stroke (before any cells change)
+    paint_started = pyqtSignal()
 
     def __init__(self, scene: GridScene) -> None:
         super().__init__(scene)
@@ -131,6 +135,7 @@ class GridView(QGraphicsView):
                     self._clear_selection()   # plain paint clears any prior selection
                     self._painting = True
                     if cell:
+                        self.paint_started.emit()  # snapshot before first stroke cell
                         self._paint_cell(*cell)
                         self.scene().refresh()
                 elif cell:
@@ -190,6 +195,7 @@ class GridView(QGraphicsView):
             if self._line_anchor and self._current_line:
                 cells = list(self._current_line)
                 if self._draw_mode and not self._drawing_locked:
+                    self.paint_started.emit()  # snapshot before line commit
                     for r, c in cells:
                         self._paint_cell(r, c)
                     self.scene().refresh()
@@ -202,6 +208,7 @@ class GridView(QGraphicsView):
                 cell = self._cell_at(event.pos())
                 cells = _rect_cells(*self._rect_anchor, *(cell if cell else self._rect_anchor))
                 if self._draw_mode and not self._drawing_locked:
+                    self.paint_started.emit()  # snapshot before rect commit
                     for r, c in cells:
                         self._paint_cell(r, c)
                     self.scene().refresh()
@@ -256,6 +263,7 @@ class GridView(QGraphicsView):
     def _paint_cell(self, row: int, col: int) -> None:
         if self._active_material is not None:
             self.scene()._grid.set_cell(row, col, material=self._active_material)
+            self.cell_painted.emit()
 
     def _do_select(self, cells: list[tuple[int, int]]) -> None:
         self._selection = set(cells)

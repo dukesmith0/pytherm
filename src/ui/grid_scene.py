@@ -33,6 +33,13 @@ class GridScene(QGraphicsScene):
         self._heatmap_t_min: float = 273.15  # 0 °C in K
         self._heatmap_t_max: float = 373.15  # 100 °C in K
 
+        # Anchored auto-scale: bounds only expand, never contract.
+        # None = not yet initialised for this simulation run.
+        self._auto_t_min: float | None = None
+        self._auto_t_max: float | None = None
+
+        self._show_abbr: bool = False
+
         self._sync_scene_rect()
 
     def _sync_scene_rect(self) -> None:
@@ -46,8 +53,15 @@ class GridScene(QGraphicsScene):
         self._preview_cells = None
         self._selected_cell = None
         self._multi_selection = set()
+        self._auto_t_min = None
+        self._auto_t_max = None
         self._sync_scene_rect()
         self.update()
+
+    def reset_auto_heatmap_bounds(self) -> None:
+        """Clear the anchored auto-scale bounds so they re-initialise on the next frame."""
+        self._auto_t_min = None
+        self._auto_t_max = None
 
     def refresh(self) -> None:
         self.update()
@@ -96,6 +110,10 @@ class GridScene(QGraphicsScene):
         if not self._heatmap_auto:
             self.update()
 
+    def set_show_abbr(self, show: bool) -> None:
+        self._show_abbr = show
+        self.update()
+
     # --- Rendering ---
 
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
@@ -124,6 +142,11 @@ class GridScene(QGraphicsScene):
 
     def drawForeground(self, painter: QPainter, rect: QRectF) -> None:
         cp = CELL_PX
+        g  = self._grid
+
+        # Material abbreviations — bottom-left corner of each non-vacuum cell
+        if self._show_abbr:
+            self._draw_abbr(painter, g, cp)
 
         # Multi-selection highlight (blue overlay, drawn below previews)
         if self._multi_selection:
@@ -159,7 +182,6 @@ class GridScene(QGraphicsScene):
                 painter.drawRect(c * cp + 1, r * cp + 1, cp - 2, cp - 2)
 
         # Lock icons on fixed-temperature cells
-        g = self._grid
         for r in range(g.rows):
             for c in range(g.cols):
                 if g.cell(r, c).is_fixed:
@@ -177,26 +199,88 @@ class GridScene(QGraphicsScene):
 
     # --- Heatmap helpers ---
 
+    # Background color used outside the grid and for vacuum cells in heatmap mode.
+    _BG_COLOR = QColor(25, 25, 25)
+
+    @staticmethod
+    def _display_temp(cell) -> float:
+        """Temperature to use for heatmap rendering — honours fixed-source cells."""
+        return cell.fixed_temp if cell.is_fixed else cell.temperature
+
     def _heatmap_bounds(self) -> tuple[float, float]:
         if self._heatmap_auto:
+            # Exclude vacuum (thermally inert) cells from the temperature range.
+            # Use fixed_temp for heat-source cells so the range is always meaningful
+            # even before the simulation has run.
             temps = [
-                self._grid.cell(r, c).temperature
+                self._display_temp(self._grid.cell(r, c))
                 for r in range(self._grid.rows)
                 for c in range(self._grid.cols)
+                if not self._grid.cell(r, c).material.is_vacuum
             ]
-            t_min, t_max = min(temps), max(temps)
+            if not temps:
+                return 273.15, 373.15  # fallback when all cells are vacuum
+            t_min_now, t_max_now = min(temps), max(temps)
+
+            # Anchored auto-scale: bounds only expand from the initial range.
+            # The min anchor can decrease (grid gets colder) but not increase.
+            # The max anchor can increase (grid gets hotter) but not decrease.
+            # This prevents the scale from collapsing as temperatures converge.
+            if self._auto_t_min is None:
+                self._auto_t_min = t_min_now
+                self._auto_t_max = t_max_now
+            else:
+                self._auto_t_min = min(self._auto_t_min, t_min_now)
+                self._auto_t_max = max(self._auto_t_max, t_max_now)
+
+            t_min, t_max = self._auto_t_min, self._auto_t_max
             # Avoid zero-width range — add a tiny spread so the gradient always renders
             if t_max - t_min < 0.1:
                 t_max = t_min + 0.1
             return t_min, t_max
         return self._heatmap_t_min, self._heatmap_t_max
 
+    def _draw_abbr(self, painter: QPainter, g: Grid, cp: int) -> None:
+        """Draw each material's abbreviation in the bottom-left corner of non-vacuum cells."""
+        zoom = painter.deviceTransform().m11()
+        if cp * zoom < _LABEL_THRESHOLD_PX:
+            return
+
+        font = QFont()
+        font.setPixelSize(max(7, int(cp * 0.22)))
+        painter.setFont(font)
+
+        t_min, t_max = self._heatmap_bounds() if self._view_mode == "heatmap" else (273.15, 373.15)
+        pad = max(2, int(cp * 0.08))
+
+        for r in range(g.rows):
+            for c in range(g.cols):
+                cell = g.cell(r, c)
+                abbr = cell.material.abbr
+                if not abbr or cell.material.is_vacuum:
+                    continue
+                if self._view_mode == "heatmap":
+                    bg = heatmap_color(self._display_temp(cell), t_min, t_max)
+                else:
+                    bg = cell_color(cell)
+                painter.setPen(text_color_for_bg(bg))
+                painter.drawText(
+                    QRectF(c * cp + pad, r * cp, cp - pad * 2, cp - pad),
+                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                    abbr,
+                )
+
     def _draw_heatmap(self, painter: QPainter, g: Grid, cp: int) -> None:
         t_min, t_max = self._heatmap_bounds()
 
         for r in range(g.rows):
             for c in range(g.cols):
-                color = heatmap_color(g.cell(r, c).temperature, t_min, t_max)
+                cell = g.cell(r, c)
+                # Vacuum cells render as the scene background — they carry no temperature.
+                if cell.material.is_vacuum:
+                    color = self._BG_COLOR
+                else:
+                    color = heatmap_color(self._display_temp(cell), t_min, t_max)
                 painter.fillRect(c * cp, r * cp, cp, cp, color)
 
         # Temperature labels when cells are large enough on screen
@@ -209,11 +293,13 @@ class GridScene(QGraphicsScene):
             for r in range(g.rows):
                 for c in range(g.cols):
                     cell = g.cell(r, c)
-                    bg   = heatmap_color(cell.temperature, t_min, t_max)
+                    if cell.material.is_vacuum:
+                        continue  # no temperature label for vacuum
+                    t    = self._display_temp(cell)
+                    bg   = heatmap_color(t, t_min, t_max)
                     painter.setPen(text_color_for_bg(bg))
-                    temp_disp = _units.to_display(cell.temperature)
                     painter.drawText(
                         QRectF(c * cp, r * cp, cp, cp),
                         Qt.AlignmentFlag.AlignCenter,
-                        f"{temp_disp:.0f}°",
+                        f"{_units.to_display(t):.0f}°",
                     )

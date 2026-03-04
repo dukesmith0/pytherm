@@ -9,24 +9,33 @@ from pathlib import Path
 class Material:
     id: str
     name: str
-    color: str   # hex string, e.g. "#B87333"
-    k: float     # thermal conductivity  W/(m·K)
-    rho: float   # density               kg/m³
-    cp: float    # specific heat         J/(kg·K)
+    color: str       # hex string, e.g. "#B87333"
+    k: float         # thermal conductivity  W/(m·K)
+    rho: float       # density               kg/m³
+    cp: float        # specific heat         J/(kg·K)
+    note: str = ""   # optional user note, max 100 chars
+    abbr: str = ""   # 1–4 char label shown in cell corner (e.g. "Cu", "FR4", "A36")
+    category: str = ""   # display group, e.g. "Metals" (empty = ungrouped / top-level)
+    is_builtin: bool = False
 
     @property
     def alpha(self) -> float:
         # Thermal diffusivity α = k / (ρ × Cₚ)  [m²/s]
-        # This is the single number that governs how fast temperature
-        # changes spread through a material — high α means fast spread.
-        return self.k / (self.rho * self.cp)
+        # Returns 0 for vacuum/inert materials (k=rho=cp=0) — no heat transport.
+        denom = self.rho * self.cp
+        return 0.0 if denom == 0 else self.k / denom
+
+    @property
+    def is_vacuum(self) -> bool:
+        """True for thermally inert materials (k=ρ=Cₚ=0) — perfect insulators."""
+        return self.rho == 0 and self.cp == 0
 
 
-def load_materials(path: str | Path) -> dict[str, Material]:
-    """Load all materials from a JSON file, keyed by material id."""
+def load_materials(path: str | Path, *, is_builtin: bool = False) -> dict[str, Material]:
+    """Load materials from a JSON file, keyed by material id."""
     with open(path) as f:
         data = json.load(f)
     return {
-        entry["id"]: Material(**entry)
+        entry["id"]: Material(**entry, is_builtin=is_builtin)
         for entry in data["materials"]
     }

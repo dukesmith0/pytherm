@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
 from src.simulation.grid import Grid
@@ -21,6 +22,7 @@ class SimClock(QObject):
 
     tick = pyqtSignal(float)          # total simulated time in seconds
     state_changed = pyqtSignal(bool)  # True = running, False = stopped
+    nan_detected = pyqtSignal()       # emitted when NaN/Inf appears in temperature field
 
     INTERVAL_MS = 33  # ~30 FPS wall-clock update rate
 
@@ -75,6 +77,7 @@ class SimClock(QObject):
             self.state_changed.emit(False)
         self._sim_time = 0.0
         self._grid.reset_temperatures()
+        self._scene.reset_auto_heatmap_bounds()
         self._scene.refresh()
         self.tick.emit(0.0)
 
@@ -95,10 +98,17 @@ class SimClock(QObject):
     def _advance(self, dt_sim: float) -> None:
         self._solver.ambient_k = self._grid.ambient_temp_k  # sync for sink BCs
         T = self._grid.temperature_array()
-        alpha = self._grid.alpha_array()
+        k = self._grid.k_array()
+        rho_cp = self._grid.rho_cp_array()
         fixed_mask = self._grid.fixed_mask()
         fixed_temps = self._grid.fixed_temps_array()
-        T_new = self._solver.advance(T, alpha, fixed_mask, fixed_temps, duration=dt_sim)
+        T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, duration=dt_sim)
+
+        if np.any(np.isnan(T_new) | np.isinf(T_new)):
+            self.pause()
+            self.nan_detected.emit()
+            return
+
         self._grid.import_temperatures(T_new)
         self._sim_time += dt_sim
         self._scene.refresh()

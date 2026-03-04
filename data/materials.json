@@ -1,68 +1,416 @@
 {
   "materials": [
     {
+      "id": "vacuum",
+      "name": "Vacuum",
+      "color": "#1E1E2E",
+      "k": 0,
+      "rho": 0,
+      "cp": 0,
+      "abbr": "",
+      "category": ""
+    },
+
+    {
+      "id": "al6061",
+      "name": "6061 Aluminum",
+      "color": "#A8B8CC",
+      "k": 167.0,
+      "rho": 2700,
+      "cp": 896,
+      "abbr": "Al6",
+      "category": "Metals",
+      "note": "6061-T6 alloy"
+    },
+    {
+      "id": "cu",
+      "name": "Copper",
+      "color": "#B87333",
+      "k": 401.0,
+      "rho": 8960,
+      "cp": 385,
+      "abbr": "Cu",
+      "category": "Metals",
+      "note": "Pure copper (C11000)"
+    },
+    {
+      "id": "ag",
+      "name": "Silver",
+      "color": "#C8C8D0",
+      "k": 429.0,
+      "rho": 10490,
+      "cp": 235,
+      "abbr": "Ag",
+      "category": "Metals",
+      "note": "Pure silver — highest k of common metals"
+    },
+    {
+      "id": "au",
+      "name": "Gold",
+      "color": "#FFD700",
+      "k": 318.0,
+      "rho": 19300,
+      "cp": 129,
+      "abbr": "Au",
+      "category": "Metals",
+      "note": "Pure gold — wire bonding, PCB surface finish"
+    },
+    {
+      "id": "fe_a36",
+      "name": "Carbon Steel (A36)",
+      "color": "#708090",
+      "k": 50.0,
+      "rho": 7850,
+      "cp": 486,
+      "abbr": "A36",
+      "category": "Metals",
+      "note": "ASTM A36 structural carbon steel"
+    },
+    {
+      "id": "ss304",
+      "name": "304 Stainless",
+      "color": "#8A9090",
+      "k": 16.2,
+      "rho": 8000,
+      "cp": 500,
+      "abbr": "304",
+      "category": "Metals",
+      "note": "304/304L austenitic stainless steel"
+    },
+    {
+      "id": "cast_iron",
+      "name": "Cast Iron",
+      "color": "#4A4A5A",
+      "k": 52.0,
+      "rho": 7200,
+      "cp": 490,
+      "abbr": "CI",
+      "category": "Metals",
+      "note": "Gray cast iron (ASTM A48)"
+    },
+    {
+      "id": "titanium",
+      "name": "Titanium",
+      "color": "#8BA0B0",
+      "k": 21.9,
+      "rho": 4507,
+      "cp": 522,
+      "abbr": "Ti",
+      "category": "Metals",
+      "note": "Grade 2 commercially pure"
+    },
+    {
+      "id": "nickel",
+      "name": "Nickel",
+      "color": "#A8A8A0",
+      "k": 90.7,
+      "rho": 8908,
+      "cp": 444,
+      "abbr": "Ni",
+      "category": "Metals",
+      "note": "Pure nickel (Ni 200)"
+    },
+
+    {
+      "id": "pine",
+      "name": "Pine",
+      "color": "#8B4513",
+      "k": 0.12,
+      "rho": 600,
+      "cp": 1700,
+      "abbr": "Pin",
+      "category": "Woods",
+      "note": "Softwood, across grain"
+    },
+    {
+      "id": "oak",
+      "name": "Oak",
+      "color": "#7B4A26",
+      "k": 0.17,
+      "rho": 750,
+      "cp": 1600,
+      "abbr": "Oak",
+      "category": "Woods",
+      "note": "Hardwood, across grain"
+    },
+    {
+      "id": "birch",
+      "name": "Birch",
+      "color": "#C8A86E",
+      "k": 0.13,
+      "rho": 640,
+      "cp": 1700,
+      "abbr": "Bir",
+      "category": "Woods",
+      "note": "Hardwood, across grain"
+    },
+    {
+      "id": "mdf",
+      "name": "MDF",
+      "color": "#A08060",
+      "k": 0.12,
+      "rho": 800,
+      "cp": 1700,
+      "abbr": "MDF",
+      "category": "Woods",
+      "note": "Medium-density fibreboard"
+    },
+
+    {
+      "id": "eps",
+      "name": "Styrofoam (EPS)",
+      "color": "#FFFACD",
+      "k": 0.033,
+      "rho": 30,
+      "cp": 1300,
+      "abbr": "EPS",
+      "category": "Polymers",
+      "note": "Expanded polystyrene foam"
+    },
+    {
+      "id": "aerogel",
+      "name": "Aerogel",
+      "color": "#E8F0E8",
+      "k": 0.015,
+      "rho": 150,
+      "cp": 1000,
+      "abbr": "Aer",
+      "category": "Polymers",
+      "note": "Silica aerogel blanket — exceptional insulator"
+    },
+    {
+      "id": "nat_rubber",
+      "name": "Natural Rubber",
+      "color": "#3D3020",
+      "k": 0.16,
+      "rho": 920,
+      "cp": 2000,
+      "abbr": "Rbr",
+      "category": "Polymers",
+      "note": "Vulcanised natural rubber"
+    },
+    {
+      "id": "sil_rubber",
+      "name": "Silicone Rubber",
+      "color": "#D0C8B8",
+      "k": 0.25,
+      "rho": 1250,
+      "cp": 1200,
+      "abbr": "SiR",
+      "category": "Polymers",
+      "note": "Common in electronics sealing / thermal pads"
+    },
+    {
+      "id": "pvc",
+      "name": "PVC",
+      "color": "#E8D0CC",
+      "k": 0.19,
+      "rho": 1380,
+      "cp": 900,
+      "abbr": "PVC",
+      "category": "Polymers",
+      "note": "Polyvinyl chloride (rigid)"
+    },
+    {
+      "id": "nylon_66",
+      "name": "Nylon 66",
+      "color": "#E8DEC8",
+      "k": 0.25,
+      "rho": 1140,
+      "cp": 1670,
+      "abbr": "N66",
+      "category": "Polymers",
+      "note": "Polyamide 66"
+    },
+    {
+      "id": "hdpe",
+      "name": "HDPE",
+      "color": "#D4E8CC",
+      "k": 0.44,
+      "rho": 950,
+      "cp": 1900,
+      "abbr": "HDPE",
+      "category": "Polymers",
+      "note": "High-density polyethylene"
+    },
+
+    {
+      "id": "float_glass",
+      "name": "Float Glass",
+      "color": "#ADD8E6",
+      "k": 1.0,
+      "rho": 2500,
+      "cp": 840,
+      "abbr": "Gls",
+      "category": "Construction",
+      "note": "Soda-lime float glass"
+    },
+    {
+      "id": "concrete",
+      "name": "Concrete",
+      "color": "#ABABAB",
+      "k": 1.4,
+      "rho": 2300,
+      "cp": 880,
+      "abbr": "Con",
+      "category": "Construction",
+      "note": "Normal weight concrete"
+    },
+    {
+      "id": "brick",
+      "name": "Brick",
+      "color": "#B85040",
+      "k": 0.72,
+      "rho": 1920,
+      "cp": 840,
+      "abbr": "Brk",
+      "category": "Construction",
+      "note": "Solid clay brick"
+    },
+    {
+      "id": "drywall",
+      "name": "Drywall",
+      "color": "#F0EDE4",
+      "k": 0.17,
+      "rho": 950,
+      "cp": 1090,
+      "abbr": "GWB",
+      "category": "Construction",
+      "note": "Gypsum wallboard (12.5 mm)"
+    },
+    {
+      "id": "mineral_wool",
+      "name": "Mineral Wool",
+      "color": "#F0C878",
+      "k": 0.04,
+      "rho": 50,
+      "cp": 840,
+      "abbr": "MW",
+      "category": "Construction",
+      "note": "Rock wool / glass wool insulation"
+    },
+    {
+      "id": "sandstone",
+      "name": "Sandstone",
+      "color": "#C8B08A",
+      "k": 1.7,
+      "rho": 2200,
+      "cp": 920,
+      "abbr": "Sst",
+      "category": "Construction",
+      "note": "Quartz sandstone"
+    },
+
+    {
+      "id": "silicon",
+      "name": "Silicon",
+      "color": "#C8B898",
+      "k": 148.0,
+      "rho": 2329,
+      "cp": 712,
+      "abbr": "Si",
+      "category": "Electronics",
+      "note": "Crystalline silicon (die)"
+    },
+    {
+      "id": "fr4",
+      "name": "FR4 (PCB)",
+      "color": "#6A9E58",
+      "k": 0.3,
+      "rho": 1900,
+      "cp": 1400,
+      "abbr": "FR4",
+      "category": "Electronics",
+      "note": "Woven glass/epoxy laminate substrate"
+    },
+    {
+      "id": "therm_paste",
+      "name": "Thermal Paste",
+      "color": "#C0C0C8",
+      "k": 4.0,
+      "rho": 2600,
+      "cp": 730,
+      "abbr": "TIM",
+      "category": "Electronics",
+      "note": "Typical thermal interface material (e.g. MX-4)"
+    },
+    {
+      "id": "alumina",
+      "name": "Alumina",
+      "color": "#F0ECD8",
+      "k": 30.0,
+      "rho": 3980,
+      "cp": 880,
+      "abbr": "AlO",
+      "category": "Electronics",
+      "note": "Al\u2082O\u2083 ceramic substrate / package"
+    },
+    {
+      "id": "gaas",
+      "name": "Gallium Arsenide",
+      "color": "#8080A0",
+      "k": 46.0,
+      "rho": 5317,
+      "cp": 350,
+      "abbr": "GaAs",
+      "category": "Electronics",
+      "note": "GaAs — common III-V semiconductor (RF/microwave)"
+    },
+    {
+      "id": "solder",
+      "name": "Sn63/Pb37 Solder",
+      "color": "#9898A8",
+      "k": 35.0,
+      "rho": 8400,
+      "cp": 168,
+      "abbr": "SnPb",
+      "category": "Electronics",
+      "note": "Eutectic tin-lead solder (Sn63/Pb37)"
+    },
+
+    {
       "id": "air",
       "name": "Air",
       "color": "#87CEEB",
       "k": 0.026,
       "rho": 1.2,
-      "cp": 1006
+      "cp": 1006,
+      "abbr": "Air",
+      "category": "Gases",
+      "note": "Dry air at 25\u00b0C, 1 atm"
     },
     {
-      "id": "wood",
-      "name": "Wood",
-      "color": "#8B4513",
-      "k": 0.12,
-      "rho": 600,
-      "cp": 1700
+      "id": "nitrogen",
+      "name": "Nitrogen",
+      "color": "#B8D4E8",
+      "k": 0.026,
+      "rho": 1.165,
+      "cp": 1040,
+      "abbr": "N2",
+      "category": "Gases",
+      "note": "N\u2082 at 25\u00b0C, 1 atm"
     },
     {
-      "id": "styrofoam",
-      "name": "Styrofoam",
-      "color": "#FFFACD",
-      "k": 0.033,
-      "rho": 30,
-      "cp": 1300
+      "id": "argon",
+      "name": "Argon",
+      "color": "#D0E8F8",
+      "k": 0.018,
+      "rho": 1.634,
+      "cp": 521,
+      "abbr": "Ar",
+      "category": "Gases",
+      "note": "Ar at 25\u00b0C, 1 atm"
     },
     {
-      "id": "glass",
-      "name": "Glass",
-      "color": "#ADD8E6",
-      "k": 1.0,
-      "rho": 2500,
-      "cp": 840
-    },
-    {
-      "id": "steel",
-      "name": "Steel",
-      "color": "#708090",
-      "k": 50.0,
-      "rho": 7800,
-      "cp": 490
-    },
-    {
-      "id": "aluminum",
-      "name": "Aluminum",
-      "color": "#C0C0C0",
-      "k": 205.0,
-      "rho": 2700,
-      "cp": 900
-    },
-    {
-      "id": "copper",
-      "name": "Copper",
-      "color": "#B87333",
-      "k": 401.0,
-      "rho": 8960,
-      "cp": 385
-    },
-    {
-      "id": "gold",
-      "name": "Gold",
-      "color": "#FFD700",
-      "k": 318.0,
-      "rho": 19300,
-      "cp": 129
+      "id": "hydrogen",
+      "name": "Hydrogen",
+      "color": "#E8F4FC",
+      "k": 0.18,
+      "rho": 0.089,
+      "cp": 14300,
+      "abbr": "H2",
+      "category": "Gases",
+      "note": "H\u2082 at 25\u00b0C, 1 atm"
     }
   ]
 }
