@@ -4,7 +4,6 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
-    QDoubleSpinBox,
     QFrame,
     QLabel,
     QLineEdit,
@@ -17,6 +16,7 @@ from PyQt6.QtWidgets import (
 
 from src.models.material import Material
 from src.rendering import units as _units
+from src.rendering.units import TempSpinBox
 from src.simulation.grid import Grid
 
 
@@ -309,7 +309,7 @@ class CellPropertiesPanel(QWidget):
         ts_layout.setSpacing(4)
 
         ts_layout.addWidget(_small_label("Temperature"))
-        self._temp_spin = QDoubleSpinBox()
+        self._temp_spin = TempSpinBox()
         lo, hi = _units.spinbox_range()
         self._temp_spin.setRange(lo, hi)
         self._temp_spin.setDecimals(1)
@@ -325,7 +325,7 @@ class CellPropertiesPanel(QWidget):
         fixed_inner.setContentsMargins(0, 0, 0, 0)
         fixed_inner.setSpacing(2)
         fixed_inner.addWidget(_small_label("Fixed temperature"))
-        self._fixed_temp_spin = QDoubleSpinBox()
+        self._fixed_temp_spin = TempSpinBox()
         self._fixed_temp_spin.setRange(lo, hi)
         self._fixed_temp_spin.setDecimals(1)
         self._fixed_temp_spin.setSuffix(f" {_units.suffix()}")
@@ -497,7 +497,7 @@ class GroupEditPanel(QWidget):
         layout.addWidget(self._mat_combo)
 
         layout.addWidget(_small_label("Starting temperature"))
-        self._temp_spin = QDoubleSpinBox()
+        self._temp_spin = TempSpinBox()
         lo, hi = _units.spinbox_range()
         self._temp_spin.setRange(lo, hi)
         self._temp_spin.setDecimals(1)
@@ -514,7 +514,7 @@ class GroupEditPanel(QWidget):
         fixed_inner.setContentsMargins(0, 0, 0, 0)
         fixed_inner.setSpacing(2)
         fixed_inner.addWidget(_small_label("Fixed temperature"))
-        self._fixed_temp_spin = QDoubleSpinBox()
+        self._fixed_temp_spin = TempSpinBox()
         self._fixed_temp_spin.setRange(lo, hi)
         self._fixed_temp_spin.setDecimals(1)
         self._fixed_temp_spin.setSuffix(f" {_units.suffix()}")
@@ -675,6 +675,8 @@ class GroupEditPanel(QWidget):
 class Sidebar(QWidget):
     """Left sidebar: material picker on top, cell/group properties panel below."""
 
+    paint_temp_changed = pyqtSignal(object)  # float | None
+
     def __init__(self, materials: dict[str, Material], grid: Grid, parent=None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -683,6 +685,29 @@ class Sidebar(QWidget):
 
         self.picker = MaterialPicker(materials)
         layout.addWidget(self.picker, stretch=1)
+
+        # Paint temperature override row
+        paint_row = QWidget()
+        pr_layout = QVBoxLayout(paint_row)
+        pr_layout.setContentsMargins(8, 4, 8, 4)
+        pr_layout.setSpacing(2)
+
+        self._paint_check = QCheckBox("Override paint temperature")
+        self._paint_check.setStyleSheet("color: #aaa; font-size: 11px;")
+        pr_layout.addWidget(self._paint_check)
+
+        self._paint_spin = TempSpinBox()
+        lo, hi = _units.spinbox_range()
+        self._paint_spin.setRange(lo, hi)
+        self._paint_spin.setDecimals(1)
+        self._paint_spin.setSuffix(f" {_units.suffix()}")
+        self._paint_spin.setEnabled(False)
+        pr_layout.addWidget(self._paint_spin)
+
+        layout.addWidget(paint_row)
+
+        self._paint_check.toggled.connect(self._on_paint_check)
+        self._paint_spin.valueChanged.connect(self._on_paint_spin)
 
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
@@ -718,6 +743,25 @@ class Sidebar(QWidget):
     def set_grid(self, grid: Grid) -> None:
         self.props_panel.set_grid(grid)
         self.group_panel.set_grid(grid)
+
+    def refresh_units(self) -> None:
+        self.props_panel.refresh_units()
+        self.group_panel.refresh_units()
+        lo, hi = _units.spinbox_range()
+        self._paint_spin.blockSignals(True)
+        self._paint_spin.setSuffix(f" {_units.suffix()}")
+        self._paint_spin.setRange(lo, hi)
+        self._paint_spin.blockSignals(False)
+
+    def _on_paint_check(self, checked: bool) -> None:
+        self._paint_spin.setEnabled(checked)
+        self.paint_temp_changed.emit(
+            _units.from_display(self._paint_spin.value()) if checked else None
+        )
+
+    def _on_paint_spin(self, value: float) -> None:
+        if self._paint_check.isChecked():
+            self.paint_temp_changed.emit(_units.from_display(value))
 
 
 def _small_label(text: str) -> QLabel:

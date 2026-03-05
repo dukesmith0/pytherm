@@ -62,20 +62,8 @@ class GridHistory:
 
     @staticmethod
     def _snap(grid: Grid) -> _Snapshot:
-        return [
-            [
-                (cell.material, cell.temperature, cell.is_fixed, cell.fixed_temp)
-                for cell in row
-            ]
-            for row in grid._cells
-        ]
+        return grid.snapshot()
 
     @staticmethod
     def _restore(grid: Grid, snapshot: _Snapshot) -> None:
-        for r, row in enumerate(snapshot):
-            for c, (mat, temp, is_fixed, fixed_temp) in enumerate(row):
-                grid.set_cell(r, c,
-                              material=mat,
-                              temperature=temp,
-                              is_fixed=is_fixed,
-                              fixed_temp=fixed_temp)
+        grid.restore(snapshot)

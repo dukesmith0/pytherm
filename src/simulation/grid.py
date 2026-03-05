@@ -93,6 +93,23 @@ class Grid:
                 if c.material.id == old_id:
                     c.material = new_material
 
+    def snapshot(self) -> list[list[tuple]]:
+        """Return a deep-copyable snapshot of all cell state."""
+        return [
+            [(c.material, c.temperature, c.is_fixed, c.fixed_temp) for c in row]
+            for row in self._cells
+        ]
+
+    def restore(self, snap: list[list[tuple]]) -> None:
+        """Restore cell state from a snapshot produced by snapshot()."""
+        for r, row in enumerate(snap):
+            for col, (mat, temp, is_fixed, fixed_temp) in enumerate(row):
+                self.set_cell(r, col,
+                              material=mat,
+                              temperature=temp,
+                              is_fixed=is_fixed,
+                              fixed_temp=fixed_temp)
+
     def import_temperatures(self, T: np.ndarray) -> None:
         """Write solver output temperatures back into cells.
         The solver already re-pins fixed cells before returning, so no special casing needed."""

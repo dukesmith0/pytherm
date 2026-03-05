@@ -58,6 +58,8 @@ class Solver:
         self.dx = dx
         self.last_substep_count = 0   # set after each advance(), useful for debugging
         self.last_max_delta = 0.0     # max per-sub-step |ΔT| over non-fixed cells
+        self.last_e_from_fixed = 0.0  # energy injected by fixed-T cells in last advance() [J/m]
+        self.last_e_from_sinks = 0.0  # energy exchanged via sink BCs in last advance() [J/m]
         self.boundary_conditions: dict[str, str] = dict(_DEFAULT_BC)
         self.ambient_k: float = 293.15
 
@@ -80,10 +82,14 @@ class Solver:
 
         k_max = k.max()
         if k_max == 0:
+            self.last_e_from_fixed = 0.0
+            self.last_e_from_sinks = 0.0
             return T
 
         rhocp_nonzero = rho_cp[rho_cp > 0]
         if rhocp_nonzero.size == 0:
+            self.last_e_from_fixed = 0.0
+            self.last_e_from_sinks = 0.0
             return T
         rhocp_min = rhocp_nonzero.min()
 
@@ -116,7 +122,29 @@ class Solver:
         # 1 / (ρCₚ) for each cell; vacuum cells (ρCₚ=0) get 0 so they never update.
         inv_rhocp = np.where(rho_cp > 0, 1.0 / np.where(rho_cp > 0, rho_cp, 1.0), 0.0)
 
+        # Precompute flags for energy bookkeeping (constant across sub-steps).
+        has_fixed   = bool(np.any(fixed_mask))
+        top_sink    = bc.get("top")    == SINK
+        bottom_sink = bc.get("bottom") == SINK
+        left_sink   = bc.get("left")   == SINK
+        right_sink  = bc.get("right")  == SINK
+
+        e_from_fixed = 0.0
+        e_from_sinks = 0.0
+
         for _ in range(n_steps):
+            # Energy entering grid from sink boundaries this sub-step (pre-FDM temperatures).
+            # E_sink = dt · k_edge · (T_amb − T_edge)  [J/m, 1 m unit depth]
+            # The dx² in the flux denominator cancels with the dx² cell-area factor.
+            if top_sink:
+                e_from_sinks += dt * float(np.sum(k[0,  :] * (amb - T[0,  :])))
+            if bottom_sink:
+                e_from_sinks += dt * float(np.sum(k[-1, :] * (amb - T[-1, :])))
+            if left_sink:
+                e_from_sinks += dt * float(np.sum(k[:,  0] * (amb - T[:,  0])))
+            if right_sink:
+                e_from_sinks += dt * float(np.sum(k[:, -1] * (amb - T[:, -1])))
+
             T_pad = _pad_with_bc(T, bc, amb)
             T_c = T_pad[1:-1, 1:-1]
 
@@ -132,8 +160,14 @@ class Solver:
             dT = dt * flux * inv_rhocp
             T += dT
 
-            # Re-pin fixed-temperature cells after each sub-step.
-            T[fixed_mask] = fixed_temps[fixed_mask]
+            # Energy injected/removed by fixed-T cells (pinning correction).
+            # E_fixed = ρCₚ · (T_fixed − T_fdm) · dx²  [J/m]
+            if has_fixed:
+                e_from_fixed += float(
+                    np.dot(rho_cp[fixed_mask], fixed_temps[fixed_mask] - T[fixed_mask])
+                ) * dx2
+                # Re-pin fixed-temperature cells after each sub-step.
+                T[fixed_mask] = fixed_temps[fixed_mask]
 
             # Track worst-case per-sub-step delta over non-fixed cells only.
             if np.any(not_fixed):
@@ -141,5 +175,7 @@ class Solver:
                 if step_delta > max_delta:
                     max_delta = step_delta
 
-        self.last_max_delta = max_delta
+        self.last_max_delta  = max_delta
+        self.last_e_from_fixed = e_from_fixed
+        self.last_e_from_sinks = e_from_sinks
         return T

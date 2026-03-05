@@ -6,6 +6,7 @@ from pathlib import Path
 from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QColor, QDesktopServices, QIcon, QPainter, QPixmap
 from PyQt6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDoubleSpinBox,
     QFrame,
@@ -17,8 +18,12 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-_VERSION = "v1.0.0"
-_AUTHOR  = "Duke Smith"
+from src.rendering import units as _units
+from src.rendering.units import TempSpinBox
+from src.version import VERSION as _VERSION_RAW
+
+_VERSION = f"v{_VERSION_RAW}"
+_AUTHOR  = 'Craig "Duke" Smith'
 _YEAR    = "2026"
 _GITHUB  = "https://github.com/dukesmith0/pytherm"
 
@@ -93,10 +98,12 @@ class WelcomeDialog(QDialog):
       ``""``        — dialog was dismissed without a choice (start with default grid).
     """
 
-    def __init__(self, recent_files: list[str], parent=None) -> None:
+    def __init__(self, recent_files: list[str], materials: dict | None = None,
+                 parent=None) -> None:
         super().__init__(parent)
         self.action:      str = ""
         self.recent_path: str = ""
+        self._materials = materials or {}
 
         self.setWindowTitle("PyTherm")
         self.setFixedWidth(460)
@@ -195,15 +202,30 @@ class WelcomeDialog(QDialog):
         opts_row.addWidget(self._cell_size)
         opts_row.addSpacing(10)
         opts_row.addWidget(_field_label("Ambient:"))
-        self._ambient = QDoubleSpinBox()
-        self._ambient.setRange(-273.15, 10000.0)
+        lo, hi = _units.spinbox_range()
+        self._ambient = TempSpinBox()
+        self._ambient.setRange(lo, hi)
         self._ambient.setDecimals(1)
-        self._ambient.setValue(20.0)
-        self._ambient.setSuffix(" °C")
+        self._ambient.setValue(_units.to_display(293.15))  # 20 °C default
+        self._ambient.setSuffix(f" {_units.suffix()}")
         self._ambient.setFixedWidth(100)
         opts_row.addWidget(self._ambient)
         opts_row.addStretch()
         blayout.addLayout(opts_row)
+
+        if self._materials:
+            mat_row = QHBoxLayout()
+            mat_row.setSpacing(8)
+            mat_row.addWidget(_field_label("Base material:"))
+            self._mat_combo = QComboBox()
+            for mat in self._materials.values():
+                self._mat_combo.addItem(mat.name, mat.id)
+            self._mat_combo.setFixedWidth(160)
+            mat_row.addWidget(self._mat_combo)
+            mat_row.addStretch()
+            blayout.addLayout(mat_row)
+        else:
+            self._mat_combo = None
 
         btn_new = QPushButton("▶   Create New Grid")
         btn_new.setStyleSheet(
@@ -249,13 +271,15 @@ class WelcomeDialog(QDialog):
 
     # ── Public ──────────────────────────────────────────────────────────────
 
-    def new_grid_values(self) -> tuple[int, int, float, float]:
-        """Return ``(rows, cols, dx_metres, ambient_kelvin)``."""
+    def new_grid_values(self) -> tuple[int, int, float, float, str]:
+        """Return ``(rows, cols, dx_metres, ambient_kelvin, base_material_id)``."""
+        mat_id = self._mat_combo.currentData() if self._mat_combo else "vacuum"
         return (
             self._rows.value(),
             self._cols.value(),
             self._cell_size.value() / 100.0,
-            self._ambient.value() + 273.15,
+            _units.from_display(self._ambient.value()),
+            mat_id,
         )
 
     # ── Internal ────────────────────────────────────────────────────────────

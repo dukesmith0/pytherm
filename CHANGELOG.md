@@ -1,5 +1,28 @@
 # PyTherm Changelog
 
+## v0.3.0 — 2026-03-04
+
+### Added
+
+- **Redesigned About dialog**: dark header with app icon, subtitle, version, and GitHub link — matches the welcome dialog aesthetic.
+- **Base material selector**: New Grid dialog and welcome dialog now include a material dropdown so the grid can be filled with any material instead of always defaulting to Vacuum.
+- **Zoom to Selection**: Ctrl+Shift+F fits the view to the selected cells' bounding box.
+- **Copy/Paste cell properties**: Ctrl+C in select mode copies the first selected cell's material, temperature, and heat-source state to a clipboard; Ctrl+V pastes to all selected cells.
+- **Paint temperature override**: checkbox and spinbox in the sidebar below the material picker; when enabled, every paint stroke also sets the cell temperature to the specified value.
+- **Thermal properties in hover tooltip**: time constant tau = rho*cp*dx²/k (s) and thermal resistance R = dx/k (K·m²/W) shown for non-vacuum cells.
+- **Grid coordinate overlay**: row and column indices drawn along the grid edges in `drawForeground` when cells are at least 24 px on screen.
+- **Welcome dialog version**: now reads from `src/version.py` instead of a hardcoded string.
+- **Rankine temperature unit**: all temperature spinboxes and displays now support Rankine (R) in addition to °C, K, and °F.
+- **Inline unit parsing for temperature spinboxes**: type a value with a unit suffix (e.g. 100C, 373K, 212F, 491R) in any temperature spinbox; it auto-converts to the active display unit on commit.
+- **Energy conservation display**: bottom bar shows E (current stored thermal energy above ambient), ref (E_start + accumulated energy from fixed cells and sink boundaries), and err (conservation error); updated every simulation tick.
+
+### Performance
+
+- **Viewport culling**: `drawBackground` and `drawForeground` now clamp all cell loops to the visible rect. 100x fewer iterations when zoomed in on a large grid.
+- **Heatmap bounds cache**: `_heatmap_bounds()` computed once per frame in `drawBackground` and reused by `_draw_abbr`, `_draw_color_legend` — was called 3x per frame previously.
+- **QColor cache**: `cell_color()` caches `QColor(hex_string)` by material color string — eliminates up to 40,000 hex parses per frame on large grids.
+- **Fixed-cell position set**: lock-icon loop now iterates a cached `_fixed_cells` set (O(fixed count)) instead of scanning all cells every frame (O(N)).
+
 ## v0.2.0 — 2026-03-04
 
 ### Added

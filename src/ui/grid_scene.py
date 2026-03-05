@@ -40,6 +40,12 @@ class GridScene(QGraphicsScene):
 
         self._show_abbr: bool = False
 
+        # Per-frame bounds cache: computed once in drawBackground, reused in drawForeground.
+        self._frame_bounds: tuple[float, float] = (273.15, 373.15)
+
+        # Fixed-cell position cache: None = dirty, rebuilt lazily in drawForeground.
+        self._fixed_cells: set[tuple[int, int]] | None = None
+
         self._sync_scene_rect()
 
     def _sync_scene_rect(self) -> None:
@@ -55,8 +61,13 @@ class GridScene(QGraphicsScene):
         self._multi_selection = set()
         self._auto_t_min = None
         self._auto_t_max = None
+        self._fixed_cells = None
         self._sync_scene_rect()
         self.update()
+
+    def invalidate_fixed_cells(self) -> None:
+        """Mark the fixed-cell cache dirty so it rebuilds next frame."""
+        self._fixed_cells = None
 
     def reset_auto_heatmap_bounds(self) -> None:
         """Clear the anchored auto-scale bounds so they re-initialise on the next frame."""
@@ -117,53 +128,68 @@ class GridScene(QGraphicsScene):
     # --- Rendering ---
 
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
-        # Dark fill for any area outside the grid (visible when zoomed out)
         painter.fillRect(rect, QColor(25, 25, 25))
 
         g  = self._grid
         cp = CELL_PX
 
+        # Viewport culling: only iterate cells visible in the dirty rect.
+        c0 = max(0, int(rect.x() / cp))
+        c1 = min(g.cols, int((rect.x() + rect.width()) / cp) + 1)
+        r0 = max(0, int(rect.y() / cp))
+        r1 = min(g.rows, int((rect.y() + rect.height()) / cp) + 1)
+
         if self._view_mode == "heatmap":
-            self._draw_heatmap(painter, g, cp)
+            # Compute bounds once per frame; reused by drawForeground helpers.
+            self._frame_bounds = self._heatmap_bounds()
+            self._draw_heatmap(painter, g, cp, r0, r1, c0, c1)
         else:
-            for r in range(g.rows):
-                for c in range(g.cols):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
                     painter.fillRect(c * cp, r * cp, cp, cp, cell_color(g.cell(r, c)))
 
-        # Grid lines — cosmetic pen stays 1 screen pixel regardless of zoom level
         if self.show_grid_lines:
             pen = QPen(QColor(50, 50, 50))
             pen.setCosmetic(True)
             painter.setPen(pen)
-            for r in range(g.rows + 1):
-                painter.drawLine(0, r * cp, g.cols * cp, r * cp)
-            for c in range(g.cols + 1):
-                painter.drawLine(c * cp, 0, c * cp, g.rows * cp)
+            for r in range(r0, r1 + 1):
+                painter.drawLine(c0 * cp, r * cp, c1 * cp, r * cp)
+            for c in range(c0, c1 + 1):
+                painter.drawLine(c * cp, r0 * cp, c * cp, r1 * cp)
 
     def drawForeground(self, painter: QPainter, rect: QRectF) -> None:
-        cp = CELL_PX
-        g  = self._grid
+        cp   = CELL_PX
+        g    = self._grid
+        zoom = painter.deviceTransform().m11()
+
+        # Viewport culling bounds for foreground elements
+        c0 = max(0, int(rect.x() / cp))
+        c1 = min(g.cols, int((rect.x() + rect.width()) / cp) + 1)
+        r0 = max(0, int(rect.y() / cp))
+        r1 = min(g.rows, int((rect.y() + rect.height()) / cp) + 1)
 
         # Material abbreviations — bottom-left corner of each non-vacuum cell
         if self._show_abbr:
-            self._draw_abbr(painter, g, cp)
+            self._draw_abbr(painter, g, cp, zoom, r0, r1, c0, c1)
 
         # Multi-selection highlight (blue overlay, drawn below previews)
         if self._multi_selection:
             for r, c in self._multi_selection:
-                painter.fillRect(c * cp, r * cp, cp, cp, QColor(80, 140, 220, 55))
+                if r0 <= r < r1 and c0 <= c < c1:
+                    painter.fillRect(c * cp, r * cp, cp, cp, QColor(80, 140, 220, 55))
             sel_pen = QPen(QColor(100, 160, 255))
             sel_pen.setCosmetic(True)
             sel_pen.setWidth(1)
             painter.setPen(sel_pen)
             for r, c in self._multi_selection:
-                painter.drawRect(c * cp, r * cp, cp - 1, cp - 1)
+                if r0 <= r < r1 and c0 <= c < c1:
+                    painter.drawRect(c * cp, r * cp, cp - 1, cp - 1)
 
         # Shift-drag rectangle preview — semi-transparent teal fill with border
         if self._preview_rect is not None:
-            r1, c1, r2, c2 = self._preview_rect
-            x, y = c1 * cp, r1 * cp
-            w, h = (c2 - c1 + 1) * cp, (r2 - r1 + 1) * cp
+            r1p, c1p, r2p, c2p = self._preview_rect
+            x, y = c1p * cp, r1p * cp
+            w, h = (c2p - c1p + 1) * cp, (r2p - r1p + 1) * cp
             painter.fillRect(x, y, w, h, QColor(0, 150, 136, 70))
             pen = QPen(QColor(0, 200, 180))
             pen.setCosmetic(True)
@@ -181,11 +207,17 @@ class GridScene(QGraphicsScene):
                 painter.fillRect(c * cp, r * cp, cp, cp, QColor(0, 150, 136, 70))
                 painter.drawRect(c * cp + 1, r * cp + 1, cp - 2, cp - 2)
 
-        # Lock icons on fixed-temperature cells
-        for r in range(g.rows):
-            for c in range(g.cols):
-                if g.cell(r, c).is_fixed:
-                    draw_lock_icon(painter, c * cp, r * cp, cp)
+        # Lock icons on fixed-temperature cells (cached set, lazily rebuilt)
+        if self._fixed_cells is None:
+            self._fixed_cells = {
+                (r, c)
+                for r in range(g.rows)
+                for c in range(g.cols)
+                if g.cell(r, c).is_fixed
+            }
+        for r, c in self._fixed_cells:
+            if r0 <= r < r1 and c0 <= c < c1:
+                draw_lock_icon(painter, c * cp, r * cp, cp)
 
         # Selected cell — white border highlight (single-cell select)
         if self._selected_cell is not None:
@@ -196,6 +228,9 @@ class GridScene(QGraphicsScene):
             pen.setWidth(2)
             painter.setPen(pen)
             painter.drawRect(x + 1, y + 1, cp - 2, cp - 2)
+
+        # Grid coordinate overlay — row/col numbers at edges when zoomed in
+        self._draw_grid_coords(painter, g, cp, zoom)
 
         # Color scale legend — bottom-right corner, heatmap mode only
         if self._view_mode == "heatmap":
@@ -213,9 +248,6 @@ class GridScene(QGraphicsScene):
 
     def _heatmap_bounds(self) -> tuple[float, float]:
         if self._heatmap_auto:
-            # Exclude vacuum (thermally inert) cells from the temperature range.
-            # Use fixed_temp for heat-source cells so the range is always meaningful
-            # even before the simulation has run.
             temps = [
                 self._display_temp(self._grid.cell(r, c))
                 for r in range(self._grid.rows)
@@ -223,13 +255,9 @@ class GridScene(QGraphicsScene):
                 if not self._grid.cell(r, c).material.is_vacuum
             ]
             if not temps:
-                return 273.15, 373.15  # fallback when all cells are vacuum
+                return 273.15, 373.15
             t_min_now, t_max_now = min(temps), max(temps)
 
-            # Anchored auto-scale: bounds only expand from the initial range.
-            # The min anchor can decrease (grid gets colder) but not increase.
-            # The max anchor can increase (grid gets hotter) but not decrease.
-            # This prevents the scale from collapsing as temperatures converge.
             if self._auto_t_min is None:
                 self._auto_t_min = t_min_now
                 self._auto_t_max = t_max_now
@@ -238,15 +266,13 @@ class GridScene(QGraphicsScene):
                 self._auto_t_max = max(self._auto_t_max, t_max_now)
 
             t_min, t_max = self._auto_t_min, self._auto_t_max
-            # Avoid zero-width range — add a tiny spread so the gradient always renders
             if t_max - t_min < 0.1:
                 t_max = t_min + 0.1
             return t_min, t_max
         return self._heatmap_t_min, self._heatmap_t_max
 
-    def _draw_abbr(self, painter: QPainter, g: Grid, cp: int) -> None:
-        """Draw each material's abbreviation in the bottom-left corner of non-vacuum cells."""
-        zoom = painter.deviceTransform().m11()
+    def _draw_abbr(self, painter: QPainter, g: Grid, cp: int, zoom: float,
+                   r0: int, r1: int, c0: int, c1: int) -> None:
         if cp * zoom < _LABEL_THRESHOLD_PX:
             return
 
@@ -254,11 +280,11 @@ class GridScene(QGraphicsScene):
         font.setPixelSize(max(7, int(cp * 0.22)))
         painter.setFont(font)
 
-        t_min, t_max = self._heatmap_bounds() if self._view_mode == "heatmap" else (273.15, 373.15)
+        t_min, t_max = self._frame_bounds
         pad = max(2, int(cp * 0.08))
 
-        for r in range(g.rows):
-            for c in range(g.cols):
+        for r in range(r0, r1):
+            for c in range(c0, c1):
                 cell = g.cell(r, c)
                 abbr = cell.material.abbr
                 if not abbr or cell.material.is_vacuum:
@@ -274,43 +300,58 @@ class GridScene(QGraphicsScene):
                     abbr,
                 )
 
-    def _draw_heatmap(self, painter: QPainter, g: Grid, cp: int) -> None:
-        t_min, t_max = self._heatmap_bounds()
+    def _draw_heatmap(self, painter: QPainter, g: Grid, cp: int,
+                      r0: int, r1: int, c0: int, c1: int) -> None:
+        t_min, t_max = self._frame_bounds
 
-        for r in range(g.rows):
-            for c in range(g.cols):
+        for r in range(r0, r1):
+            for c in range(c0, c1):
                 cell = g.cell(r, c)
-                # Vacuum cells render as the scene background — they carry no temperature.
                 if cell.material.is_vacuum:
                     color = self._BG_COLOR
                 else:
                     color = heatmap_color(self._display_temp(cell), t_min, t_max)
                 painter.fillRect(c * cp, r * cp, cp, cp, color)
 
-        # Temperature labels when cells are large enough on screen
         zoom = painter.deviceTransform().m11()
         if cp * zoom >= _LABEL_THRESHOLD_PX:
             font = QFont()
             font.setPixelSize(max(8, int(cp * 0.32)))
             painter.setFont(font)
 
-            for r in range(g.rows):
-                for c in range(g.cols):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
                     cell = g.cell(r, c)
                     if cell.material.is_vacuum:
-                        continue  # no temperature label for vacuum
-                    t    = self._display_temp(cell)
-                    bg   = heatmap_color(t, t_min, t_max)
+                        continue
+                    t  = self._display_temp(cell)
+                    bg = heatmap_color(t, t_min, t_max)
                     painter.setPen(text_color_for_bg(bg))
                     painter.drawText(
                         QRectF(c * cp, r * cp, cp, cp),
                         Qt.AlignmentFlag.AlignCenter,
-                        f"{_units.to_display(t):.0f}°",
+                        f"{_units.to_display(t):.0f}{_units.suffix()}",
                     )
+
+    def _draw_grid_coords(self, painter: QPainter, g: Grid, cp: int, zoom: float) -> None:
+        """Draw row/col indices along the grid edges when zoomed in enough."""
+        if cp * zoom < 24:
+            return
+        font = QFont()
+        font.setPixelSize(max(7, int(cp * 0.2)))
+        painter.setFont(font)
+        painter.setPen(QColor(130, 130, 130))
+        half = cp // 2
+        for c in range(g.cols):
+            painter.drawText(QRectF(c * cp, -half, cp, half),
+                             Qt.AlignmentFlag.AlignCenter, str(c))
+        for r in range(g.rows):
+            painter.drawText(QRectF(-half, r * cp, half, cp),
+                             Qt.AlignmentFlag.AlignCenter, str(r))
 
     def _draw_color_legend(self, painter: QPainter) -> None:
         """Draw a vertical color scale bar (hot=top, cold=bottom) in the viewport corner."""
-        t_min, t_max = self._heatmap_bounds()
+        t_min, t_max = self._frame_bounds
 
         painter.save()
         painter.resetTransform()
@@ -325,12 +366,11 @@ class GridScene(QGraphicsScene):
             painter.restore()
             return
 
-        x = vp_w - BAR_W - 52  # leave room for text labels to the right
-        y = vp_h - bar_h - 20  # 20 px from bottom
+        x = vp_w - BAR_W - 52
+        y = vp_h - bar_h - 20
 
-        # Gradient: top = hot (t_max), bottom = cold (t_min)
         grad = QLinearGradient(x, y, x, y + bar_h)
-        for i, frac in enumerate([0.0, 0.25, 0.5, 0.75, 1.0]):
+        for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
             t = t_max - frac * (t_max - t_min)
             grad.setColorAt(frac, heatmap_color(t, t_min, t_max))
 

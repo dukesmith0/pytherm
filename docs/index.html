@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyTherm - 2D Heat Conduction Simulator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #16162a;
+      color: #cccccc;
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: #4488bb; text-decoration: none; }
+    a:hover { color: #88ccff; }
+
+    /* ── Header ── */
+    .header {
+      background: #16162a;
+      border-bottom: 1px solid #2a2a45;
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-logo {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+    }
+
+    .header-text { display: flex; flex-direction: column; gap: 4px; }
+
+    .header-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle { font-size: 14px; color: #9999cc; }
+
+    .header-meta { font-size: 12px; color: #555577; }
+
+    .header-github {
+      font-size: 12px;
+      color: #4488bb;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-github:hover { color: #88ccff; }
+
+    /* ── Main content ── */
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
+
+    /* ── Description ── */
+    .description {
+      background: #1e1e32;
+      border: 1px solid #2a2a45;
+      border-radius: 6px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      color: #bbbbcc;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    /* ── Section headers ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #555577;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* ── Getting started ── */
+    .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+
+    .step {
+      background: #1e1e32;
+      border: 1px solid #2a2a45;
+      border-radius: 5px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .step-num {
+      background: #2a7a6e;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .step-body { flex: 1; }
+    .step-title { font-weight: 600; color: #ddddee; margin-bottom: 4px; }
+    .step-desc { color: #888899; font-size: 13px; }
+
+    code {
+      background: #0d0d1a;
+      border: 1px solid #333355;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+      color: #9999cc;
+    }
+
+    pre {
+      background: #0d0d1a;
+      border: 1px solid #333355;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-top: 6px;
+      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+      color: #9999cc;
+      overflow-x: auto;
+    }
+
+    /* ── Separator ── */
+    .sep {
+      border: none;
+      border-top: 1px solid #2a2a45;
+      margin: 28px 0;
+    }
+
+    /* ── Features table ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .feature-card {
+      background: #1e1e32;
+      border: 1px solid #2a2a45;
+      border-radius: 5px;
+      padding: 14px 16px;
+    }
+
+    .feature-title { font-weight: 600; color: #ddddee; margin-bottom: 3px; font-size: 13px; }
+    .feature-desc  { color: #777788; font-size: 12px; }
+
+    /* ── Download button ── */
+    .btn-primary {
+      display: inline-block;
+      background: #2a7a6e;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #37a090; color: #ffffff; }
+
+    .btn-secondary {
+      display: inline-block;
+      background: #38385a;
+      color: #cccccc;
+      font-size: 13px;
+      padding: 10px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background 0.15s;
+      margin-left: 10px;
+    }
+    .btn-secondary:hover { background: #4a4a72; color: #ffffff; }
+
+    .btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid #2a2a45;
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: #555577;
+    }
+
+    .footer a { color: #555577; }
+    .footer a:hover { color: #88ccff; }
+
+    @media (max-width: 600px) {
+      .header { padding: 20px 20px; flex-wrap: wrap; }
+      .content { padding: 24px 16px 48px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .footer { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <svg class="header-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+      <rect width="80" height="80" fill="#1c1c28"/>
+      <rect x="2"    y="2"    width="13" height="13" rx="2" fill="#ff0000"/>
+      <rect x="17.6" y="2"    width="13" height="13" rx="2" fill="#ffb400"/>
+      <rect x="33.2" y="2"    width="13" height="13" rx="2" fill="#95ff00"/>
+      <rect x="48.8" y="2"    width="13" height="13" rx="2" fill="#00ff1f"/>
+      <rect x="64.4" y="2"    width="13" height="13" rx="2" fill="#00ffd3"/>
+      <rect x="2"    y="17.6" width="13" height="13" rx="2" fill="#ffb400"/>
+      <rect x="17.6" y="17.6" width="13" height="13" rx="2" fill="#ffff00"/>
+      <rect x="33.2" y="17.6" width="13" height="13" rx="2" fill="#6bff00"/>
+      <rect x="48.8" y="17.6" width="13" height="13" rx="2" fill="#00ff3c"/>
+      <rect x="64.4" y="17.6" width="13" height="13" rx="2" fill="#00ffe9"/>
+      <rect x="2"    y="33.2" width="13" height="13" rx="2" fill="#95ff00"/>
+      <rect x="17.6" y="33.2" width="13" height="13" rx="2" fill="#6bff00"/>
+      <rect x="33.2" y="33.2" width="13" height="13" rx="2" fill="#00ff00"/>
+      <rect x="48.8" y="33.2" width="13" height="13" rx="2" fill="#00ff8c"/>
+      <rect x="64.4" y="33.2" width="13" height="13" rx="2" fill="#00d6ff"/>
+      <rect x="2"    y="48.8" width="13" height="13" rx="2" fill="#00ff1f"/>
+      <rect x="17.6" y="48.8" width="13" height="13" rx="2" fill="#00ff3c"/>
+      <rect x="33.2" y="48.8" width="13" height="13" rx="2" fill="#00ff8c"/>
+      <rect x="48.8" y="48.8" width="13" height="13" rx="2" fill="#00ffff"/>
+      <rect x="64.4" y="48.8" width="13" height="13" rx="2" fill="#0076ff"/>
+      <rect x="2"    y="64.4" width="13" height="13" rx="2" fill="#00ffd3"/>
+      <rect x="17.6" y="64.4" width="13" height="13" rx="2" fill="#00ffe9"/>
+      <rect x="33.2" y="64.4" width="13" height="13" rx="2" fill="#00d6ff"/>
+      <rect x="48.8" y="64.4" width="13" height="13" rx="2" fill="#0076ff"/>
+      <rect x="64.4" y="64.4" width="13" height="13" rx="2" fill="#0000ff"/>
+    </svg>
+
+    <div class="header-text">
+      <div class="header-title">PyTherm</div>
+      <div class="header-subtitle">2D Heat Conduction Simulator</div>
+      <div class="header-meta">v0.3.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
+      <a class="header-github" href="https://github.com/dukesmith0/pytherm">
+        &#x2316;&nbsp; github.com/dukesmith0/pytherm
+      </a>
+    </div>
+  </header>
+
+  <!-- ── Content ──────────────────────────────────────────────────────────── -->
+  <main class="content">
+
+    <!-- Description -->
+    <div class="description">
+      PyTherm is an interactive 2D heat conduction simulator for the desktop. Paint a grid of real
+      materials, set fixed-temperature heat sources, and watch Fourier conduction propagate in real
+      time. Built for students, educators, and engineers who want to explore thermal behavior
+      without spinning up a full FEA suite.
+    </div>
+
+    <!-- Download / links -->
+    <p class="section-label">Get It</p>
+    <div class="btn-row">
+      <a class="btn-primary" href="https://github.com/dukesmith0/pytherm/releases">&#x25BC;&nbsp; Download Latest</a>
+      <a class="btn-secondary" href="https://github.com/dukesmith0/pytherm">View on GitHub</a>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- Getting started -->
+    <p class="section-label">Getting Started</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Requirements</div>
+          <div class="step-desc">Python 3.10 or newer. PyQt6 and NumPy are the only dependencies.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Clone the repository</div>
+          <pre>git clone https://github.com/dukesmith0/pytherm.git
+cd pytherm</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Install dependencies</div>
+          <pre>pip install -r requirements.txt</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Run</div>
+          <pre>python main.py</pre>
+          <div class="step-desc" style="margin-top:6px;">
+            A startup dialog lets you configure grid size and ambient temperature,
+            then click <strong style="color:#ddddee;">Create New Grid</strong> to begin.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- Features -->
+    <p class="section-label">Features</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-title">Real-time FDM solver</div>
+        <div class="feature-desc">Explicit finite-difference with CFL sub-stepping. Harmonic mean conductivity at interfaces.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">45 built-in materials</div>
+        <div class="feature-desc">Metals, woods, polymers, construction materials, electronics, gases, and liquids.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Draw, Fill, and Select tools</div>
+        <div class="feature-desc">Paint cells, flood-fill regions, inspect and edit individual or grouped cells.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Heatmap and material views</div>
+        <div class="feature-desc">Toggle between color-by-material and a live temperature heatmap with an auto-scaling legend.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Fixed-temperature sources</div>
+        <div class="feature-desc">Pin any cell to a fixed temperature to model heaters, heat sinks, or boundary conditions.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Steady-state detection</div>
+        <div class="feature-desc">Optionally stop automatically when the simulation converges. Export the view as a PNG.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Cell info tooltip</div>
+        <div class="feature-desc">Hover over any cell for live temperature, energy, thermal time constant (τ), and resistance (R).</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Copy / paste cells</div>
+        <div class="feature-desc">Ctrl+C copies a cell's material and temperature; Ctrl+V pastes to all selected cells at once.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Grid coordinates</div>
+        <div class="feature-desc">Row and column indices appear at the grid edges when zoomed in, making large grids easier to navigate.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Paint temperature</div>
+        <div class="feature-desc">Optionally lock the painted temperature when drawing, so new cells start at a chosen temperature.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Four temperature units</div>
+        <div class="feature-desc">Display in &deg;C, K, &deg;F, or Rankine. Type a value with a unit suffix (e.g. 100C, 373K) in any spinbox to auto-convert.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Energy conservation display</div>
+        <div class="feature-desc">Bottom bar shows stored energy E, reference E_ref, and conservation error; confirms solver correctness in real time.</div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- Attribution -->
+    <p class="section-label">Attribution</p>
+    <div class="description" style="margin-bottom:0;">
+      Built by <a href="https://craigdukesmith.com">Craig &#8220;Duke&#8221; Smith</a>.
+      Released under the <a href="https://github.com/dukesmith0/pytherm/blob/main/LICENSE">MIT License</a>.
+      Contributions and bug reports welcome on
+      <a href="https://github.com/dukesmith0/pytherm/issues">GitHub Issues</a>.
+    </div>
+
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>PyTherm v0.3.0 &nbsp;·&nbsp; MIT License</span>
+    <span>
+      <a href="https://craigdukesmith.com">craigdukesmith.com</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <a href="https://github.com/dukesmith0/pytherm">GitHub</a>
+    </span>
+  </footer>
+
+</body>
+</html>

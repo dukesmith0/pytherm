@@ -87,8 +87,14 @@ class MaterialRegistry:
     def _load_custom(self) -> None:
         if not self._custom_path.exists():
             return
-        with open(self._custom_path) as f:
-            data = json.load(f)
+        try:
+            with open(self._custom_path) as f:
+                data = json.load(f)
+        except Exception:
+            return  # corrupt file — start with no custom materials
         for entry in data.get("materials", []):
-            m = Material(**entry, is_builtin=False)
-            self._custom[m.id] = m
+            try:
+                m = Material(**entry, is_builtin=False)
+                self._custom[m.id] = m
+            except Exception:
+                pass  # skip malformed entries

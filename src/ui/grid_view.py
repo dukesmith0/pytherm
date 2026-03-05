@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from collections import deque
+from copy import copy
 
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, QRectF, pyqtSignal
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QGraphicsView
 
 from src.models.material import Material
+from src.simulation.cell import Cell
 from src.ui.grid_scene import CELL_PX, GridScene
 from src.ui.tooltip_widget import CellTooltip
 
@@ -92,6 +94,12 @@ class GridView(QGraphicsView):
         self._dx_m: float = 0.01   # physical cell size in metres; updated by set_dx()
         self.setMouseTracking(True)
 
+        # Cell clipboard for Ctrl+C/V in select mode
+        self._cell_clipboard: Cell | None = None
+
+        # Paint temperature override (None = use cell's existing temperature)
+        self._paint_temp: float | None = None
+
     # --- Public API (called by toolbar / sidebar) ---
 
     def set_dx(self, dx_m: float) -> None:
@@ -110,6 +118,24 @@ class GridView(QGraphicsView):
         self._drawing_locked = locked
         if locked:
             self._painting = False
+
+    def set_paint_temp(self, temp_k: float | None) -> None:
+        """Set temperature override applied on each paint stroke (None = don't override)."""
+        self._paint_temp = temp_k
+
+    def zoom_to_selection(self) -> None:
+        """Fit the view to the current selection bounding box."""
+        if not self._selection:
+            return
+        rows = [r for r, c in self._selection]
+        cols = [c for r, c in self._selection]
+        r0, r1 = min(rows), max(rows)
+        c0, c1 = min(cols), max(cols)
+        self.fitInView(
+            QRectF(c0 * CELL_PX - 8, r0 * CELL_PX - 8,
+                   (c1 - c0 + 1) * CELL_PX + 16, (r1 - r0 + 1) * CELL_PX + 16),
+            Qt.AspectRatioMode.KeepAspectRatio,
+        )
 
     # --- Mouse events ---
 
@@ -238,9 +264,28 @@ class GridView(QGraphicsView):
         super().leaveEvent(event)
 
     def keyPressEvent(self, event) -> None:
-        if event.key() == Qt.Key.Key_Escape:
+        key  = event.key()
+        ctrl = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
+        if key == Qt.Key.Key_Escape:
             self._cancel_anchors()
-        super().keyPressEvent(event)
+        elif ctrl and key == Qt.Key.Key_C and self._mode == "select" and self._selection:
+            first = min(self._selection)
+            self._cell_clipboard = copy(self.scene()._grid.cell(*first))
+        elif (ctrl and key == Qt.Key.Key_V
+              and self._mode == "select"
+              and self._selection
+              and self._cell_clipboard is not None):
+            cb = self._cell_clipboard
+            g  = self.scene()._grid
+            self.paint_started.emit()
+            for r, c in self._selection:
+                g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
+                           is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp)
+            self.cell_painted.emit()
+            self.scene().invalidate_fixed_cells()
+            self.scene().refresh()
+        else:
+            super().keyPressEvent(event)
 
     # --- Zoom / resize ---
 
@@ -275,7 +320,11 @@ class GridView(QGraphicsView):
 
     def _paint_cell(self, row: int, col: int) -> None:
         if self._active_material is not None:
-            self.scene()._grid.set_cell(row, col, material=self._active_material)
+            self.scene()._grid.set_cell(
+                row, col,
+                material=self._active_material,
+                temperature=self._paint_temp,
+            )
             self.cell_painted.emit()
 
     def _do_select(self, cells: list[tuple[int, int]]) -> None:

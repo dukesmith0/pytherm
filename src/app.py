@@ -93,6 +93,11 @@ def create_app() -> tuple[QApplication, MainWindow]:
     view.cells_selected.connect(sidebar.show_cells)
     sidebar.props_panel.cell_modified.connect(scene.refresh)
     sidebar.group_panel.group_modified.connect(scene.refresh)
+    sidebar.props_panel.cell_modified.connect(scene.invalidate_fixed_cells)
+    sidebar.group_panel.group_modified.connect(scene.invalidate_fixed_cells)
+    sidebar.props_panel.cell_modified.connect(sim_clock.invalidate_arrays)
+    sidebar.group_panel.group_modified.connect(sim_clock.invalidate_arrays)
+    sidebar.paint_temp_changed.connect(view.set_paint_temp)
 
 
 
@@ -149,12 +154,14 @@ def create_app() -> tuple[QApplication, MainWindow]:
         hi  = _units.to_display(float(T_active.max()))
         avg = _units.to_display(float(T_active.mean()))
         suf = _units.suffix()
-        # ΔE = Σ ρCₚᵢ·(Tᵢ − T_amb)·dx²  [J, 1 m unit depth]
-        e_j = float(np.dot(rcp_active, T_active - grid.ambient_temp_k)) * solver.dx ** 2
         window.statusBar().showMessage(
-            f"ΔE: {_units.fmt_energy(e_j)}   "
             f"T  min: {lo:.1f} {suf}   avg: {avg:.1f} {suf}   max: {hi:.1f} {suf}"
         )
+        # Energy conservation display in the bottom bar.
+        # E_now = Σ ρCₚᵢ·(Tᵢ − T_amb)·dx²  [J/m, 1 m unit depth]
+        e_now = float(np.dot(rcp_active, T_active - grid.ambient_temp_k)) * solver.dx ** 2
+        e_ref = sim_clock.e_start + sim_clock.e_cumulative_fixed + sim_clock.e_cumulative_sinks
+        bottom_bar.update_energy(e_now, e_ref)
 
     sim_clock.tick.connect(_update_stats)
 
@@ -182,8 +189,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     # ── Temperature unit toggle ──────────────────────────────────────────────
     def _on_unit_changed(unit_str: str) -> None:
         _units.set_unit(_units.Unit(unit_str))
-        sidebar.props_panel.refresh_units()
-        sidebar.group_panel.refresh_units()
+        sidebar.refresh_units()
         toolbar.refresh_units()
         scene.refresh()
         _update_stats(sim_clock.sim_time)
@@ -448,12 +454,12 @@ def create_app() -> tuple[QApplication, MainWindow]:
         if window.is_dirty and not _prompt_save_before_continuing("New Grid"):
             return
 
-        dlg = NewGridDialog(window)
+        dlg = NewGridDialog(registry.all_materials, window)
         if dlg.exec() != NewGridDialog.DialogCode.Accepted:
             return
 
-        rows, cols, dx_m, ambient_k = dlg.values()
-        grid = Grid(rows, cols, registry.get("vacuum"), ambient_temp_k=ambient_k)
+        rows, cols, dx_m, ambient_k, base_mat_id = dlg.values()
+        grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
         solver.dx = dx_m
         history.clear()
         sim_clock.reset()
@@ -478,6 +484,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         history.push(grid)
 
     view.paint_started.connect(_push_history)
+    view.paint_started.connect(sim_clock.invalidate_arrays)
     sidebar.props_panel.pre_cell_modified.connect(_push_history)
     sidebar.group_panel.pre_group_modified.connect(_push_history)
 
@@ -497,12 +504,16 @@ def create_app() -> tuple[QApplication, MainWindow]:
     def _do_undo() -> None:
         if history.undo(grid):
             _restore_orphaned_materials()
+            sim_clock.invalidate_arrays()
+            scene.invalidate_fixed_cells()
             scene.refresh()
             window.mark_dirty()
 
     def _do_redo() -> None:
         if history.redo(grid):
             _restore_orphaned_materials()
+            sim_clock.invalidate_arrays()
+            scene.invalidate_fixed_cells()
             scene.refresh()
             window.mark_dirty()
 
@@ -518,9 +529,10 @@ def create_app() -> tuple[QApplication, MainWindow]:
     QShortcut(QKeySequence("W"),     window).activated.connect(toolbar.activate_fill_mode)
     QShortcut(QKeySequence("Space"), window).activated.connect(bottom_bar.toggle_play_pause)
     QShortcut(QKeySequence("R"),     window).activated.connect(bottom_bar.trigger_reset)
-    QShortcut(QKeySequence("F"),     window).activated.connect(view.fit_grid)
-    QShortcut(QKeySequence("G"),     window).activated.connect(toolbar.toggle_grid_lines)
-    QShortcut(QKeySequence("N"),     window).activated.connect(bottom_bar.trigger_step)
+    QShortcut(QKeySequence("F"),               window).activated.connect(view.fit_grid)
+    QShortcut(QKeySequence("Ctrl+Shift+F"),    window).activated.connect(view.zoom_to_selection)
+    QShortcut(QKeySequence("G"),               window).activated.connect(toolbar.toggle_grid_lines)
+    QShortcut(QKeySequence("N"),               window).activated.connect(bottom_bar.trigger_step)
 
     # ── Materials Manager ─────────────────────────────────────────────────────
 
@@ -535,12 +547,12 @@ def create_app() -> tuple[QApplication, MainWindow]:
     window.materials_manager_requested.connect(_on_materials_manager)
 
     # ── Welcome dialog ────────────────────────────────────────────────────────
-    welcome = WelcomeDialog(load_recent())
+    welcome = WelcomeDialog(load_recent(), registry.all_materials)
     welcome.exec()
 
     if welcome.action == "new":
-        rows, cols, dx_m, ambient_k = welcome.new_grid_values()
-        grid = Grid(rows, cols, registry.get("vacuum"), ambient_temp_k=ambient_k)
+        rows, cols, dx_m, ambient_k, base_mat_id = welcome.new_grid_values()
+        grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
         solver.dx = dx_m
         history.clear()
         sim_clock.reset()

@@ -60,6 +60,16 @@ def save_pytherm(
 
 
 def load_pytherm(path: Path) -> dict:
-    """Load and return the raw data from a .pytherm file."""
+    """Load and return the raw data from a .pytherm file.
+
+    Raises ValueError if the file format version is unrecognised.
+    """
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    file_ver = data.get("version", 0)
+    if file_ver > PYTHERM_VERSION:
+        raise ValueError(
+            f"File was saved by a newer version of PyTherm (format version {file_ver}). "
+            f"Please update to the latest release."
+        )
+    return data

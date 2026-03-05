@@ -36,6 +36,10 @@ class SimClock(QObject):
         self._speed = 1.0
         self._running = False
         self._steady_mode = False
+        self._e_start = 0.0             # thermal energy at last reset [J/m]
+        self._e_cumulative_fixed = 0.0  # total energy from fixed-T cells since reset [J/m]
+        self._e_cumulative_sinks = 0.0  # total energy from sink BCs since reset [J/m]
+        self._arr_cache: dict | None = None  # cached material arrays (valid while running)
 
         self._timer = QTimer(self)
         self._timer.setInterval(self.INTERVAL_MS)
@@ -50,6 +54,18 @@ class SimClock(QObject):
     @property
     def sim_time(self) -> float:
         return self._sim_time
+
+    @property
+    def e_start(self) -> float:
+        return self._e_start
+
+    @property
+    def e_cumulative_fixed(self) -> float:
+        return self._e_cumulative_fixed
+
+    @property
+    def e_cumulative_sinks(self) -> float:
+        return self._e_cumulative_sinks
 
     # --- Public API ---
 
@@ -69,19 +85,32 @@ class SimClock(QObject):
         if self._running:
             self._running = False
             self._timer.stop()
+            self._arr_cache = None
             self.state_changed.emit(False)
 
     def set_grid(self, grid: Grid) -> None:
         """Replace the grid (called when user creates a new simulation)."""
         self._grid = grid
+        self._arr_cache = None
+
+    def invalidate_arrays(self) -> None:
+        """Clear the cached material arrays. Call after any grid structure change while paused."""
+        self._arr_cache = None
 
     def reset(self) -> None:
         if self._running:
             self._running = False
             self._timer.stop()
             self.state_changed.emit(False)
+        self._arr_cache = None
         self._sim_time = 0.0
         self._grid.reset_temperatures()
+        T = self._grid.temperature_array()
+        rho_cp = self._grid.rho_cp_array()
+        dx2 = self._solver.dx ** 2
+        self._e_start = float(np.dot(rho_cp.ravel(), (T - self._grid.ambient_temp_k).ravel())) * dx2
+        self._e_cumulative_fixed = 0.0
+        self._e_cumulative_sinks = 0.0
         self._scene.reset_auto_heatmap_bounds()
         self._scene.refresh()
         self.tick.emit(0.0)
@@ -103,10 +132,17 @@ class SimClock(QObject):
     def _advance(self, dt_sim: float) -> None:
         self._solver.ambient_k = self._grid.ambient_temp_k  # sync for sink BCs
         T = self._grid.temperature_array()
-        k = self._grid.k_array()
-        rho_cp = self._grid.rho_cp_array()
-        fixed_mask = self._grid.fixed_mask()
-        fixed_temps = self._grid.fixed_temps_array()
+        if self._arr_cache is None:
+            self._arr_cache = {
+                "k":           self._grid.k_array(),
+                "rho_cp":      self._grid.rho_cp_array(),
+                "fixed_mask":  self._grid.fixed_mask(),
+                "fixed_temps": self._grid.fixed_temps_array(),
+            }
+        k           = self._arr_cache["k"]
+        rho_cp      = self._arr_cache["rho_cp"]
+        fixed_mask  = self._arr_cache["fixed_mask"]
+        fixed_temps = self._arr_cache["fixed_temps"]
         T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, duration=dt_sim)
 
         if np.any(np.isnan(T_new) | np.isinf(T_new)):
@@ -114,6 +150,8 @@ class SimClock(QObject):
             self.nan_detected.emit()
             return
 
+        self._e_cumulative_fixed += self._solver.last_e_from_fixed
+        self._e_cumulative_sinks += self._solver.last_e_from_sinks
         self._grid.import_temperatures(T_new)
         self._sim_time += dt_sim
         self._scene.refresh()

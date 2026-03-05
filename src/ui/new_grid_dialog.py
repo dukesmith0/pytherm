@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from PyQt6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
@@ -9,11 +10,14 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from src.rendering import units as _units
+from src.rendering.units import TempSpinBox
+
 
 class NewGridDialog(QDialog):
     """Modal dialog for configuring a new simulation grid."""
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, materials: dict, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("New Grid")
         self.setFixedWidth(280)
@@ -38,12 +42,18 @@ class NewGridDialog(QDialog):
         self._cell_size.setSuffix(" cm")
         form.addRow("Cell size:", self._cell_size)
 
-        self._ambient = QDoubleSpinBox()
-        self._ambient.setRange(-273.15, 10000.0)
+        lo, hi = _units.spinbox_range()
+        self._ambient = TempSpinBox()
+        self._ambient.setRange(lo, hi)
         self._ambient.setDecimals(1)
-        self._ambient.setValue(20.0)
-        self._ambient.setSuffix(" °C")
+        self._ambient.setValue(_units.to_display(293.15))  # 20 °C default
+        self._ambient.setSuffix(f" {_units.suffix()}")
         form.addRow("Ambient temp:", self._ambient)
+
+        self._mat_combo = QComboBox()
+        for mat in materials.values():
+            self._mat_combo.addItem(mat.name, mat.id)
+        form.addRow("Base material:", self._mat_combo)
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
@@ -55,10 +65,12 @@ class NewGridDialog(QDialog):
         layout.addLayout(form)
         layout.addWidget(buttons)
 
-    def values(self) -> tuple[int, int, float, float]:
-        """Return (rows, cols, dx_metres, ambient_kelvin)."""
-        rows = self._rows.value()
-        cols = self._cols.value()
-        dx_m = self._cell_size.value() / 100.0    # cm → m
-        ambient_k = self._ambient.value() + 273.15 # °C → K
-        return rows, cols, dx_m, ambient_k
+    def values(self) -> tuple[int, int, float, float, str]:
+        """Return (rows, cols, dx_metres, ambient_kelvin, base_material_id)."""
+        return (
+            self._rows.value(),
+            self._cols.value(),
+            self._cell_size.value() / 100.0,
+            _units.from_display(self._ambient.value()),
+            self._mat_combo.currentData(),
+        )

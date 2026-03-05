@@ -5,19 +5,17 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
+*.egg
+
+# Build / distribution
 dist/
 build/
-*.egg
+*.spec
 
 # Virtual environments
 .venv/
 venv/
 env/
-
-# PyInstaller
-*.spec
-dist/
-build/
 
 # IDE
 .vscode/
@@ -28,6 +26,7 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # User data (not committed -- each user has their own)
 data/user_materials.json
@@ -35,6 +34,11 @@ data/recent_files.json
 
 # Atomic write temporaries (should never persist, but guard against crashes)
 *.tmp
+
+# Test / coverage artifacts
+.coverage
+htmlcov/
+.pytest_cache/
 
 # Vibe
 .vibe/

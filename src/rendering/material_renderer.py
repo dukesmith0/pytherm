@@ -4,10 +4,15 @@ from PyQt6.QtGui import QColor, QPainter, QPen
 
 from src.simulation.cell import Cell
 
+_color_cache: dict[str, QColor] = {}
+
 
 def cell_color(cell: Cell) -> QColor:
     """Return the display color for a cell in material view."""
-    return QColor(cell.material.color)
+    color = cell.material.color
+    if color not in _color_cache:
+        _color_cache[color] = QColor(color)
+    return _color_cache[color]
 
 
 def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:

@@ -1,6 +1,4 @@
-# PyTherm v0.2.0
-
-A 2D thermal simulation tool. Draw a grid of materials, set heat sources and boundary conditions, then watch heat conduct through your design in real time.
+![PyTherm](banner.svg)
 
 ## Requirements
 
@@ -37,11 +35,17 @@ Select a material from the sidebar on the left, then paint it onto the grid.
 
 Switch between **Draw**, **Fill**, and **Select** mode using the toolbar buttons or the D / W / S keys. In **Fill** mode, clicking a cell flood-fills all contiguous same-material cells with the active material.
 
+Enable **Paint temp** in the sidebar to lock a starting temperature onto every newly painted cell.
+
 ## Editing Cells
 
 Click a cell in Select mode to view and edit its properties in the sidebar. You can change its material, set a starting temperature, or mark it as a **fixed-temperature heat source**.
 
 To edit multiple cells at once, hold Shift or Ctrl and drag to select a group. Use **(no change)** in the material dropdown to update temperature or fixed-T settings without overwriting cells that have different materials.
+
+In Select mode, **Ctrl+C** copies the hovered cell and **Ctrl+V** pastes its material and temperature to all selected cells. Press **Ctrl+Shift+F** to zoom the view to fit the current selection.
+
+Hover over any cell to see a tooltip with live temperature, stored energy relative to ambient (ΔE), thermal time constant (τ), and thermal resistance (R).
 
 ## Simulation
 
@@ -51,7 +55,7 @@ Use the **Step** button (or press **N**) to advance the simulation by a fixed du
 
 Enable **Stop at SS** to run until the simulation reaches steady state — the simulation pauses automatically when the maximum temperature change per step falls below 0.01 K.
 
-The status bar at the bottom shows live min / avg / max temperature of all non-vacuum cells.
+The status bar shows live min / avg / max temperature of all non-vacuum cells. The bottom bar also shows an energy conservation display (E / ref / err) updated every tick.
 
 ## Materials
 
@@ -71,7 +75,7 @@ Use the edge buttons in the toolbar to set each grid border to **Insulator** (no
 
 ## Temperature Units
 
-Switch between Celsius, Kelvin, and Fahrenheit with the **Unit** dropdown in the toolbar.
+Switch between Celsius, Kelvin, Fahrenheit, and Rankine with the **Unit** dropdown. You can also type a value with a unit suffix directly into any temperature spinbox (e.g. `100C`, `373K`, `212F`) and it converts automatically.
 
 ## Files
 
@@ -98,9 +102,12 @@ Switch between Celsius, Kelvin, and Fahrenheit with the **Unit** dropdown in the
 | N | Single step |
 | F | Fit grid to view |
 | G | Toggle grid lines |
+| Ctrl+C | Copy hovered cell |
+| Ctrl+V | Paste to selection |
 | Ctrl+Z | Undo |
 | Ctrl+Shift+Z | Redo |
 | Ctrl+E | Export view as image |
+| Ctrl+Shift+F | Zoom to selection |
 
 ## Navigation
 

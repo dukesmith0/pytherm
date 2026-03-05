@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
 )
 
 from src.rendering import units as _units
+from src.rendering.units import TempSpinBox
 
 
 class Toolbar(QToolBar):
@@ -125,20 +126,21 @@ class Toolbar(QToolBar):
         hm.addWidget(self._hm_auto)
 
         hm.addWidget(QLabel("Min:"))
-        self._hm_min = QDoubleSpinBox()
-        self._hm_min.setRange(-273.15, 10000.0)
-        self._hm_min.setValue(0.0)
-        self._hm_min.setSuffix(" \u00b0C")
+        self._hm_min = TempSpinBox()
+        lo, hi = _units.spinbox_range()
+        self._hm_min.setRange(lo, hi)
+        self._hm_min.setValue(_units.to_display(self._hm_min_k))
+        self._hm_min.setSuffix(f" {_units.suffix()}")
         self._hm_min.setFixedWidth(100)
         self._hm_min.setEnabled(False)
         self._hm_min.setToolTip("Minimum temperature \u2014 mapped to blue on the heatmap (requires Auto off)")
         hm.addWidget(self._hm_min)
 
         hm.addWidget(QLabel("Max:"))
-        self._hm_max = QDoubleSpinBox()
-        self._hm_max.setRange(-273.15, 10000.0)
-        self._hm_max.setValue(100.0)
-        self._hm_max.setSuffix(" \u00b0C")
+        self._hm_max = TempSpinBox()
+        self._hm_max.setRange(lo, hi)
+        self._hm_max.setValue(_units.to_display(self._hm_max_k))
+        self._hm_max.setSuffix(f" {_units.suffix()}")
         self._hm_max.setFixedWidth(100)
         self._hm_max.setEnabled(False)
         self._hm_max.setToolTip("Maximum temperature \u2014 mapped to red on the heatmap (requires Auto off)")

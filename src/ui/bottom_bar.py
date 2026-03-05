@@ -14,6 +14,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from src.rendering import units as _units
+
 
 class BottomBar(QToolBar):
     """Bottom toolbar -- simulation playback controls and time display.
@@ -102,6 +104,15 @@ class BottomBar(QToolBar):
         self._substep_label.setStyleSheet("padding: 0 4px; color: #666; font-size: 11px;")
         self._layout.addWidget(self._substep_label)
 
+        self._energy_label = QLabel("")
+        self._energy_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._energy_label.setToolTip(
+            "E: current stored energy above ambient\n"
+            "ref: E_start + energy in from fixed cells + energy in from sinks\n"
+            "err: conservation error (E \u2212 ref); should be near zero"
+        )
+        self._layout.addWidget(self._energy_label)
+
         self._layout.addStretch()
 
         # -- Unit toggle (right-anchored) -------------------------------------
@@ -114,7 +125,7 @@ class BottomBar(QToolBar):
         self._unit_combo = QComboBox()
         self._unit_combo.setFixedWidth(58)
         self._unit_combo.setToolTip("Temperature display unit \u2014 applies to all spinboxes and the heatmap labels")
-        for u in ("\u00b0C", "K", "\u00b0F"):
+        for u in ("\u00b0C", "K", "\u00b0F", "R"):
             self._unit_combo.addItem(u)
         self._layout.addWidget(self._unit_combo)
 
@@ -171,6 +182,15 @@ class BottomBar(QToolBar):
     def update_substep_count(self, n: int) -> None:
         """Update the sub-step count display next to the sim-time."""
         self._substep_label.setText(f"[{n} sub]")
+
+    def update_energy(self, e_now: float, e_ref: float) -> None:
+        """Update the energy conservation display."""
+        err = e_now - e_ref
+        self._energy_label.setText(
+            f"E: {_units.fmt_energy(e_now)}  "
+            f"ref: {_units.fmt_energy(e_ref)}  "
+            f"err: {_units.fmt_energy(err)}"
+        )
 
     # -- Internal -------------------------------------------------------------
 

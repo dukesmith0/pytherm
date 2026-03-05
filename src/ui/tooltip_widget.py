@@ -34,7 +34,10 @@ class CellTooltip(QWidget):
         self._alpha  = QLabel()
         self._temp   = QLabel()
         self._energy = QLabel()
-        for lbl in (self._k, self._alpha, self._temp, self._energy):
+        self._tau    = QLabel()
+        self._resist = QLabel()
+        for lbl in (self._k, self._alpha, self._temp, self._energy,
+                    self._tau, self._resist):
             lbl.setStyleSheet("color: #aaa; font-size: 11px;")
             layout.addWidget(lbl)
 
@@ -48,12 +51,23 @@ class CellTooltip(QWidget):
 
         rho_cp = mat.rho * mat.cp
         if rho_cp > 0 and dx_m > 0:
-            # ΔE = ρ·Cₚ·(T − T_amb)·dx²  [J, assuming 1 m unit depth]
             delta_e = rho_cp * (cell.temperature - ambient_k) * dx_m ** 2
             self._energy.setText(f"ΔE =  {_units.fmt_energy(delta_e)}")
             self._energy.setVisible(True)
         else:
             self._energy.setVisible(False)
+
+        if rho_cp > 0 and dx_m > 0 and mat.k > 0:
+            # τ = ρ·Cₚ·dx² / k  [s]  — time constant to equilibrate one cell
+            tau = rho_cp * dx_m ** 2 / mat.k
+            self._tau.setText(f"τ  =  {tau:.3g} s")
+            self._tau.setVisible(True)
+            # R = dx / k  [K·m²/W]  — thermal resistance per cell face
+            self._resist.setText(f"R  =  {dx_m / mat.k:.4g} K·m²/W")
+            self._resist.setVisible(True)
+        else:
+            self._tau.setVisible(False)
+            self._resist.setVisible(False)
 
         self.adjustSize()
 

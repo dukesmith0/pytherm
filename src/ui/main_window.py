@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Callable
 
 from PyQt6.QtCore import Qt, QUrl, pyqtSignal
-from PyQt6.QtGui import QDesktopServices
+from PyQt6.QtGui import QColor, QDesktopServices
 from PyQt6.QtWidgets import (
     QDialog, QDialogButtonBox, QFrame, QHBoxLayout, QLabel,
-    QMainWindow, QMessageBox, QTextEdit, QVBoxLayout, QWidget,
+    QMainWindow, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget,
 )
 
 from src.version import VERSION
@@ -59,8 +59,6 @@ class MainWindow(QMainWindow):
         save_as_action = file_menu.addAction("Save As...")
         save_as_action.setShortcut("Ctrl+Shift+S")
         save_as_action.triggered.connect(self.save_as_requested)
-
-        file_menu.addSeparator()
 
         file_menu.addSeparator()
 
@@ -123,27 +121,67 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _show_about(self) -> None:
+        from src.ui.welcome_dialog import make_logo_pixmap
+
         dlg = QDialog(self)
         dlg.setWindowTitle("About PyTherm")
-        dlg.setFixedSize(340, 200)
+        dlg.setFixedWidth(380)
 
-        layout = QVBoxLayout(dlg)
-        layout.setContentsMargins(24, 20, 24, 16)
-        layout.setSpacing(6)
+        root = QVBoxLayout(dlg)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        layout.addWidget(QLabel(f"<h2>PyTherm v{VERSION}</h2>"))
-        layout.addWidget(QLabel("2D thermal simulation — FDM heat conduction"))
-        layout.addWidget(QLabel("Author: Duke Smith"))
+        # Dark header matching the welcome dialog aesthetic
+        header = QWidget()
+        header.setAutoFillBackground(True)
+        pal = header.palette()
+        pal.setColor(header.backgroundRole(), QColor(22, 22, 42))
+        header.setPalette(pal)
 
-        gh = QLabel('<a href="https://github.com/dukesmith0/pytherm">github.com/dukesmith0/pytherm</a>')
+        hlayout = QHBoxLayout(header)
+        hlayout.setContentsMargins(20, 18, 20, 18)
+        hlayout.setSpacing(16)
+
+        logo = QLabel()
+        logo.setPixmap(make_logo_pixmap(60))
+        logo.setFixedSize(60, 60)
+        hlayout.addWidget(logo)
+
+        text_col = QVBoxLayout()
+        text_col.setSpacing(3)
+        text_col.setContentsMargins(0, 0, 0, 0)
+
+        title = QLabel("PyTherm")
+        title.setStyleSheet("color: #fff; font-size: 22px; font-weight: bold;")
+        text_col.addWidget(title)
+
+        sub = QLabel("2D Heat Conduction Simulator")
+        sub.setStyleSheet("color: #9999cc; font-size: 11px;")
+        text_col.addWidget(sub)
+
+        meta = QLabel(f'v{VERSION}  ·  Craig "Duke" Smith  ·  2026')
+        meta.setStyleSheet("color: #555577; font-size: 10px;")
+        text_col.addWidget(meta)
+
+        gh = QLabel('<a href="https://github.com/dukesmith0/pytherm" '
+                    'style="color:#4488bb;">github.com/dukesmith0/pytherm</a>')
         gh.setOpenExternalLinks(True)
-        layout.addWidget(gh)
+        gh.setStyleSheet("font-size: 10px;")
+        text_col.addWidget(gh)
 
-        layout.addStretch()
+        hlayout.addLayout(text_col)
+        hlayout.addStretch()
+        root.addWidget(header)
 
-        btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        btns.rejected.connect(dlg.reject)
-        layout.addWidget(btns)
+        footer = QWidget()
+        flayout = QHBoxLayout(footer)
+        flayout.setContentsMargins(16, 12, 16, 12)
+        flayout.addStretch()
+        close_btn = QPushButton("Close")
+        close_btn.setFixedWidth(80)
+        close_btn.clicked.connect(dlg.accept)
+        flayout.addWidget(close_btn)
+        root.addWidget(footer)
 
         dlg.exec()
 
