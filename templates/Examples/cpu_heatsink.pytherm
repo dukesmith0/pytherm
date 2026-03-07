@@ -1,0 +1,3381 @@
+{
+  "version": 1,
+  "grid": {
+    "rows": 14,
+    "cols": 24,
+    "ambient_temp_k": 298.15,
+    "dx_m": 0.001
+  },
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": true,
+      "fixed_temp_k": 298.15,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 2,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 3,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 7,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 8,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 9,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 10,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 11,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 12,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 13,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 14,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 15,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 16,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 17,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 18,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 19,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 20,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 21,
+      "material_id": "al6061",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 22,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 23,
+      "material_id": "air",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 0,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 1,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 2,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 3,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 4,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 5,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 6,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 7,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 8,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 9,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 10,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 11,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 12,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 13,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 14,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 15,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 16,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 17,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 18,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 19,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 20,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 21,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 22,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 23,
+      "material_id": "cu",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 0,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 1,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 2,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 3,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 4,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 5,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 6,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 7,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 8,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 9,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 10,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 11,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 12,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 13,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 14,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 15,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 16,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 17,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 18,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 19,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 20,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 21,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 22,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 23,
+      "material_id": "therm_paste",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 8,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 9,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 10,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 11,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 12,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 13,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 14,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 15,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 8,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 8,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 8,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 9,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 10,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 11,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 12,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 13,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 14,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 15,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 9,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 9,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 8,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 9,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 10,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 11,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 12,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 13,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 14,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 15,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 10,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 10,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 8,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 9,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 10,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 11,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 12,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 13,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 14,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 15,
+      "material_id": "silicon",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 200000.0
+    },
+    {
+      "row": 11,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 11,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 8,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 9,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 10,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 11,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 12,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 13,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 14,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 15,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 12,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 0,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 1,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 2,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 3,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 4,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 5,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 6,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 7,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 8,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 9,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 10,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 11,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 12,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 13,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 14,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 15,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 16,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 17,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 18,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 19,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 20,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 21,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 22,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 13,
+      "col": 23,
+      "material_id": "fr4",
+      "temperature_k": 298.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    }
+  ],
+  "custom_materials": [],
+  "software_version": "0.4.0",
+  "sim_settings": {
+    "boundary_conditions": {
+      "top": "insulator",
+      "bottom": "sink",
+      "left": "insulator",
+      "right": "insulator"
+    }
+  }
+}

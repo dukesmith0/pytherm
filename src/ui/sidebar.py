@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
+    QButtonGroup,
     QCheckBox,
     QComboBox,
+    QDoubleSpinBox,
     QFrame,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
+    QRadioButton,
     QScrollArea,
     QStackedWidget,
     QVBoxLayout,
@@ -255,6 +259,10 @@ class MaterialPicker(QWidget):
         btn.clicked.connect(lambda _checked, m=mat: self._set_active(m))
         return btn
 
+    def select_material(self, material: Material) -> None:
+        """Programmatically select a material (e.g. from eyedropper) without emitting material_selected."""
+        self._set_active(material, emit=False)
+
     def _set_active(self, material: Material, emit: bool = True) -> None:
         for btn in self._buttons.values():
             btn.setChecked(False)
@@ -286,6 +294,7 @@ class CellPropertiesPanel(QWidget):
         self._mat_ids = list(materials.keys())
         self._current: tuple[int, int] | None = None
         self._sim_running: bool = False
+        self._dx_m: float = 0.01
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -295,14 +304,21 @@ class CellPropertiesPanel(QWidget):
         header.setStyleSheet("color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;")
         layout.addWidget(header)
 
-        # Material selector
         layout.addWidget(_small_label("Material"))
         self._mat_combo = QComboBox()
         for mat in materials.values():
             self._mat_combo.addItem(mat.name, mat.id)
         layout.addWidget(self._mat_combo)
 
-        # Temperature + heat source — hidden for vacuum cells
+        layout.addWidget(_small_label("Label"))
+        self._label_edit = QComboBox()
+        self._label_edit.setEditable(True)
+        self._label_edit.lineEdit().setMaxLength(8)
+        self._label_edit.lineEdit().setPlaceholderText("up to 8 chars")
+        self._label_edit.setStyleSheet("font-size: 11px;")
+        self._label_edit.addItem("")
+        layout.addWidget(self._label_edit)
+
         self._thermal_section = QWidget()
         ts_layout = QVBoxLayout(self._thermal_section)
         ts_layout.setContentsMargins(0, 0, 0, 0)
@@ -316,51 +332,125 @@ class CellPropertiesPanel(QWidget):
         self._temp_spin.setSuffix(f" {_units.suffix()}")
         ts_layout.addWidget(self._temp_spin)
 
-        self._fixed_check = QCheckBox("Heat source (fixed T)")
-        self._fixed_check.setStyleSheet("color: #ccc; font-size: 11px;")
-        ts_layout.addWidget(self._fixed_check)
+        self._heat_check = QCheckBox("Heat source")
+        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        ts_layout.addWidget(self._heat_check)
 
-        self._fixed_row = QWidget()
-        fixed_inner = QVBoxLayout(self._fixed_row)
-        fixed_inner.setContentsMargins(0, 0, 0, 0)
-        fixed_inner.setSpacing(2)
-        fixed_inner.addWidget(_small_label("Fixed temperature"))
+        self._heat_row = QWidget()
+        heat_inner = QVBoxLayout(self._heat_row)
+        heat_inner.setContentsMargins(8, 0, 0, 0)
+        heat_inner.setSpacing(4)
+
+        radio_row = QWidget()
+        radio_layout = QHBoxLayout(radio_row)
+        radio_layout.setContentsMargins(0, 0, 0, 0)
+        radio_layout.setSpacing(8)
+        self._fixed_radio = QRadioButton("Fixed T")
+        self._flux_radio  = QRadioButton("Heat flux")
+        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._radio_group = QButtonGroup(self)
+        self._radio_group.addButton(self._fixed_radio)
+        self._radio_group.addButton(self._flux_radio)
+        self._fixed_radio.setChecked(True)
+        radio_layout.addWidget(self._fixed_radio)
+        radio_layout.addWidget(self._flux_radio)
+        radio_layout.addStretch()
+        heat_inner.addWidget(radio_row)
+
+        self._fixed_area = QWidget()
+        fa_layout = QVBoxLayout(self._fixed_area)
+        fa_layout.setContentsMargins(0, 0, 0, 0)
+        fa_layout.setSpacing(2)
+        fa_layout.addWidget(_small_label("Fixed temperature"))
         self._fixed_temp_spin = TempSpinBox()
         self._fixed_temp_spin.setRange(lo, hi)
         self._fixed_temp_spin.setDecimals(1)
         self._fixed_temp_spin.setSuffix(f" {_units.suffix()}")
-        fixed_inner.addWidget(self._fixed_temp_spin)
-        self._fixed_row.setVisible(False)
-        ts_layout.addWidget(self._fixed_row)
+        fa_layout.addWidget(self._fixed_temp_spin)
+        heat_inner.addWidget(self._fixed_area)
+
+        self._flux_area = QWidget()
+        fla_layout = QVBoxLayout(self._flux_area)
+        fla_layout.setContentsMargins(0, 0, 0, 0)
+        fla_layout.setSpacing(2)
+        fla_layout.addWidget(_small_label("Heat flux"))
+        self._flux_m2_spin = QDoubleSpinBox()
+        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setDecimals(2)
+        self._flux_m2_spin.setSuffix(" W/m²")
+        self._flux_m2_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_m2_spin)
+        self._flux_cell_spin = QDoubleSpinBox()
+        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setDecimals(4)
+        self._flux_cell_spin.setSuffix(" W/cell")
+        self._flux_cell_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_cell_spin)
+        self._flux_area.setVisible(False)
+        heat_inner.addWidget(self._flux_area)
+
+        self._heat_row.setVisible(False)
+        ts_layout.addWidget(self._heat_row)
 
         layout.addWidget(self._thermal_section)
         layout.addStretch()
 
-        # Connections
         self._mat_combo.currentIndexChanged.connect(self._on_material_changed)
+        self._label_edit.lineEdit().editingFinished.connect(self._on_label_changed)
+        self._label_edit.activated.connect(lambda _: self._on_label_changed())
         self._temp_spin.valueChanged.connect(self._on_temp_changed)
-        self._fixed_check.toggled.connect(self._on_fixed_toggled)
+        self._heat_check.toggled.connect(self._on_heat_toggled)
+        self._fixed_radio.toggled.connect(self._on_mode_radio_toggled)
+        self._flux_radio.toggled.connect(self._on_mode_radio_toggled)
         self._fixed_temp_spin.valueChanged.connect(self._on_fixed_temp_changed)
+        self._flux_m2_spin.valueChanged.connect(self._on_flux_m2_changed)
+        self._flux_cell_spin.valueChanged.connect(self._on_flux_cell_changed)
 
         self.setEnabled(False)
+
+    def set_dx(self, dx_m: float) -> None:
+        self._dx_m = dx_m
+        if self._current is not None:
+            self.show_cell(*self._current)
 
     def show_cell(self, row: int, col: int) -> None:
         self._current = (row, col)
         cell = self._grid.cell(row, col)
+        is_heat = cell.is_fixed or cell.is_flux
 
-        for w in (self._mat_combo, self._temp_spin, self._fixed_check, self._fixed_temp_spin):
+        for w in (self._mat_combo, self._temp_spin, self._heat_check,
+                  self._fixed_radio, self._flux_radio,
+                  self._fixed_temp_spin, self._flux_m2_spin, self._flux_cell_spin):
             w.blockSignals(True)
+        self._label_edit.blockSignals(True)
 
         idx = self._mat_ids.index(cell.material.id) if cell.material.id in self._mat_ids else 0
         self._mat_combo.setCurrentIndex(idx)
+        self._label_edit.setCurrentText(cell.label)
         self._temp_spin.setValue(_units.to_display(cell.temperature))
-        self._fixed_check.setChecked(cell.is_fixed)
-        self._fixed_temp_spin.setValue(_units.to_display(cell.fixed_temp))
-        self._fixed_row.setVisible(cell.is_fixed)
-        self._temp_spin.setEnabled(not cell.is_fixed and not self._sim_running)
+        self._heat_check.setChecked(is_heat)
+        self._heat_row.setVisible(is_heat)
+        fixed_t_k = cell.fixed_temp if cell.fixed_temp > 1.0 else cell.temperature
+        self._fixed_temp_spin.setValue(_units.to_display(fixed_t_k))
+        if cell.is_flux:
+            self._flux_radio.setChecked(True)
+            self._flux_m2_spin.setValue(cell.flux_q)
+            dx2 = self._dx_m ** 2
+            self._flux_cell_spin.setValue(cell.flux_q * dx2)
+            self._fixed_area.setVisible(False)
+            self._flux_area.setVisible(True)
+        else:
+            self._fixed_radio.setChecked(True)
+            self._fixed_area.setVisible(True)
+            self._flux_area.setVisible(False)
+        self._temp_spin.setEnabled(not is_heat and not self._sim_running)
 
-        for w in (self._mat_combo, self._temp_spin, self._fixed_check, self._fixed_temp_spin):
+        for w in (self._mat_combo, self._temp_spin, self._heat_check,
+                  self._fixed_radio, self._flux_radio,
+                  self._fixed_temp_spin, self._flux_m2_spin, self._flux_cell_spin):
             w.blockSignals(False)
+        self._label_edit.blockSignals(False)
 
         self._thermal_section.setVisible(not cell.material.is_vacuum)
         self.setEnabled(True)
@@ -379,6 +469,22 @@ class CellPropertiesPanel(QWidget):
         self._current = None
         self.setEnabled(False)
 
+    def refresh_labels(self) -> None:
+        labels = sorted({
+            self._grid.cell(r, c).label
+            for r in range(self._grid.rows)
+            for c in range(self._grid.cols)
+            if self._grid.cell(r, c).label
+        })
+        current = self._label_edit.currentText()
+        self._label_edit.blockSignals(True)
+        self._label_edit.clear()
+        self._label_edit.addItem("")
+        for lbl in labels:
+            self._label_edit.addItem(lbl)
+        self._label_edit.setCurrentText(current)
+        self._label_edit.blockSignals(False)
+
     def refresh_display(self) -> None:
         if self._current is None:
             return
@@ -391,30 +497,25 @@ class CellPropertiesPanel(QWidget):
         self._sim_running = running
         if self._current is not None:
             cell = self._grid.cell(*self._current)
-            self._temp_spin.setEnabled(not running and not cell.is_fixed)
+            is_heat = cell.is_fixed or cell.is_flux
+            self._temp_spin.setEnabled(not running and not is_heat)
 
     def refresh_units(self) -> None:
         suf    = f" {_units.suffix()}"
         lo, hi = _units.spinbox_range()
+        for spin in (self._temp_spin, self._fixed_temp_spin):
+            spin.blockSignals(True)
+            spin.setSuffix(suf)
+            spin.setRange(lo, hi)
+            spin.blockSignals(False)
         if self._current is not None:
             cell = self._grid.cell(*self._current)
-            for spin in (self._temp_spin, self._fixed_temp_spin):
-                spin.blockSignals(True)
-                spin.setSuffix(suf)
-                spin.setRange(lo, hi)
-                spin.blockSignals(False)
             self._temp_spin.blockSignals(True)
             self._temp_spin.setValue(_units.to_display(cell.temperature))
             self._temp_spin.blockSignals(False)
             self._fixed_temp_spin.blockSignals(True)
             self._fixed_temp_spin.setValue(_units.to_display(cell.fixed_temp))
             self._fixed_temp_spin.blockSignals(False)
-        else:
-            for spin in (self._temp_spin, self._fixed_temp_spin):
-                spin.blockSignals(True)
-                spin.setSuffix(suf)
-                spin.setRange(lo, hi)
-                spin.blockSignals(False)
 
     # --- Signal handlers ---
 
@@ -426,10 +527,17 @@ class CellPropertiesPanel(QWidget):
         mat = self._materials[mat_id]
         r, c = self._current
         if mat.is_vacuum:
-            self._grid.set_cell(r, c, material=mat, is_fixed=False)
+            self._grid.set_cell(r, c, material=mat, is_fixed=False, is_flux=False)
         else:
             self._grid.set_cell(r, c, material=mat)
         self._thermal_section.setVisible(not mat.is_vacuum)
+        self.cell_modified.emit()
+
+    def _on_label_changed(self) -> None:
+        if self._current is None:
+            return
+        r, c = self._current
+        self._grid.set_cell(r, c, label=self._label_edit.currentText()[:8])
         self.cell_modified.emit()
 
     def _on_temp_changed(self, value: float) -> None:
@@ -439,27 +547,74 @@ class CellPropertiesPanel(QWidget):
         self._grid.set_cell(r, c, temperature=_units.from_display(value))
         self.cell_modified.emit()
 
-    def _on_fixed_toggled(self, checked: bool) -> None:
+    def _on_heat_toggled(self, checked: bool) -> None:
         if self._current is None:
             return
         self.pre_cell_modified.emit()
         r, c = self._current
-        self._grid.set_cell(r, c, is_fixed=checked)
-        self._fixed_row.setVisible(checked)
-        self._temp_spin.setEnabled(not checked)
-        if checked:
-            cur_temp = self._temp_spin.value()
-            self._fixed_temp_spin.blockSignals(True)
-            self._fixed_temp_spin.setValue(cur_temp)
-            self._fixed_temp_spin.blockSignals(False)
-            self._grid.set_cell(r, c, fixed_temp=_units.from_display(cur_temp))
+        self._heat_row.setVisible(checked)
+        self._temp_spin.setEnabled(not checked and not self._sim_running)
+        if not checked:
+            self._grid.set_cell(r, c, is_fixed=False, is_flux=False)
+        else:
+            # Apply whichever mode is currently selected
+            self._apply_heat_mode(r, c, initialising=True)
         self.cell_modified.emit()
+
+    def _on_mode_radio_toggled(self, checked: bool) -> None:
+        if not checked or self._current is None:
+            return
+        self._fixed_area.setVisible(self._fixed_radio.isChecked())
+        self._flux_area.setVisible(self._flux_radio.isChecked())
+        if self._heat_check.isChecked():
+            self.pre_cell_modified.emit()
+            r, c = self._current
+            self._apply_heat_mode(r, c, initialising=False)
+            self.cell_modified.emit()
+
+    def _apply_heat_mode(self, r: int, c: int, initialising: bool) -> None:
+        if self._fixed_radio.isChecked():
+            cur_temp = self._temp_spin.value()
+            if initialising:
+                self._fixed_temp_spin.blockSignals(True)
+                self._fixed_temp_spin.setValue(cur_temp)
+                self._fixed_temp_spin.blockSignals(False)
+            self._grid.set_cell(r, c, is_fixed=True, is_flux=False,
+                                fixed_temp=_units.from_display(self._fixed_temp_spin.value()))
+            self._fixed_area.setVisible(True)
+            self._flux_area.setVisible(False)
+        else:
+            self._grid.set_cell(r, c, is_flux=True, is_fixed=False,
+                                flux_q=self._flux_m2_spin.value())
+            self._fixed_area.setVisible(False)
+            self._flux_area.setVisible(True)
 
     def _on_fixed_temp_changed(self, value: float) -> None:
         if self._current is None:
             return
         r, c = self._current
         self._grid.set_cell(r, c, fixed_temp=_units.from_display(value))
+        self.cell_modified.emit()
+
+    def _on_flux_m2_changed(self, value: float) -> None:
+        if self._current is None:
+            return
+        r, c = self._current
+        self._flux_cell_spin.blockSignals(True)
+        self._flux_cell_spin.setValue(value * self._dx_m ** 2)
+        self._flux_cell_spin.blockSignals(False)
+        self._grid.set_cell(r, c, flux_q=value)
+        self.cell_modified.emit()
+
+    def _on_flux_cell_changed(self, value: float) -> None:
+        if self._current is None:
+            return
+        r, c = self._current
+        q = value / self._dx_m ** 2 if self._dx_m > 0 else 0.0
+        self._flux_m2_spin.blockSignals(True)
+        self._flux_m2_spin.setValue(q)
+        self._flux_m2_spin.blockSignals(False)
+        self._grid.set_cell(r, c, flux_q=q)
         self.cell_modified.emit()
 
 
@@ -476,6 +631,7 @@ class GroupEditPanel(QWidget):
         self._mat_ids = list(materials.keys())
         self._cells: list[tuple[int, int]] = []
         self._prev_check_state: Qt.CheckState = Qt.CheckState.Unchecked
+        self._dx_m: float = 0.01
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -504,23 +660,76 @@ class GroupEditPanel(QWidget):
         self._temp_spin.setSuffix(f" {_units.suffix()}")
         layout.addWidget(self._temp_spin)
 
-        self._fixed_check = QCheckBox("Heat source (fixed T)")
-        self._fixed_check.setTristate(True)
-        self._fixed_check.setStyleSheet("color: #ccc; font-size: 11px;")
-        layout.addWidget(self._fixed_check)
+        self._heat_check = QCheckBox("Heat source")
+        self._heat_check.setTristate(True)
+        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        layout.addWidget(self._heat_check)
 
-        self._fixed_row = QWidget()
-        fixed_inner = QVBoxLayout(self._fixed_row)
-        fixed_inner.setContentsMargins(0, 0, 0, 0)
-        fixed_inner.setSpacing(2)
-        fixed_inner.addWidget(_small_label("Fixed temperature"))
+        # Heat source detail row
+        self._heat_row = QWidget()
+        heat_inner = QVBoxLayout(self._heat_row)
+        heat_inner.setContentsMargins(8, 0, 0, 0)
+        heat_inner.setSpacing(4)
+
+        radio_row = QWidget()
+        radio_layout = QHBoxLayout(radio_row)
+        radio_layout.setContentsMargins(0, 0, 0, 0)
+        radio_layout.setSpacing(8)
+        self._fixed_radio = QRadioButton("Fixed T")
+        self._flux_radio  = QRadioButton("Heat flux")
+        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._radio_group = QButtonGroup(self)
+        self._radio_group.addButton(self._fixed_radio)
+        self._radio_group.addButton(self._flux_radio)
+        self._fixed_radio.setChecked(True)
+        radio_layout.addWidget(self._fixed_radio)
+        radio_layout.addWidget(self._flux_radio)
+        radio_layout.addStretch()
+        heat_inner.addWidget(radio_row)
+
+        self._fixed_area = QWidget()
+        fa_layout = QVBoxLayout(self._fixed_area)
+        fa_layout.setContentsMargins(0, 0, 0, 0)
+        fa_layout.setSpacing(2)
+        fa_layout.addWidget(_small_label("Fixed temperature"))
         self._fixed_temp_spin = TempSpinBox()
         self._fixed_temp_spin.setRange(lo, hi)
         self._fixed_temp_spin.setDecimals(1)
         self._fixed_temp_spin.setSuffix(f" {_units.suffix()}")
-        fixed_inner.addWidget(self._fixed_temp_spin)
-        self._fixed_row.setVisible(False)
-        layout.addWidget(self._fixed_row)
+        fa_layout.addWidget(self._fixed_temp_spin)
+        heat_inner.addWidget(self._fixed_area)
+
+        self._flux_area = QWidget()
+        fla_layout = QVBoxLayout(self._flux_area)
+        fla_layout.setContentsMargins(0, 0, 0, 0)
+        fla_layout.setSpacing(2)
+        fla_layout.addWidget(_small_label("Heat flux"))
+        self._flux_m2_spin = QDoubleSpinBox()
+        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setDecimals(2)
+        self._flux_m2_spin.setSuffix(" W/m²")
+        self._flux_m2_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_m2_spin)
+        self._flux_cell_spin = QDoubleSpinBox()
+        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setDecimals(4)
+        self._flux_cell_spin.setSuffix(" W/cell")
+        self._flux_cell_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_cell_spin)
+        self._flux_area.setVisible(False)
+        heat_inner.addWidget(self._flux_area)
+
+        self._heat_row.setVisible(False)
+        layout.addWidget(self._heat_row)
+
+        layout.addWidget(_small_label("Label"))
+        self._label_edit = QComboBox()
+        self._label_edit.setEditable(True)
+        self._label_edit.lineEdit().setMaxLength(8)
+        self._label_edit.lineEdit().setPlaceholderText("(no change)")
+        self._label_edit.setStyleSheet("font-size: 11px;")
+        layout.addWidget(self._label_edit)
 
         self._apply_btn = QPushButton("Apply to selection")
         self._apply_btn.setStyleSheet("""
@@ -537,12 +746,19 @@ class GroupEditPanel(QWidget):
 
         layout.addStretch()
 
-        self._fixed_check.toggled.connect(self._on_fixed_toggled)
-        self._fixed_check.clicked.connect(self._on_fixed_check_clicked)
+        self._heat_check.toggled.connect(self._on_heat_toggled)
+        self._heat_check.clicked.connect(self._on_heat_check_clicked)
+        self._fixed_radio.toggled.connect(self._on_mode_radio_toggled)
+        self._flux_radio.toggled.connect(self._on_mode_radio_toggled)
         self._fixed_temp_spin.valueChanged.connect(self._on_fixed_temp_changed)
+        self._flux_m2_spin.valueChanged.connect(self._on_flux_m2_changed)
+        self._flux_cell_spin.valueChanged.connect(self._on_flux_cell_changed)
         self._apply_btn.clicked.connect(self._apply)
 
         self.setEnabled(False)
+
+    def set_dx(self, dx_m: float) -> None:
+        self._dx_m = dx_m
 
     def show_cells(self, cells: list[tuple[int, int]]) -> None:
         self._cells = cells
@@ -552,40 +768,64 @@ class GroupEditPanel(QWidget):
             self.setEnabled(False)
             return
 
+        labels_in_sel = {self._grid.cell(*c).label for c in cells}
+        self._label_edit.setCurrentText(next(iter(labels_in_sel)) if len(labels_in_sel) == 1 else "")
+
         first = self._grid.cell(*cells[0])
         self._mat_combo.blockSignals(True)
         mat_ids_in_selection = {self._grid.cell(*c).material.id for c in cells}
         if len(mat_ids_in_selection) == 1 and first.material.id in self._mat_ids:
-            # All cells share the same material — pre-select it
             idx = self._mat_combo.findData(first.material.id)
             self._mat_combo.setCurrentIndex(idx if idx >= 0 else 0)
         else:
-            # Mixed materials — default to "(no change)"
             self._mat_combo.setCurrentIndex(0)
         self._mat_combo.blockSignals(False)
 
-        self._fixed_check.blockSignals(True)
-        is_fixed_states = {self._grid.cell(*c).is_fixed for c in cells}
-        if len(is_fixed_states) == 1:
-            self._fixed_check.setCheckState(
-                Qt.CheckState.Checked if first.is_fixed else Qt.CheckState.Unchecked
+        # Heat source check state
+        heat_states = {(self._grid.cell(*c).is_fixed or self._grid.cell(*c).is_flux) for c in cells}
+        self._heat_check.blockSignals(True)
+        if len(heat_states) == 1:
+            self._heat_check.setCheckState(
+                Qt.CheckState.Checked if next(iter(heat_states)) else Qt.CheckState.Unchecked
             )
         else:
-            self._fixed_check.setCheckState(Qt.CheckState.PartiallyChecked)
-        self._fixed_check.blockSignals(False)
-        self._prev_check_state = self._fixed_check.checkState()
-        is_partial = self._fixed_check.checkState() == Qt.CheckState.PartiallyChecked
-        self._fixed_row.setVisible(first.is_fixed and not is_partial)
+            self._heat_check.setCheckState(Qt.CheckState.PartiallyChecked)
+        self._heat_check.blockSignals(False)
+        self._prev_check_state = self._heat_check.checkState()
+        is_partial = self._heat_check.checkState() == Qt.CheckState.PartiallyChecked
+        is_heat_checked = self._heat_check.checkState() == Qt.CheckState.Checked
+        self._heat_row.setVisible(is_heat_checked and not is_partial)
 
+        # Radio: determine mode from first cell
+        self._fixed_radio.blockSignals(True)
+        self._flux_radio.blockSignals(True)
+        if first.is_flux:
+            self._flux_radio.setChecked(True)
+            self._fixed_area.setVisible(False)
+            self._flux_area.setVisible(True)
+        else:
+            self._fixed_radio.setChecked(True)
+            self._fixed_area.setVisible(True)
+            self._flux_area.setVisible(False)
+        self._fixed_radio.blockSignals(False)
+        self._flux_radio.blockSignals(False)
+
+        fixed_t_k = first.fixed_temp if first.fixed_temp > 1.0 else first.temperature
         self._fixed_temp_spin.blockSignals(True)
-        self._fixed_temp_spin.setValue(_units.to_display(first.fixed_temp))
+        self._fixed_temp_spin.setValue(_units.to_display(fixed_t_k))
         self._fixed_temp_spin.blockSignals(False)
+        self._flux_m2_spin.blockSignals(True)
+        self._flux_m2_spin.setValue(first.flux_q)
+        self._flux_m2_spin.blockSignals(False)
+        self._flux_cell_spin.blockSignals(True)
+        self._flux_cell_spin.setValue(first.flux_q * self._dx_m ** 2)
+        self._flux_cell_spin.blockSignals(False)
 
-        # Starting temp spin: disabled and mirrors fixed_temp when fixed; shows cell temp otherwise
+        is_heat = first.is_fixed or first.is_flux
         temp_display = (first.fixed_temp if first.is_fixed else first.temperature) if not is_partial else first.temperature
         self._temp_spin.blockSignals(True)
         self._temp_spin.setValue(_units.to_display(temp_display))
-        self._temp_spin.setEnabled(not first.is_fixed or is_partial)
+        self._temp_spin.setEnabled(not is_heat or is_partial)
         self._temp_spin.blockSignals(False)
 
         self.setEnabled(True)
@@ -605,14 +845,29 @@ class GroupEditPanel(QWidget):
         self._cells = []
         self.setEnabled(False)
 
+    def refresh_labels(self) -> None:
+        labels = sorted({
+            self._grid.cell(r, c).label
+            for r in range(self._grid.rows)
+            for c in range(self._grid.cols)
+            if self._grid.cell(r, c).label
+        })
+        current = self._label_edit.currentText()
+        self._label_edit.blockSignals(True)
+        self._label_edit.clear()
+        for lbl in labels:
+            self._label_edit.addItem(lbl)
+        self._label_edit.setCurrentText(current)
+        self._label_edit.blockSignals(False)
+
     def refresh_units(self) -> None:
         suf    = f" {_units.suffix()}"
         lo, hi = _units.spinbox_range()
         first  = self._grid.cell(*self._cells[0]) if self._cells else None
-        temp_k = (first.fixed_temp if (first and first.is_fixed) else first.temperature) if first else None
+        temp_k = (first.fixed_temp if (first and first.is_fixed) else (first.temperature if first else None)) if first else None
         for spin, k_val in [
             (self._temp_spin,       temp_k),
-            (self._fixed_temp_spin, first.fixed_temp  if first else None),
+            (self._fixed_temp_spin, first.fixed_temp if first else None),
         ]:
             spin.blockSignals(True)
             spin.setSuffix(suf)
@@ -621,17 +876,18 @@ class GroupEditPanel(QWidget):
                 spin.setValue(_units.to_display(k_val))
             spin.blockSignals(False)
 
-    def _on_fixed_toggled(self, checked: bool) -> None:
-        self._fixed_row.setVisible(checked)
+    def _on_heat_toggled(self, checked: bool) -> None:
+        self._heat_row.setVisible(checked)
         self._temp_spin.setEnabled(not checked)
         if checked:
             self._temp_spin.blockSignals(True)
-            self._temp_spin.setValue(self._fixed_temp_spin.value())
+            val = self._fixed_temp_spin.value() if self._fixed_radio.isChecked() else self._temp_spin.value()
+            self._temp_spin.setValue(val)
             self._temp_spin.blockSignals(False)
 
-    def _on_fixed_check_clicked(self, _checked: bool = False) -> None:
+    def _on_heat_check_clicked(self, _checked: bool = False) -> None:
         """Skip PartiallyChecked when user clicks: go directly to Checked or Unchecked."""
-        state = self._fixed_check.checkState()
+        state = self._heat_check.checkState()
         if state != Qt.CheckState.PartiallyChecked:
             self._prev_check_state = state
             return
@@ -640,45 +896,304 @@ class GroupEditPanel(QWidget):
             if self._prev_check_state == Qt.CheckState.Checked
             else Qt.CheckState.Checked
         )
-        self._fixed_check.setCheckState(target)
+        self._heat_check.setCheckState(target)
         self._prev_check_state = target
 
+    def _on_mode_radio_toggled(self, checked: bool) -> None:
+        if not checked:
+            return
+        self._fixed_area.setVisible(self._fixed_radio.isChecked())
+        self._flux_area.setVisible(self._flux_radio.isChecked())
+
     def _on_fixed_temp_changed(self, value: float) -> None:
-        if self._fixed_check.isChecked():
+        if self._heat_check.isChecked() and self._fixed_radio.isChecked():
             self._temp_spin.blockSignals(True)
             self._temp_spin.setValue(value)
             self._temp_spin.blockSignals(False)
+
+    def _on_flux_m2_changed(self, value: float) -> None:
+        self._flux_cell_spin.blockSignals(True)
+        self._flux_cell_spin.setValue(value * self._dx_m ** 2)
+        self._flux_cell_spin.blockSignals(False)
+
+    def _on_flux_cell_changed(self, value: float) -> None:
+        q = value / self._dx_m ** 2 if self._dx_m > 0 else 0.0
+        self._flux_m2_spin.blockSignals(True)
+        self._flux_m2_spin.setValue(q)
+        self._flux_m2_spin.blockSignals(False)
 
     def _apply(self) -> None:
         if not self._cells:
             return
         self.pre_group_modified.emit()
-        mat_id   = self._mat_combo.currentData()   # None → "(no change)"
+        mat_id = self._mat_combo.currentData()
         if mat_id is not None and mat_id not in self._materials:
             mat_id = None
-        mat         = self._materials[mat_id] if mat_id is not None else None
-        fixed_state = self._fixed_check.checkState()
-        is_checked  = fixed_state == Qt.CheckState.Checked
-        temp_k      = _units.from_display(self._temp_spin.value())
-        fixed_k     = _units.from_display(self._fixed_temp_spin.value()) if is_checked else None
+        mat        = self._materials[mat_id] if mat_id is not None else None
+        heat_state = self._heat_check.checkState()
+        is_checked = heat_state == Qt.CheckState.Checked
+        temp_k     = _units.from_display(self._temp_spin.value())
+        new_label  = self._label_edit.currentText()[:8] if self._label_edit.currentText() else None
 
         for r, c in self._cells:
-            self._grid.set_cell(r, c, material=mat, temperature=temp_k)
-            if fixed_state != Qt.CheckState.PartiallyChecked:
-                self._grid.set_cell(r, c, is_fixed=is_checked)
-                if fixed_k is not None:
-                    self._grid.set_cell(r, c, fixed_temp=fixed_k)
+            kwargs: dict = {"material": mat, "temperature": temp_k}
+            if new_label is not None:
+                kwargs["label"] = new_label
+            self._grid.set_cell(r, c, **kwargs)
+            if heat_state == Qt.CheckState.PartiallyChecked:
+                if mat is not None and mat.is_vacuum:
+                    self._grid.set_cell(r, c, is_fixed=False, is_flux=False)
+                continue
+            if not is_checked:
+                self._grid.set_cell(r, c, is_fixed=False, is_flux=False)
+            elif self._fixed_radio.isChecked():
+                self._grid.set_cell(r, c, is_fixed=True, is_flux=False,
+                                    fixed_temp=_units.from_display(self._fixed_temp_spin.value()))
+            else:
+                self._grid.set_cell(r, c, is_flux=True, is_fixed=False,
+                                    flux_q=self._flux_m2_spin.value())
 
         self.group_modified.emit()
+
+
+class DrawPropertiesPanel(QWidget):
+    """Brush-template panel for draw/fill mode. Settings are stamped onto cells when painted."""
+
+    material_changed    = pyqtSignal(object)   # emits Material when user changes combo
+    draw_settings_changed = pyqtSignal()       # fires on any brush-setting change
+
+    def __init__(self, materials: dict[str, Material], parent=None) -> None:
+        super().__init__(parent)
+        self._materials = materials
+        self._mat_ids   = list(materials.keys())
+        self._dx_m: float = 0.01
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
+
+        header = QLabel("DRAW PROPERTIES")
+        header.setStyleSheet("color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;")
+        layout.addWidget(header)
+
+        layout.addWidget(_small_label("Material"))
+        self._mat_combo = QComboBox()
+        for mat in materials.values():
+            self._mat_combo.addItem(mat.name, mat.id)
+        layout.addWidget(self._mat_combo)
+
+        self._thermal_section = QWidget()
+        ts = QVBoxLayout(self._thermal_section)
+        ts.setContentsMargins(0, 0, 0, 0)
+        ts.setSpacing(4)
+
+        ts.addWidget(_small_label("Temperature"))
+        self._temp_spin = TempSpinBox()
+        lo, hi = _units.spinbox_range()
+        self._temp_spin.setRange(lo, hi)
+        self._temp_spin.setDecimals(1)
+        self._temp_spin.setSuffix(f" {_units.suffix()}")
+        ts.addWidget(self._temp_spin)
+
+        self._heat_check = QCheckBox("Heat source")
+        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        ts.addWidget(self._heat_check)
+
+        self._heat_row = QWidget()
+        heat_inner = QVBoxLayout(self._heat_row)
+        heat_inner.setContentsMargins(8, 0, 0, 0)
+        heat_inner.setSpacing(4)
+
+        radio_row = QWidget()
+        radio_layout = QHBoxLayout(radio_row)
+        radio_layout.setContentsMargins(0, 0, 0, 0)
+        radio_layout.setSpacing(8)
+        self._fixed_radio = QRadioButton("Fixed T")
+        self._flux_radio  = QRadioButton("Heat flux")
+        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._radio_group = QButtonGroup(self)
+        self._radio_group.addButton(self._fixed_radio)
+        self._radio_group.addButton(self._flux_radio)
+        self._fixed_radio.setChecked(True)
+        radio_layout.addWidget(self._fixed_radio)
+        radio_layout.addWidget(self._flux_radio)
+        radio_layout.addStretch()
+        heat_inner.addWidget(radio_row)
+
+        self._fixed_area = QWidget()
+        fa_layout = QVBoxLayout(self._fixed_area)
+        fa_layout.setContentsMargins(0, 0, 0, 0)
+        fa_layout.setSpacing(2)
+        fa_layout.addWidget(_small_label("Fixed temperature"))
+        self._fixed_temp_spin = TempSpinBox()
+        self._fixed_temp_spin.setRange(lo, hi)
+        self._fixed_temp_spin.setDecimals(1)
+        self._fixed_temp_spin.setSuffix(f" {_units.suffix()}")
+        fa_layout.addWidget(self._fixed_temp_spin)
+        heat_inner.addWidget(self._fixed_area)
+
+        self._flux_area = QWidget()
+        fla_layout = QVBoxLayout(self._flux_area)
+        fla_layout.setContentsMargins(0, 0, 0, 0)
+        fla_layout.setSpacing(2)
+        fla_layout.addWidget(_small_label("Heat flux"))
+        self._flux_m2_spin = QDoubleSpinBox()
+        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setDecimals(2)
+        self._flux_m2_spin.setSuffix(" W/m²")
+        self._flux_m2_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_m2_spin)
+        self._flux_cell_spin = QDoubleSpinBox()
+        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setDecimals(4)
+        self._flux_cell_spin.setSuffix(" W/cell")
+        self._flux_cell_spin.setFixedWidth(110)
+        fla_layout.addWidget(self._flux_cell_spin)
+        self._flux_area.setVisible(False)
+        heat_inner.addWidget(self._flux_area)
+
+        self._heat_row.setVisible(False)
+        ts.addWidget(self._heat_row)
+
+        layout.addWidget(self._thermal_section)
+
+        layout.addWidget(_small_label("Label"))
+        self._label_edit = QLineEdit()
+        self._label_edit.setMaxLength(8)
+        self._label_edit.setPlaceholderText("stamp label (up to 8 chars)")
+        self._label_edit.setStyleSheet("font-size: 11px;")
+        layout.addWidget(self._label_edit)
+
+        layout.addStretch()
+
+        self._mat_combo.currentIndexChanged.connect(self._on_material_changed)
+        self._temp_spin.valueChanged.connect(self._emit_settings)
+        self._heat_check.toggled.connect(self._on_heat_toggled)
+        self._fixed_radio.toggled.connect(self._on_mode_radio_toggled)
+        self._fixed_temp_spin.valueChanged.connect(self._emit_settings)
+        self._flux_m2_spin.valueChanged.connect(self._on_flux_m2_changed)
+        self._flux_cell_spin.valueChanged.connect(self._on_flux_cell_changed)
+        self._label_edit.textChanged.connect(self._emit_settings)
+
+    # -- Properties --
+
+    @property
+    def temperature_k(self) -> float:
+        return _units.from_display(self._temp_spin.value())
+
+    @property
+    def is_fixed(self) -> bool:
+        return self._heat_check.isChecked() and self._fixed_radio.isChecked()
+
+    @property
+    def fixed_temp_k(self) -> float:
+        return _units.from_display(self._fixed_temp_spin.value())
+
+    @property
+    def is_flux(self) -> bool:
+        return self._heat_check.isChecked() and self._flux_radio.isChecked()
+
+    @property
+    def label(self) -> str:
+        return self._label_edit.text()[:8]
+
+    @property
+    def flux_q(self) -> float:
+        return self._flux_m2_spin.value()
+
+    # -- Public API --
+
+    def set_active_material(self, mat: Material) -> None:
+        """Sync material combo from the picker without emitting material_changed."""
+        idx = self._mat_combo.findData(mat.id)
+        if idx >= 0:
+            self._mat_combo.blockSignals(True)
+            self._mat_combo.setCurrentIndex(idx)
+            self._mat_combo.blockSignals(False)
+        is_vac = mat.is_vacuum
+        self._thermal_section.setVisible(not is_vac)
+        if is_vac:
+            self._heat_check.blockSignals(True)
+            self._heat_check.setChecked(False)
+            self._heat_check.blockSignals(False)
+            self._heat_row.setVisible(False)
+
+    def set_dx(self, dx_m: float) -> None:
+        self._dx_m = dx_m
+
+    def refresh_materials(self, materials: dict[str, Material]) -> None:
+        active_id = self._mat_combo.currentData()
+        self._materials = materials
+        self._mat_ids = list(materials.keys())
+        self._mat_combo.blockSignals(True)
+        self._mat_combo.clear()
+        for mat in materials.values():
+            self._mat_combo.addItem(mat.name, mat.id)
+        idx = self._mat_combo.findData(active_id)
+        self._mat_combo.setCurrentIndex(max(idx, 0))
+        self._mat_combo.blockSignals(False)
+
+    def refresh_units(self) -> None:
+        suf = f" {_units.suffix()}"
+        lo, hi = _units.spinbox_range()
+        for spin in (self._temp_spin, self._fixed_temp_spin):
+            spin.blockSignals(True)
+            spin.setSuffix(suf)
+            spin.setRange(lo, hi)
+            spin.blockSignals(False)
+
+    # -- Handlers --
+
+    def _on_material_changed(self, idx: int) -> None:
+        mat_id = self._mat_combo.itemData(idx)
+        if mat_id not in self._materials:
+            return
+        mat = self._materials[mat_id]
+        self._thermal_section.setVisible(not mat.is_vacuum)
+        if mat.is_vacuum:
+            self._heat_check.blockSignals(True)
+            self._heat_check.setChecked(False)
+            self._heat_check.blockSignals(False)
+            self._heat_row.setVisible(False)
+        self.material_changed.emit(mat)
+        self._emit_settings()
+
+    def _emit_settings(self, _=None) -> None:
+        self.draw_settings_changed.emit()
+
+    def _on_heat_toggled(self, checked: bool) -> None:
+        self._heat_row.setVisible(checked)
+        self._emit_settings()
+
+    def _on_mode_radio_toggled(self, checked: bool) -> None:
+        if not checked:
+            return
+        self._fixed_area.setVisible(self._fixed_radio.isChecked())
+        self._flux_area.setVisible(self._flux_radio.isChecked())
+        self._emit_settings()
+
+    def _on_flux_m2_changed(self, value: float) -> None:
+        self._flux_cell_spin.blockSignals(True)
+        self._flux_cell_spin.setValue(value * self._dx_m ** 2)
+        self._flux_cell_spin.blockSignals(False)
+        self._emit_settings()
+
+    def _on_flux_cell_changed(self, value: float) -> None:
+        q = value / self._dx_m ** 2 if self._dx_m > 0 else 0.0
+        self._flux_m2_spin.blockSignals(True)
+        self._flux_m2_spin.setValue(q)
+        self._flux_m2_spin.blockSignals(False)
+        self._emit_settings()
 
 
 class Sidebar(QWidget):
     """Left sidebar: material picker on top, cell/group properties panel below."""
 
-    paint_temp_changed = pyqtSignal(object)  # float | None
-
     def __init__(self, materials: dict[str, Material], grid: Grid, parent=None) -> None:
         super().__init__(parent)
+        self._current_mode: str = "draw"
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -686,54 +1201,46 @@ class Sidebar(QWidget):
         self.picker = MaterialPicker(materials)
         layout.addWidget(self.picker, stretch=1)
 
-        # Paint temperature override row
-        paint_row = QWidget()
-        pr_layout = QVBoxLayout(paint_row)
-        pr_layout.setContentsMargins(8, 4, 8, 4)
-        pr_layout.setSpacing(2)
-
-        self._paint_check = QCheckBox("Override paint temperature")
-        self._paint_check.setStyleSheet("color: #aaa; font-size: 11px;")
-        pr_layout.addWidget(self._paint_check)
-
-        self._paint_spin = TempSpinBox()
-        lo, hi = _units.spinbox_range()
-        self._paint_spin.setRange(lo, hi)
-        self._paint_spin.setDecimals(1)
-        self._paint_spin.setSuffix(f" {_units.suffix()}")
-        self._paint_spin.setEnabled(False)
-        pr_layout.addWidget(self._paint_spin)
-
-        layout.addWidget(paint_row)
-
-        self._paint_check.toggled.connect(self._on_paint_check)
-        self._paint_spin.valueChanged.connect(self._on_paint_spin)
-
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
         sep.setStyleSheet("background-color: #333; max-height: 1px;")
         layout.addWidget(sep)
 
-        # Stacked widget — index 0: single-cell props, index 1: group edit
+        # Stacked widget:
+        #   index 0 = draw_panel  (draw/fill mode)
+        #   index 1 = props_panel (select mode, 1 cell)
+        #   index 2 = group_panel (select mode, N cells)
         self._stack = QStackedWidget()
-        self.props_panel  = CellPropertiesPanel(grid, materials)
-        self.group_panel  = GroupEditPanel(materials, grid)
-        self._stack.addWidget(self.props_panel)   # 0
-        self._stack.addWidget(self.group_panel)   # 1
+        self.draw_panel  = DrawPropertiesPanel(materials)
+        self.props_panel = CellPropertiesPanel(grid, materials)
+        self.group_panel = GroupEditPanel(materials, grid)
+        self._stack.addWidget(self.draw_panel)   # 0
+        self._stack.addWidget(self.props_panel)  # 1
+        self._stack.addWidget(self.group_panel)  # 2
+        self._stack.setCurrentIndex(0)
         layout.addWidget(self._stack, stretch=1)
+
+    def set_mode(self, mode: str) -> None:
+        """Switch the bottom panel when the toolbar mode changes."""
+        self._current_mode = mode
+        if mode in ("draw", "fill"):
+            self._stack.setCurrentIndex(0)
 
     def refresh_materials(self, materials: dict[str, Material]) -> None:
         self.picker.refresh_materials(materials)
+        self.draw_panel.refresh_materials(materials)
         self.props_panel.refresh_materials(materials)
         self.group_panel.refresh_materials(materials)
 
     def show_cells(self, cells: list[tuple[int, int]]) -> None:
-        """Route to single-cell panel or group-edit panel depending on count."""
+        """Route to single-cell or group-edit panel; ignored in draw/fill mode."""
+        if self._current_mode != "select":
+            return
         if len(cells) == 1:
-            self._stack.setCurrentIndex(0)
+            self._stack.setCurrentIndex(1)
             self.props_panel.show_cell(*cells[0])
         elif len(cells) > 1:
-            self._stack.setCurrentIndex(1)
+            self._stack.setCurrentIndex(2)
             self.group_panel.show_cells(cells)
 
     def show_cell(self, row: int, col: int) -> None:
@@ -744,24 +1251,19 @@ class Sidebar(QWidget):
         self.props_panel.set_grid(grid)
         self.group_panel.set_grid(grid)
 
+    def set_dx(self, dx_m: float) -> None:
+        self.draw_panel.set_dx(dx_m)
+        self.props_panel.set_dx(dx_m)
+        self.group_panel.set_dx(dx_m)
+
+    def refresh_labels(self) -> None:
+        self.props_panel.refresh_labels()
+        self.group_panel.refresh_labels()
+
     def refresh_units(self) -> None:
+        self.draw_panel.refresh_units()
         self.props_panel.refresh_units()
         self.group_panel.refresh_units()
-        lo, hi = _units.spinbox_range()
-        self._paint_spin.blockSignals(True)
-        self._paint_spin.setSuffix(f" {_units.suffix()}")
-        self._paint_spin.setRange(lo, hi)
-        self._paint_spin.blockSignals(False)
-
-    def _on_paint_check(self, checked: bool) -> None:
-        self._paint_spin.setEnabled(checked)
-        self.paint_temp_changed.emit(
-            _units.from_display(self._paint_spin.value()) if checked else None
-        )
-
-    def _on_paint_spin(self, value: float) -> None:
-        if self._paint_check.isChecked():
-            self.paint_temp_changed.emit(_units.from_display(value))
 
 
 def _small_label(text: str) -> QLabel:

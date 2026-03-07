@@ -18,7 +18,7 @@
       "k": 167.0,
       "rho": 2700,
       "cp": 896,
-      "abbr": "Al6",
+      "abbr": "Al 6061",
       "category": "Metals",
       "note": "6061-T6 alloy"
     },
@@ -62,7 +62,7 @@
       "k": 50.0,
       "rho": 7850,
       "cp": 486,
-      "abbr": "A36",
+      "abbr": "St A36",
       "category": "Metals",
       "note": "ASTM A36 structural carbon steel"
     },
@@ -73,7 +73,7 @@
       "k": 16.2,
       "rho": 8000,
       "cp": 500,
-      "abbr": "304",
+      "abbr": "SS 304",
       "category": "Metals",
       "note": "304/304L austenitic stainless steel"
     },
@@ -84,7 +84,7 @@
       "k": 52.0,
       "rho": 7200,
       "cp": 490,
-      "abbr": "CI",
+      "abbr": "Cast Fe",
       "category": "Metals",
       "note": "Gray cast iron (ASTM A48)"
     },
@@ -118,7 +118,7 @@
       "k": 0.12,
       "rho": 600,
       "cp": 1700,
-      "abbr": "Pin",
+      "abbr": "Pine",
       "category": "Woods",
       "note": "Softwood, across grain"
     },
@@ -140,7 +140,7 @@
       "k": 0.13,
       "rho": 640,
       "cp": 1700,
-      "abbr": "Bir",
+      "abbr": "Birch",
       "category": "Woods",
       "note": "Hardwood, across grain"
     },
@@ -174,7 +174,7 @@
       "k": 0.015,
       "rho": 150,
       "cp": 1000,
-      "abbr": "Aer",
+      "abbr": "Aerogel",
       "category": "Polymers",
       "note": "Silica aerogel blanket — exceptional insulator"
     },
@@ -185,7 +185,7 @@
       "k": 0.16,
       "rho": 920,
       "cp": 2000,
-      "abbr": "Rbr",
+      "abbr": "Nat Rbr",
       "category": "Polymers",
       "note": "Vulcanised natural rubber"
     },
@@ -196,7 +196,7 @@
       "k": 0.25,
       "rho": 1250,
       "cp": 1200,
-      "abbr": "SiR",
+      "abbr": "Sil Rbr",
       "category": "Polymers",
       "note": "Common in electronics sealing / thermal pads"
     },
@@ -218,7 +218,7 @@
       "k": 0.25,
       "rho": 1140,
       "cp": 1670,
-      "abbr": "N66",
+      "abbr": "Nylon 66",
       "category": "Polymers",
       "note": "Polyamide 66"
     },
@@ -241,7 +241,7 @@
       "k": 1.0,
       "rho": 2500,
       "cp": 840,
-      "abbr": "Gls",
+      "abbr": "Glass",
       "category": "Construction",
       "note": "Soda-lime float glass"
     },
@@ -252,7 +252,7 @@
       "k": 1.4,
       "rho": 2300,
       "cp": 880,
-      "abbr": "Con",
+      "abbr": "Concrt",
       "category": "Construction",
       "note": "Normal weight concrete"
     },
@@ -263,7 +263,7 @@
       "k": 0.72,
       "rho": 1920,
       "cp": 840,
-      "abbr": "Brk",
+      "abbr": "Brick",
       "category": "Construction",
       "note": "Solid clay brick"
     },
@@ -285,7 +285,7 @@
       "k": 0.04,
       "rho": 50,
       "cp": 840,
-      "abbr": "MW",
+      "abbr": "Min Wool",
       "category": "Construction",
       "note": "Rock wool / glass wool insulation"
     },
@@ -296,7 +296,7 @@
       "k": 1.7,
       "rho": 2200,
       "cp": 920,
-      "abbr": "Sst",
+      "abbr": "Sandston",
       "category": "Construction",
       "note": "Quartz sandstone"
     },
@@ -327,12 +327,12 @@
       "id": "therm_paste",
       "name": "Thermal Paste",
       "color": "#C0C0C8",
-      "k": 4.0,
+      "k": 8.5,
       "rho": 2600,
       "cp": 730,
       "abbr": "TIM",
       "category": "Electronics",
-      "note": "Typical thermal interface material (e.g. MX-4)"
+      "note": "Arctic MX-4 thermal interface material (8.5 W/m·K)"
     },
     {
       "id": "alumina",
@@ -341,7 +341,7 @@
       "k": 30.0,
       "rho": 3980,
       "cp": 880,
-      "abbr": "AlO",
+      "abbr": "Alumina",
       "category": "Electronics",
       "note": "Al\u2082O\u2083 ceramic substrate / package"
     },
@@ -430,7 +430,7 @@
       "k": 0.614,
       "rho": 1025,
       "cp": 3993,
-      "abbr": "SW",
+      "abbr": "Seawater",
       "category": "Liquids",
       "note": "Seawater at 25\u00b0C, 35 ppt salinity"
     },
@@ -441,7 +441,7 @@
       "k": 0.258,
       "rho": 1113,
       "cp": 2382,
-      "abbr": "EG",
+      "abbr": "Eth Glyc",
       "category": "Liquids",
       "note": "Pure EG at 25\u00b0C — common antifreeze base"
     },
@@ -452,7 +452,7 @@
       "k": 0.390,
       "rho": 1070,
       "cp": 3400,
-      "abbr": "AF",
+      "abbr": "EG 50/50",
       "category": "Liquids",
       "note": "50/50 ethylene glycol\u2013water mix at 25\u00b0C"
     },
@@ -463,7 +463,7 @@
       "k": 0.145,
       "rho": 870,
       "cp": 1900,
-      "abbr": "Oil",
+      "abbr": "SAE 30",
       "category": "Liquids",
       "note": "SAE 30 motor oil at 40\u00b0C"
     },
@@ -474,7 +474,7 @@
       "k": 0.130,
       "rho": 870,
       "cp": 1900,
-      "abbr": "HF",
+      "abbr": "ISO 46",
       "category": "Liquids",
       "note": "ISO VG 46 hydraulic oil at 40\u00b0C"
     },
@@ -485,7 +485,7 @@
       "k": 0.120,
       "rho": 720,
       "cp": 2000,
-      "abbr": "Gas",
+      "abbr": "Gasoline",
       "category": "Liquids",
       "note": "Regular unleaded gasoline at 25\u00b0C"
     },
@@ -496,7 +496,7 @@
       "k": 0.082,
       "rho": 1200,
       "cp": 1460,
-      "abbr": "R134",
+      "abbr": "R-134a",
       "category": "Liquids",
       "note": "HFC-134a liquid at 25\u00b0C"
     }

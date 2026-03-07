@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from PyQt6.QtGui import QColor, QPainter, QPen
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPainterPath, QPen
 
 from src.simulation.cell import Cell
 
@@ -52,5 +53,41 @@ def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     yellow_pen.setCosmetic(False)
     painter.setPen(yellow_pen)
     painter.drawArc(bx + inset, y + pad, bw - 2 * inset, (s - bh) * 2, 0, 180 * 16)
+
+    painter.restore()
+
+
+def draw_flame_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
+    """Draw a small orange flame in the top-left corner of a heat-flux cell."""
+    painter.save()
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+    s  = max(8, cp // 4)
+    fw = max(5, s * 2 // 3)
+    pad = 2
+
+    fx = float(x + pad)
+    fy = float(y + pad)
+    fh = float(s)
+    cw = float(fw)
+    cx = fx + cw / 2.0
+
+    path = QPainterPath()
+    path.moveTo(cx, fy + fh)
+    path.cubicTo(fx - cw * 0.1, fy + fh * 0.7,
+                 fx + cw * 0.15, fy + fh * 0.15,
+                 cx, fy)
+    path.cubicTo(fx + cw * 0.85, fy + fh * 0.15,
+                 fx + cw * 1.1,  fy + fh * 0.7,
+                 cx, fy + fh)
+
+    grad = QLinearGradient(cx, fy + fh, cx, fy)
+    grad.setColorAt(0.0, QColor(200, 40,  0,  210))
+    grad.setColorAt(0.5, QColor(255, 130, 0,  220))
+    grad.setColorAt(1.0, QColor(255, 230, 50, 230))
+
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.setBrush(QBrush(grad))
+    painter.drawPath(path)
 
     painter.restore()

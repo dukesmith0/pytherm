@@ -30,6 +30,10 @@ class CellTooltip(QWidget):
         self._name.setStyleSheet("font-weight: bold; color: #eee; font-size: 12px;")
         layout.addWidget(self._name)
 
+        self._pos    = QLabel()
+        self._pos.setStyleSheet("color: #777; font-size: 10px;")
+        layout.addWidget(self._pos)
+
         self._k      = QLabel()
         self._alpha  = QLabel()
         self._temp   = QLabel()
@@ -41,10 +45,16 @@ class CellTooltip(QWidget):
             lbl.setStyleSheet("color: #aaa; font-size: 11px;")
             layout.addWidget(lbl)
 
-    def update_cell(self, cell: Cell, dx_m: float, ambient_k: float) -> None:
+    def update_cell(self, cell: Cell, dx_m: float, ambient_k: float,
+                    row: int | None = None, col: int | None = None) -> None:
         """Refresh the displayed values for the given cell."""
         mat = cell.material
         self._name.setText(mat.name)
+        if row is not None and col is not None:
+            self._pos.setText(f"row {row}, col {col}")
+            self._pos.setVisible(True)
+        else:
+            self._pos.setVisible(False)
         self._k.setText(f"k  =  {mat.k} W/(m·K)")
         self._alpha.setText(f"α  =  {mat.alpha:.3e} m²/s")
         self._temp.setText(f"T  =  {_units.to_display(cell.temperature):.1f} {_units.suffix()}")

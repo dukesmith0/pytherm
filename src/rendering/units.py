@@ -62,6 +62,20 @@ def spinbox_range() -> tuple[float, float]:
     return 0.0, 18491.67  # Rankine
 
 
+def delta_k_to_display(dk: float) -> float:
+    """Convert a temperature interval in Kelvin to the current display unit's interval."""
+    if _active in (Unit.FAHRENHEIT, Unit.RANKINE):
+        return dk * 9.0 / 5.0
+    return dk
+
+
+def delta_display_to_k(dd: float) -> float:
+    """Convert a temperature interval in the current display unit to Kelvin."""
+    if _active in (Unit.FAHRENHEIT, Unit.RANKINE):
+        return dd * 5.0 / 9.0
+    return dd
+
+
 def fmt_energy(j: float) -> str:
     """Format energy in Joules with auto-scaled SI prefix (J, kJ, MJ, GJ)."""
     abs_j = abs(j)

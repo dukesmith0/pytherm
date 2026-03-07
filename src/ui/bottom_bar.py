@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
 )
 
 from src.rendering import units as _units
+from src.rendering.units import TempSpinBox
 
 
 class BottomBar(QToolBar):
@@ -30,6 +31,7 @@ class BottomBar(QToolBar):
     steady_mode_changed = pyqtSignal(bool)   # True = stop at steady state
     speed_changed       = pyqtSignal(float)  # new speed multiplier
     unit_changed        = pyqtSignal(str)    # "\u00b0C" | "K" | "\u00b0F"
+    ambient_changed     = pyqtSignal(float)  # new ambient temperature in Kelvin
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -64,6 +66,8 @@ class BottomBar(QToolBar):
         self._speed_combo.setToolTip("Simulation speed multiplier relative to real time")
         for label, val in [
             ("1\u00d7",      1.0),
+            ("2\u00d7",      2.0),
+            ("5\u00d7",      5.0),
             ("10\u00d7",     10.0),
             ("100\u00d7",    100.0),
             ("1 000\u00d7",  1_000.0),
@@ -90,7 +94,7 @@ class BottomBar(QToolBar):
 
         self._chk_steady = QCheckBox("Stop at SS")
         self._chk_steady.setToolTip(
-            "Run until steady state \u2014 pauses automatically when max \u0394T per step < 0.01 K"
+            "Run until steady state \u2014 pauses automatically when max \u0394T rate < 0.01 K/s"
         )
         self._layout.addWidget(self._chk_steady)
 
@@ -113,7 +117,31 @@ class BottomBar(QToolBar):
         )
         self._layout.addWidget(self._energy_label)
 
+        self._power_label = QLabel("")
+        self._power_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._power_label.setToolTip(
+            "Total heat injection rate from fixed-T and heat-flux cells (W per metre depth)"
+        )
+        self._layout.addWidget(self._power_label)
+
         self._layout.addStretch()
+
+        # -- Ambient temperature (right-anchored) -----------------------------
+        self._add_sep()
+
+        amb_lbl = QLabel("Amb:")
+        amb_lbl.setStyleSheet("padding: 0 2px; color: #aaa;")
+        self._layout.addWidget(amb_lbl)
+
+        self._ambient_k: float = 293.15
+        lo, hi = _units.spinbox_range()
+        self._amb_spin = TempSpinBox()
+        self._amb_spin.setRange(lo, hi)
+        self._amb_spin.setValue(_units.to_display(self._ambient_k))
+        self._amb_spin.setSuffix(f" {_units.suffix()}")
+        self._amb_spin.setFixedWidth(100)
+        self._amb_spin.setToolTip("Ambient temperature \u2014 used as reset reference and for sink boundary conditions")
+        self._layout.addWidget(self._amb_spin)
 
         # -- Unit toggle (right-anchored) -------------------------------------
         self._add_sep()
@@ -148,6 +176,7 @@ class BottomBar(QToolBar):
             lambda i: self.speed_changed.emit(self._speed_combo.itemData(i))
         )
         self._unit_combo.currentTextChanged.connect(self.unit_changed)
+        self._amb_spin.valueChanged.connect(self._on_ambient_spin_changed)
 
     # -- Public API -----------------------------------------------------------
 
@@ -164,6 +193,39 @@ class BottomBar(QToolBar):
         if self._btn_step.isEnabled():
             self.step_requested.emit(self._step_spin.value())
 
+    def cycle_unit(self) -> None:
+        """Cycle to the next temperature unit (Ctrl+U)."""
+        n = self._unit_combo.count()
+        self._unit_combo.setCurrentIndex((self._unit_combo.currentIndex() + 1) % n)
+
+    def set_unit_value(self, unit_str: str) -> None:
+        """Set the unit combo (fires unit_changed signal)."""
+        self._unit_combo.setCurrentText(unit_str)
+
+    def set_speed_value(self, v: float) -> None:
+        """Set the speed combo to the closest matching option without emitting speed_changed."""
+        best = min(range(self._speed_combo.count()),
+                   key=lambda i: abs(self._speed_combo.itemData(i) - v))
+        self._speed_combo.blockSignals(True)
+        self._speed_combo.setCurrentIndex(best)
+        self._speed_combo.blockSignals(False)
+
+    def set_ambient(self, k_val: float) -> None:
+        """Set the ambient spinbox without emitting ambient_changed."""
+        self._ambient_k = k_val
+        self._amb_spin.blockSignals(True)
+        self._amb_spin.setValue(_units.to_display(k_val))
+        self._amb_spin.blockSignals(False)
+
+    def refresh_units(self) -> None:
+        """Refresh ambient spinbox suffix, range, and value for the current display unit."""
+        lo, hi = _units.spinbox_range()
+        self._amb_spin.blockSignals(True)
+        self._amb_spin.setSuffix(f" {_units.suffix()}")
+        self._amb_spin.setRange(lo, hi)
+        self._amb_spin.setValue(_units.to_display(self._ambient_k))
+        self._amb_spin.blockSignals(False)
+
     def set_running(self, running: bool) -> None:
         """Sync the play/pause button without re-emitting play_pause_toggled."""
         self._btn_play.blockSignals(True)
@@ -171,6 +233,7 @@ class BottomBar(QToolBar):
         self._btn_play.setText("\u2016  Pause" if running else "\u25b6  Play")
         self._btn_play.blockSignals(False)
         self._btn_step.setEnabled(not running)
+        self._amb_spin.setEnabled(not running)
 
     def update_sim_time(self, t: float) -> None:
         h  = int(t // 3600)
@@ -192,7 +255,22 @@ class BottomBar(QToolBar):
             f"err: {_units.fmt_energy(err)}"
         )
 
+    def update_power(self, power_wpm: float) -> None:
+        """Update the total heat injection display (W/m depth)."""
+        if power_wpm == 0.0:
+            self._power_label.setText("")
+            return
+        if abs(power_wpm) >= 1000.0:
+            self._power_label.setText(f"Inj: {power_wpm / 1000:.3g} kW/m")
+        else:
+            self._power_label.setText(f"Inj: {power_wpm:.3g} W/m")
+
     # -- Internal -------------------------------------------------------------
+
+    def _on_ambient_spin_changed(self, _val: float) -> None:
+        k = _units.from_display(self._amb_spin.value())
+        self._ambient_k = k
+        self.ambient_changed.emit(k)
 
     def _add_sep(self) -> None:
         sep = QFrame()

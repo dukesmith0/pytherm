@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
+    QComboBox,
     QDoubleSpinBox,
     QFrame,
     QHBoxLayout,
@@ -15,7 +16,8 @@ from PyQt6.QtWidgets import (
 )
 
 from src.rendering import units as _units
-from src.rendering.units import TempSpinBox
+from src.rendering.heatmap_renderer import PALETTE_NAMES
+from src.rendering.units import TempSpinBox, delta_k_to_display, delta_display_to_k
 
 
 class Toolbar(QToolBar):
@@ -30,14 +32,20 @@ class Toolbar(QToolBar):
     view_mode_changed           = pyqtSignal(str)          # "material" | "heatmap"
     heatmap_auto_changed        = pyqtSignal(bool)
     heatmap_range_changed       = pyqtSignal(float, float) # (min_K, max_K)
+    palette_changed             = pyqtSignal(str)          # palette name
+    isotherm_changed            = pyqtSignal(bool, float)  # (enabled, interval_K)
+    hotspot_threshold_changed   = pyqtSignal(float)        # threshold_K; nan = disabled
     boundary_conditions_changed = pyqtSignal(dict)
     grid_lines_toggled          = pyqtSignal(bool)
     abbr_toggled                = pyqtSignal(bool)
+    label_toggled               = pyqtSignal(bool)
     fit_view_requested          = pyqtSignal()
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setMovable(False)
+        self._isotherm_interval_k: float = 50.0
+        self._hotspot_threshold_k: float = 373.15   # 100 °C
 
         self._content = QWidget()
         self._layout = QHBoxLayout(self._content)
@@ -109,8 +117,6 @@ class Toolbar(QToolBar):
         self._btn_material.toggled.connect(lambda on: on and self._set_view("material"))
         self._btn_heatmap.toggled.connect(lambda on: on and self._set_view("heatmap"))
 
-        self._add_sep()
-
         # -- Heatmap scale controls (hidden in material mode) -----------------
         self._hm_min_k: float = 273.15   # 0 C
         self._hm_max_k: float = 373.15   # 100 C
@@ -146,10 +152,60 @@ class Toolbar(QToolBar):
         self._hm_max.setToolTip("Maximum temperature \u2014 mapped to red on the heatmap (requires Auto off)")
         hm.addWidget(self._hm_max)
 
+        hm.addWidget(QLabel("Palette:"))
+        self._palette_combo = QComboBox()
+        for name in PALETTE_NAMES:
+            self._palette_combo.addItem(name)
+        self._palette_combo.setFixedWidth(90)
+        self._palette_combo.setToolTip("Heatmap color palette")
+        hm.addWidget(self._palette_combo)
+
+        _sep_iso = QFrame()
+        _sep_iso.setFrameShape(QFrame.Shape.VLine)
+        _sep_iso.setFixedWidth(1)
+        _sep_iso.setStyleSheet("background: #555; margin: 5px 2px;")
+        hm.addWidget(_sep_iso)
+
+        self._iso_check = QCheckBox("Isotherms")
+        self._iso_check.setChecked(False)
+        self._iso_check.setToolTip("Draw contour lines at even temperature intervals")
+        hm.addWidget(self._iso_check)
+
+        self._iso_spin = QDoubleSpinBox()
+        self._iso_spin.setRange(0.1, 5000.0)
+        self._iso_spin.setDecimals(1)
+        self._iso_spin.setValue(delta_k_to_display(self._isotherm_interval_k))
+        self._iso_spin.setSuffix(f" {_units.suffix()}")
+        self._iso_spin.setFixedWidth(80)
+        self._iso_spin.setToolTip("Temperature interval between isotherm lines")
+        hm.addWidget(self._iso_spin)
+
+        _sep_hot = QFrame()
+        _sep_hot.setFrameShape(QFrame.Shape.VLine)
+        _sep_hot.setFixedWidth(1)
+        _sep_hot.setStyleSheet("background: #555; margin: 5px 2px;")
+        hm.addWidget(_sep_hot)
+
+        self._hot_check = QCheckBox("Hotspot >")
+        self._hot_check.setChecked(False)
+        self._hot_check.setToolTip("Highlight cells exceeding the threshold temperature in red")
+        hm.addWidget(self._hot_check)
+
+        lo, hi = _units.spinbox_range()
+        self._hot_spin = TempSpinBox()
+        self._hot_spin.setRange(lo, hi)
+        self._hot_spin.setValue(_units.to_display(self._hotspot_threshold_k))
+        self._hot_spin.setSuffix(f" {_units.suffix()}")
+        self._hot_spin.setFixedWidth(100)
+        self._hot_spin.setToolTip("Hotspot threshold temperature")
+        hm.addWidget(self._hot_spin)
+
         self._heatmap_controls.setVisible(False)
         self._layout.addWidget(self._heatmap_controls)
 
         self._add_sep()
+
+        self._layout.addStretch()
 
         # -- Border boundary conditions ---------------------------------------
         border_widget = QWidget()
@@ -197,7 +253,12 @@ class Toolbar(QToolBar):
         self._btn_abbr.setToolTip("Show material abbreviation in each cell")
         self._layout.addWidget(self._btn_abbr)
 
-        self._layout.addStretch()
+        self._btn_label = QPushButton("Label")
+        self._btn_label.setCheckable(True)
+        self._btn_label.setChecked(True)
+        self._btn_label.setFixedWidth(52)
+        self._btn_label.setToolTip("Show cell label overlays")
+        self._layout.addWidget(self._btn_label)
 
         # -- Wrap content in a horizontal scroll area -------------------------
         scroll = QScrollArea()
@@ -216,9 +277,15 @@ class Toolbar(QToolBar):
         self._hm_auto.toggled.connect(self._on_hm_auto_toggled)
         self._hm_min.valueChanged.connect(self._emit_hm_range)
         self._hm_max.valueChanged.connect(self._emit_hm_range)
+        self._palette_combo.currentTextChanged.connect(self.palette_changed)
+        self._iso_check.toggled.connect(self._emit_isotherm)
+        self._iso_spin.valueChanged.connect(self._emit_isotherm)
+        self._hot_check.toggled.connect(self._emit_hotspot)
+        self._hot_spin.valueChanged.connect(self._emit_hotspot)
         btn_fit.clicked.connect(self.fit_view_requested)
         self._btn_gridlines.toggled.connect(self.grid_lines_toggled)
         self._btn_abbr.toggled.connect(self.abbr_toggled)
+        self._btn_label.toggled.connect(self.label_toggled)
 
     # -- Public API -----------------------------------------------------------
 
@@ -233,6 +300,25 @@ class Toolbar(QToolBar):
     def activate_fill_mode(self) -> None:
         """Switch to fill mode (keyboard shortcut W)."""
         self._btn_fill.setChecked(True)
+
+    def activate_heatmap_mode(self) -> None:
+        """Switch to heatmap view (keyboard shortcut H)."""
+        self._btn_heatmap.setChecked(True)
+
+    def activate_material_mode(self) -> None:
+        """Switch to material view (keyboard shortcut M)."""
+        self._btn_material.setChecked(True)
+
+    def set_boundary_conditions(self, bc: dict) -> None:
+        """Restore BC button states from a dict, emitting one signal at the end."""
+        for key, btn in self._border_btns.items():
+            btn.blockSignals(True)
+            is_sink = bc.get(key, "insulator") == "sink"
+            btn.setChecked(is_sink)
+            label = self._border_labels[key]
+            btn.setText(f"{label}: {'Sink' if is_sink else 'Ins.'}")
+            btn.blockSignals(False)
+        self.boundary_conditions_changed.emit(bc)
 
     def set_dx(self, dx_m: float) -> None:
         """Update the cell-size spinbox without emitting dx_changed. dx_m is in metres."""
@@ -254,6 +340,15 @@ class Toolbar(QToolBar):
             spin.setRange(lo, hi)
             spin.setValue(_units.to_display(k_val))
             spin.blockSignals(False)
+        self._iso_spin.blockSignals(True)
+        self._iso_spin.setSuffix(suf)
+        self._iso_spin.setValue(delta_k_to_display(self._isotherm_interval_k))
+        self._iso_spin.blockSignals(False)
+        self._hot_spin.blockSignals(True)
+        self._hot_spin.setSuffix(suf)
+        self._hot_spin.setRange(lo, hi)
+        self._hot_spin.setValue(_units.to_display(self._hotspot_threshold_k))
+        self._hot_spin.blockSignals(False)
 
     # -- Internal -------------------------------------------------------------
 
@@ -282,6 +377,15 @@ class Toolbar(QToolBar):
         self._hm_min_k = lo
         self._hm_max_k = hi
         self.heatmap_range_changed.emit(self._hm_min_k, self._hm_max_k)
+
+    def _emit_isotherm(self) -> None:
+        self._isotherm_interval_k = max(0.01, delta_display_to_k(self._iso_spin.value()))
+        self.isotherm_changed.emit(self._iso_check.isChecked(), self._isotherm_interval_k)
+
+    def _emit_hotspot(self) -> None:
+        self._hotspot_threshold_k = _units.from_display(self._hot_spin.value())
+        val = self._hotspot_threshold_k if self._hot_check.isChecked() else float("nan")
+        self.hotspot_threshold_changed.emit(val)
 
     def _on_border_toggled(self, key: str, checked: bool) -> None:
         display = self._border_labels[key]

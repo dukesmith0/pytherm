@@ -39,7 +39,10 @@ class SimClock(QObject):
         self._e_start = 0.0             # thermal energy at last reset [J/m]
         self._e_cumulative_fixed = 0.0  # total energy from fixed-T cells since reset [J/m]
         self._e_cumulative_sinks = 0.0  # total energy from sink BCs since reset [J/m]
+        self._e_cumulative_flux = 0.0   # total energy from heat-flux cells since reset [J/m]
+        self.last_dt_sim: float = 0.0   # simulated seconds of the last _advance() call
         self._arr_cache: dict | None = None  # cached material arrays (valid while running)
+        self.ss_threshold: float = 0.01  # K/s convergence threshold for steady-state check
 
         self._timer = QTimer(self)
         self._timer.setInterval(self.INTERVAL_MS)
@@ -66,6 +69,10 @@ class SimClock(QObject):
     @property
     def e_cumulative_sinks(self) -> float:
         return self._e_cumulative_sinks
+
+    @property
+    def e_cumulative_flux(self) -> float:
+        return self._e_cumulative_flux
 
     # --- Public API ---
 
@@ -97,6 +104,20 @@ class SimClock(QObject):
         """Clear the cached material arrays. Call after any grid structure change while paused."""
         self._arr_cache = None
 
+    def recalculate_energy_reference(self) -> None:
+        """Recalculate the energy baseline after an ambient temperature change.
+
+        Resets e_start to the current field relative to the new ambient, and clears
+        the cumulative energy accumulators so the conservation display stays meaningful.
+        """
+        T = self._grid.temperature_array()
+        rho_cp = self._grid.rho_cp_array()
+        dx2 = self._solver.dx ** 2
+        self._e_start = float(np.dot(rho_cp.ravel(), (T - self._grid.ambient_temp_k).ravel())) * dx2
+        self._e_cumulative_fixed = 0.0
+        self._e_cumulative_sinks = 0.0
+        self._e_cumulative_flux = 0.0
+
     def reset(self) -> None:
         if self._running:
             self._running = False
@@ -111,6 +132,7 @@ class SimClock(QObject):
         self._e_start = float(np.dot(rho_cp.ravel(), (T - self._grid.ambient_temp_k).ravel())) * dx2
         self._e_cumulative_fixed = 0.0
         self._e_cumulative_sinks = 0.0
+        self._e_cumulative_flux = 0.0
         self._scene.reset_auto_heatmap_bounds()
         self._scene.refresh()
         self.tick.emit(0.0)
@@ -130,6 +152,7 @@ class SimClock(QObject):
         self.tick.emit(self._sim_time)
 
     def _advance(self, dt_sim: float) -> None:
+        is_first_tick = (self._sim_time == 0.0)  # skip SS check on tick 1 (all-ambient start)
         self._solver.ambient_k = self._grid.ambient_temp_k  # sync for sink BCs
         T = self._grid.temperature_array()
         if self._arr_cache is None:
@@ -138,12 +161,16 @@ class SimClock(QObject):
                 "rho_cp":      self._grid.rho_cp_array(),
                 "fixed_mask":  self._grid.fixed_mask(),
                 "fixed_temps": self._grid.fixed_temps_array(),
+                "flux_mask":   self._grid.flux_mask(),
+                "flux_q":      self._grid.flux_q_array(),
             }
         k           = self._arr_cache["k"]
         rho_cp      = self._arr_cache["rho_cp"]
         fixed_mask  = self._arr_cache["fixed_mask"]
         fixed_temps = self._arr_cache["fixed_temps"]
-        T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, duration=dt_sim)
+        flux_mask   = self._arr_cache["flux_mask"]
+        flux_q      = self._arr_cache["flux_q"]
+        T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, flux_mask, flux_q, duration=dt_sim)
 
         if np.any(np.isnan(T_new) | np.isinf(T_new)):
             self.pause()
@@ -152,12 +179,19 @@ class SimClock(QObject):
 
         self._e_cumulative_fixed += self._solver.last_e_from_fixed
         self._e_cumulative_sinks += self._solver.last_e_from_sinks
+        self._e_cumulative_flux  += self._solver.last_e_from_flux
+        self.last_dt_sim = dt_sim
         self._grid.import_temperatures(T_new)
         self._sim_time += dt_sim
         self._scene.refresh()
 
-        if self._steady_mode:
-            active = (rho_cp > 0) & ~fixed_mask
-            if np.any(active) and self._solver.last_max_delta < 0.01:
-                self.pause()
-                self.steady_state_reached.emit()
+        if self._steady_mode and not is_first_tick:
+            if "active" not in self._arr_cache:
+                self._arr_cache["active"] = (rho_cp > 0) & ~fixed_mask
+            active = self._arr_cache["active"]
+            if np.any(active):
+                substep_dt = self._solver.last_substep_dt
+                delta_rate = self._solver.last_substep_delta / substep_dt if substep_dt > 0 else 0.0
+                if delta_rate < self.ss_threshold:
+                    self.pause()
+                    self.steady_state_reached.emit()

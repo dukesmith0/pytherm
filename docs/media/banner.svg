@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="180" viewBox="0 0 900 180">
+  <!-- Background -->
+  <rect width="900" height="180" fill="#16162a"/>
+
+  <!-- Logo background -->
+  <rect x="32" y="30" width="120" height="120" rx="6" ry="6" fill="#1c1c28"/>
+
+  <!-- Heatmap grid: hot (red, top-left) -> cold (blue, bottom-right) -->
+  <!-- Row 0 -->
+  <rect x="35"  y="33"  width="20" height="20" rx="2" fill="#ff0000"/>
+  <rect x="58"  y="33"  width="20" height="20" rx="2" fill="#ffb400"/>
+  <rect x="81"  y="33"  width="20" height="20" rx="2" fill="#95ff00"/>
+  <rect x="105" y="33"  width="20" height="20" rx="2" fill="#00ff1e"/>
+  <rect x="128" y="33"  width="20" height="20" rx="2" fill="#00ffd3"/>
+  <!-- Row 1 -->
+  <rect x="35"  y="56"  width="20" height="20" rx="2" fill="#ffb400"/>
+  <rect x="58"  y="56"  width="20" height="20" rx="2" fill="#ffff00"/>
+  <rect x="81"  y="56"  width="20" height="20" rx="2" fill="#6aff00"/>
+  <rect x="105" y="56"  width="20" height="20" rx="2" fill="#00ff3c"/>
+  <rect x="128" y="56"  width="20" height="20" rx="2" fill="#00ffe9"/>
+  <!-- Row 2 -->
+  <rect x="35"  y="79"  width="20" height="20" rx="2" fill="#95ff00"/>
+  <rect x="58"  y="79"  width="20" height="20" rx="2" fill="#6aff00"/>
+  <rect x="81"  y="79"  width="20" height="20" rx="2" fill="#00ff00"/>
+  <rect x="105" y="79"  width="20" height="20" rx="2" fill="#00ff8c"/>
+  <rect x="128" y="79"  width="20" height="20" rx="2" fill="#00d5ff"/>
+  <!-- Row 3 -->
+  <rect x="35"  y="103" width="20" height="20" rx="2" fill="#00ff1e"/>
+  <rect x="58"  y="103" width="20" height="20" rx="2" fill="#00ff3c"/>
+  <rect x="81"  y="103" width="20" height="20" rx="2" fill="#00ff8c"/>
+  <rect x="105" y="103" width="20" height="20" rx="2" fill="#00ffff"/>
+  <rect x="128" y="103" width="20" height="20" rx="2" fill="#0076ff"/>
+  <!-- Row 4 -->
+  <rect x="35"  y="126" width="20" height="20" rx="2" fill="#00ffd3"/>
+  <rect x="58"  y="126" width="20" height="20" rx="2" fill="#00ffe9"/>
+  <rect x="81"  y="126" width="20" height="20" rx="2" fill="#00d5ff"/>
+  <rect x="105" y="126" width="20" height="20" rx="2" fill="#0076ff"/>
+  <rect x="128" y="126" width="20" height="20" rx="2" fill="#0000ff"/>
+
+  <!-- Title -->
+  <text x="184" y="78"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="40" font-weight="700" fill="#ffffff">PyTherm</text>
+
+  <!-- Subtitle -->
+  <text x="184" y="99"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="14" fill="#9999cc">2D Heat Conduction Simulator</text>
+
+  <!-- Meta -->
+  <text x="184" y="118"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="12" fill="#555577">v0.2.0  ·  Made by Craig "Duke" Smith  ·  2026</text>
+
+  <!-- GitHub -->
+  <text x="184" y="137"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="12" fill="#4488bb">&#x2316;  github.com/dukesmith0/pytherm</text>
+</svg>

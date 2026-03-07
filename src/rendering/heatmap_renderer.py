@@ -2,40 +2,87 @@ from __future__ import annotations
 
 from PyQt6.QtGui import QColor
 
-# Thermal gradient stops: (normalised_t, (R, G, B))
-# Maps 0 → cold (blue) through to 1 → hot (red), matching the classic rainbow ramp.
-_STOPS: list[tuple[float, tuple[int, int, int]]] = [
-    (0.00, (0,   0,   255)),  # blue
-    (0.25, (0,   255, 255)),  # cyan
-    (0.50, (0,   255, 0)),    # green
-    (0.75, (255, 255, 0)),    # yellow
-    (1.00, (255, 0,   0)),    # red
-]
+_LUT_SIZE = 1024
+
+# Named palette stop definitions: list of (position, (R, G, B))
+_PALETTE_STOPS: dict[str, list[tuple[float, tuple[int, int, int]]]] = {
+    "Classic": [
+        (0.00, (0,   0,   255)),
+        (0.25, (0,   255, 255)),
+        (0.50, (0,   255, 0)),
+        (0.75, (255, 255, 0)),
+        (1.00, (255, 0,   0)),
+    ],
+    "Viridis": [
+        (0.00, (68,  1,   84)),
+        (0.25, (59,  82,  139)),
+        (0.50, (33,  145, 140)),
+        (0.75, (94,  201, 98)),
+        (1.00, (253, 231, 37)),
+    ],
+    "Plasma": [
+        (0.00, (13,  8,   135)),
+        (0.25, (156, 23,  158)),
+        (0.50, (237, 121, 83)),
+        (0.75, (250, 200, 40)),
+        (1.00, (240, 249, 33)),
+    ],
+    "Grayscale": [
+        (0.00, (30,  30,  30)),
+        (1.00, (240, 240, 240)),
+    ],
+}
+
+PALETTE_NAMES: list[str] = list(_PALETTE_STOPS)
+
+
+def _build_lut(stops: list[tuple[float, tuple[int, int, int]]]) -> list[QColor]:
+    lut: list[QColor] = []
+    for i in range(_LUT_SIZE):
+        t = i / (_LUT_SIZE - 1)
+        for j in range(len(stops) - 1):
+            t0, c0 = stops[j]
+            t1, c1 = stops[j + 1]
+            if t <= t1:
+                f = (t - t0) / (t1 - t0)
+                lut.append(QColor(
+                    int(c0[0] + f * (c1[0] - c0[0])),
+                    int(c0[1] + f * (c1[1] - c0[1])),
+                    int(c0[2] + f * (c1[2] - c0[2])),
+                ))
+                break
+        else:
+            lut.append(QColor(*stops[-1][1]))
+    return lut
+
+
+_LUTS: dict[str, list[QColor]] = {name: _build_lut(stops) for name, stops in _PALETTE_STOPS.items()}
+_active_lut: list[QColor] = _LUTS["Classic"]
+_active_palette_name: str = "Classic"
+
+
+def set_palette(name: str) -> None:
+    """Switch the active heatmap color palette. Name must be one of PALETTE_NAMES."""
+    global _active_lut, _active_palette_name
+    _active_palette_name = name if name in _LUTS else "Classic"
+    _active_lut = _LUTS[_active_palette_name]
+
+
+def active_palette_name() -> str:
+    return _active_palette_name
 
 
 def heatmap_color(temp_k: float, t_min_k: float, t_max_k: float) -> QColor:
-    """Map a temperature to a color on the blue→cyan→green→yellow→red gradient.
+    """Map a temperature to a color using the active palette.
 
     Temperatures outside [t_min_k, t_max_k] clamp to the endpoint colors.
     When t_min_k == t_max_k (uniform temperature field), returns the midpoint color.
     """
     if t_max_k <= t_min_k:
-        t = 0.5
-    else:
-        t = (temp_k - t_min_k) / (t_max_k - t_min_k)
-    t = max(0.0, min(1.0, t))
-
-    for i in range(len(_STOPS) - 1):
-        t0, c0 = _STOPS[i]
-        t1, c1 = _STOPS[i + 1]
-        if t <= t1:
-            f = (t - t0) / (t1 - t0)
-            r = int(c0[0] + f * (c1[0] - c0[0]))
-            g = int(c0[1] + f * (c1[1] - c0[1]))
-            b = int(c0[2] + f * (c1[2] - c0[2]))
-            return QColor(r, g, b)
-
-    return QColor(255, 0, 0)  # should never reach here
+        return _active_lut[_LUT_SIZE // 2]
+    t = (temp_k - t_min_k) / (t_max_k - t_min_k)
+    idx = int(max(0.0, min(1.0, t)) * (_LUT_SIZE - 1))
+    return _active_lut[idx]
 
 
 def text_color_for_bg(bg: QColor) -> QColor:

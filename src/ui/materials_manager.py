@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
@@ -7,6 +11,7 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
+    QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QHeaderView,
@@ -22,6 +27,7 @@ from PyQt6.QtWidgets import (
 from src.models.material import Material
 from src.models.material_registry import MaterialRegistry
 from src.simulation.grid import Grid
+from src.ui.load_dialogs import MaterialConflictDialog
 
 
 class MaterialsManagerDialog(QDialog):
@@ -72,6 +78,15 @@ class MaterialsManagerDialog(QDialog):
         btn_row.addWidget(self._edit_btn)
         btn_row.addWidget(self._delete_btn)
         btn_row.addStretch()
+
+        import_btn = QPushButton("Import...")
+        import_btn.setToolTip("Import custom materials from a JSON file")
+        import_btn.clicked.connect(self._on_import)
+        export_btn = QPushButton("Export...")
+        export_btn.setToolTip("Export your custom materials to a JSON file")
+        export_btn.clicked.connect(self._on_export)
+        btn_row.addWidget(import_btn)
+        btn_row.addWidget(export_btn)
         layout.addLayout(btn_row)
 
         close_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -168,6 +183,84 @@ class MaterialsManagerDialog(QDialog):
         self.changed = True
         self._rebuild_table()
 
+    def _on_export(self) -> None:
+        customs = list(self._registry.custom.values())
+        if not customs:
+            QMessageBox.information(self, "Export Materials", "No custom materials to export.")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export Materials", "", "JSON Files (*.json)"
+        )
+        if not path:
+            return
+        data = {
+            "materials": [
+                {"id": m.id, "name": m.name, "color": m.color,
+                 "k": m.k, "rho": m.rho, "cp": m.cp, "note": m.note, "abbr": m.abbr}
+                for m in customs
+            ]
+        }
+        try:
+            tmp = Path(path).with_suffix(".tmp")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            os.replace(tmp, path)
+        except Exception as e:
+            QMessageBox.critical(self, "Export Failed", f"Could not save file:\n{e}")
+            return
+        QMessageBox.information(self, "Export Materials", f"Exported {len(customs)} material(s).")
+
+    def _on_import(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Import Materials", "", "JSON Files (*.json)"
+        )
+        if not path:
+            return
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            if "materials" not in data or not isinstance(data["materials"], list):
+                raise ValueError("Missing 'materials' list")
+            incoming = [Material(**entry, is_builtin=False) for entry in data["materials"]]
+        except Exception as e:
+            QMessageBox.critical(self, "Import Failed", f"Could not read file:\n{e}")
+            return
+
+        existing = self._registry.all_materials
+        to_import = []
+        for m in incoming:
+            if m.id in existing:
+                ex = existing[m.id]
+                if ex.name == m.name and ex.k == m.k and ex.rho == m.rho and ex.cp == m.cp and ex.color == m.color:
+                    continue  # exact duplicate -- skip silently
+            to_import.append(m)
+
+        if not to_import:
+            QMessageBox.information(self, "Import Materials", "All materials are already present.")
+            return
+
+        existing_names = {m.name for m in existing.values()}
+        conflicts = [m for m in to_import if m.name in existing_names]
+        no_conflict = [m for m in to_import if m.name not in existing_names]
+
+        if conflicts:
+            dlg = MaterialConflictDialog(conflicts, existing_names, parent=self)
+            if dlg.exec() != QDialog.DialogCode.Accepted:
+                return
+            for mat, new_name in dlg.resolved():
+                new_id = self._registry.generate_custom_id(new_name)
+                no_conflict.append(Material(
+                    id=new_id, name=new_name, color=mat.color,
+                    k=mat.k, rho=mat.rho, cp=mat.cp,
+                    note=mat.note, abbr=mat.abbr, is_builtin=False,
+                ))
+
+        for m in no_conflict:
+            self._registry.add_or_update_custom(m)
+        self.changed = True
+        self._rebuild_table()
+        QMessageBox.information(self, "Import Materials", f"Imported {len(no_conflict)} material(s).")
+
 
 class MaterialEditDialog(QDialog):
     """Add or edit a single custom material."""
@@ -216,6 +309,11 @@ class MaterialEditDialog(QDialog):
         self._cp_spin = _prop_spinbox(0.001, 100000, 2, mat.cp if mat else 1000.0)
         form.addRow(_req_label("Cₚ (J/kg·K)"), self._cp_spin)
 
+        self._abbr_edit = QLineEdit(mat.abbr if mat else "")
+        self._abbr_edit.setMaxLength(8)
+        self._abbr_edit.setPlaceholderText("Optional — up to 8 chars")
+        form.addRow(QLabel("Abbr."), self._abbr_edit)
+
         self._note_edit = QLineEdit(mat.note if mat else "")
         self._note_edit.setMaxLength(100)
         self._note_edit.setPlaceholderText("Optional — max 100 characters")
@@ -235,6 +333,7 @@ class MaterialEditDialog(QDialog):
             "k": self._k_spin.value(),
             "rho": self._rho_spin.value(),
             "cp": self._cp_spin.value(),
+            "abbr": self._abbr_edit.text().strip()[:8],
             "note": self._note_edit.text().strip(),
         }
 

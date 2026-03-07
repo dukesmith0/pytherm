@@ -1,5 +1,38 @@
 # PyTherm Changelog
 
+## v0.4.0 — 2026-03-06
+
+### Added
+
+- **Heat flux boundary condition**: cells can now be set to either "Fixed T" (pins temperature) or "Heat Flux" (injects constant W/m² heat each sub-step). The sidebar "Heat source" checkbox expands to show Fixed T / Heat Flux radio buttons, a fixed-temperature spinbox, and two linked flux spinboxes (W/m² and W/cell that auto-update each other).
+- **Flame icon on flux cells**: heat-flux cells display a QPainter-drawn flame icon (cubic Bezier with orange-to-yellow gradient) instead of a lock icon.
+- **Injected power display**: bottom bar shows "Inj: X W/m" or "Inj: X kW/m" -- total heat injection rate from all fixed-T and heat-flux cells each tick.
+- **Speed options 2x and 5x**: the speed combo now includes 2x and 5x steps between 1x and 10x.
+- **Cursor-anchored zoom**: scroll-to-zoom now anchors to the cursor position instead of the viewport center.
+- **Row/col in hover tooltip**: the floating cell tooltip now shows the grid row and column position.
+- **Temperature plot: crosshairs and pinned points**: hover over a plot to see dashed crosshairs (vertical + horizontal) in the series color at the nearest data point. Click to toggle a per-plot pin -- solid crosshairs + dot + inline temperature/time label. Multiple pins per panel supported.
+- **Temperature plot: synchronized cursor**: Shift+hover draws a dashed gray vertical cursor on all OTHER open panels. Shift+click places a solid white global pin on ALL panels simultaneously; Shift+click again to clear.
+- **Temperature plot: label combo populated on open**: new panels created via `View > New Temperature Plot` now populate the label dropdown immediately from the current grid. Painting labeled cells also refreshes all panels' label combos.
+- **Min auto heatmap range**: auto heatmap scale enforces a minimum K span (default 10 °C/K), preventing the gradient from over-saturating on near-isothermal grids. Configurable in Preferences under "Min auto heatmap range".
+- **Temperature Legend toggle**: `View > Temperature Legend (Ctrl+L)` shows/hides the floating `LegendOverlay` (draggable, pin/expand/close). Off by default.
+- **Deselect on re-click**: clicking an already-selected single cell in select mode deselects it and clears any group highlight. Clicking outside the grid or pressing Escape also deselects and clears the orange group highlight overlay.
+
+### Physics
+
+- **Per-cell CFL sub-stepping**: `dt_safe` is now computed from each cell's actual interface conductances (`rhocp_i / k_sum_i`) rather than global extremes -- eliminates the extreme over-conservatism on mixed-material grids (e.g. aluminium + air).
+- **Heat flux injection**: flux cells inject `dT = flux_q * dt * inv_rhocp` before fixed-T pinning each sub-step. Energy from flux cells is tracked in `e_cumulative_flux` and included in the energy conservation reference.
+
+### Bug Fixes
+
+- **B-SPEED**: speed combo jumped 1x -> 10x. Fixed by adding 2x and 5x entries.
+- **B-ZOOM**: zoom was not cursor-anchored. Fixed with post-scale scene translation.
+- **B-TOOLTIP-RC**: hover tooltip omitted row/col. Fixed by passing position from `mouseMoveEvent`.
+- **B-SYNC-DOT**: sync cursor dots appeared offset from the vertical line. Fixed by drawing dots at the line's x position rather than the nearest data point's x.
+- **B-LEGEND-ALWAYS-ON**: temperature legend color bar appeared even when the menu item was unchecked. Fixed by defaulting `_show_legend = False`.
+- **B-LEGEND-WINDOW**: `View > Temperature Legend` now opens the floating `LegendOverlay` widget (draggable titlebar, pin/expand/close, auto-updates bounds each tick). The in-scene color bar remains off by default.
+- **B-PLOT-LABEL-EMPTY**: second plot panels started with an empty label dropdown. Fixed by calling `refresh_labels()` in `TempPlotPanel.__init__`.
+- **B-BC-RADIO**: Fixed T and Heat Flux radio buttons in both `CellPropertiesPanel` and `GroupEditPanel` could not be toggled back after the first switch. Root cause: `_flux_radio.toggled` was not connected to `_on_mode_radio_toggled`, so only the deselect event (`checked=False`) fired when switching. Also fixed the fixed-temperature spinbox showing -273 °C for flux cells by always populating it in `show_cell`, using `cell.temperature` as fallback when `fixed_temp <= 1 K`.
+
 ## v0.3.0 — 2026-03-04
 
 ### Added

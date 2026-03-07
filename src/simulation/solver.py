@@ -58,8 +58,11 @@ class Solver:
         self.dx = dx
         self.last_substep_count = 0   # set after each advance(), useful for debugging
         self.last_max_delta = 0.0     # max per-sub-step |ΔT| over non-fixed cells
+        self.last_substep_dt: float = 0.0    # simulated seconds per sub-step in last advance()
+        self.last_substep_delta: float = 0.0  # |ΔT| from the final sub-step only [K]
         self.last_e_from_fixed = 0.0  # energy injected by fixed-T cells in last advance() [J/m]
         self.last_e_from_sinks = 0.0  # energy exchanged via sink BCs in last advance() [J/m]
+        self.last_e_from_flux = 0.0   # energy injected by heat-flux cells in last advance() [J/m]
         self.boundary_conditions: dict[str, str] = dict(_DEFAULT_BC)
         self.ambient_k: float = 293.15
 
@@ -69,39 +72,30 @@ class Solver:
                 rho_cp: np.ndarray,
                 fixed_mask: np.ndarray,
                 fixed_temps: np.ndarray,
+                flux_mask: np.ndarray,
+                flux_q: np.ndarray,
                 duration: float) -> np.ndarray:
         """Advance the temperature field by `duration` simulated seconds.
 
         Internally sub-steps to satisfy the CFL stability condition:
-            dt_safe ≤ 0.9 · dx² · min(ρCₚ) / (4 · k_max)
-        where min(ρCₚ) is taken over non-vacuum cells only.
+            dt_safe = 0.9 · min_i( dx² · ρCₚᵢ / Σⱼ k_eff_ij )
+        using the actual per-cell interface conductances (harmonic means), so
+        mixed-material grids are not forced to use the overly conservative
+        global k_max / rhocp_min estimate.
 
         Returns a new array — does not modify the input T.
         """
         T = T.copy()
 
         k_max = k.max()
-        if k_max == 0:
+        if k_max == 0 or not np.any(rho_cp > 0):
+            self.last_max_delta = 0.0
+            self.last_substep_dt = 0.0
+            self.last_substep_delta = 0.0
             self.last_e_from_fixed = 0.0
             self.last_e_from_sinks = 0.0
+            self.last_e_from_flux = 0.0
             return T
-
-        rhocp_nonzero = rho_cp[rho_cp > 0]
-        if rhocp_nonzero.size == 0:
-            self.last_e_from_fixed = 0.0
-            self.last_e_from_sinks = 0.0
-            return T
-        rhocp_min = rhocp_nonzero.min()
-
-        # CFL stability condition for the heterogeneous explicit FDM.
-        # Derived from: dt ≤ dx² · (ρCₚ)_i / (Σ k_eff_ij) for all cells i.
-        # Worst case: (ρCₚ)_i = min non-vacuum, and all 4 k_eff = k_max.
-        dt_safe = 0.9 * self.dx ** 2 * rhocp_min / (4.0 * k_max)
-        n_steps = max(1, int(np.ceil(duration / dt_safe)))
-        dt = duration / n_steps
-        self.last_substep_count = n_steps
-        max_delta = 0.0
-        not_fixed = ~fixed_mask
 
         dx2 = self.dx ** 2
         bc  = self.boundary_conditions
@@ -119,11 +113,36 @@ class Solver:
         k_d = _hm(K_pad[1:-1, 1:-1], K_pad[2:,  1:-1])  # interface with cell below
         k_u = _hm(K_pad[1:-1, 1:-1], K_pad[:-2, 1:-1])  # interface with cell above
 
+        # CFL stability condition: dt ≤ dx² · ρCₚᵢ / Σ k_eff_ij for all cells i.
+        # Use actual per-cell interface conductances rather than the conservative
+        # global k_max / rhocp_min estimate, which can be thousands of times too
+        # restrictive for mixed-material grids (e.g. aluminum + air).
+        k_sum = k_r + k_l + k_d + k_u
+        active_cfl = (rho_cp > 0) & (k_sum > 0)
+        if np.any(active_cfl):
+            dt_safe = 0.9 * dx2 * float(np.min(rho_cp[active_cfl] / k_sum[active_cfl]))
+        else:
+            dt_safe = duration
+
+        n_steps = max(1, int(np.ceil(duration / dt_safe)))
+        dt = duration / n_steps
+        self.last_substep_count = n_steps
+        self.last_substep_dt = dt
+        max_delta = 0.0
+        last_step_delta = 0.0
+        not_fixed = ~fixed_mask
+
         # 1 / (ρCₚ) for each cell; vacuum cells (ρCₚ=0) get 0 so they never update.
         inv_rhocp = np.where(rho_cp > 0, 1.0 / np.where(rho_cp > 0, rho_cp, 1.0), 0.0)
 
         # Precompute flags for energy bookkeeping (constant across sub-steps).
         has_fixed   = bool(np.any(fixed_mask))
+        has_flux    = bool(np.any(flux_mask))
+        if has_flux:
+            flux_active = flux_mask & (rho_cp > 0) & ~fixed_mask
+            has_flux = bool(np.any(flux_active))  # skip if all flux cells are vacuum/fixed
+        else:
+            flux_active = None
         top_sink    = bc.get("top")    == SINK
         bottom_sink = bc.get("bottom") == SINK
         left_sink   = bc.get("left")   == SINK
@@ -131,6 +150,7 @@ class Solver:
 
         e_from_fixed = 0.0
         e_from_sinks = 0.0
+        e_from_flux  = 0.0
 
         for _ in range(n_steps):
             # Energy entering grid from sink boundaries this sub-step (pre-FDM temperatures).
@@ -160,6 +180,11 @@ class Solver:
             dT = dt * flux * inv_rhocp
             T += dT
 
+            # Inject heat from flux cells before fixed-T pinning.
+            if has_flux:
+                T[flux_active] += flux_q[flux_active] * dt * inv_rhocp[flux_active]
+                e_from_flux += float(np.sum(flux_q[flux_active])) * dt * dx2
+
             # Energy injected/removed by fixed-T cells (pinning correction).
             # E_fixed = ρCₚ · (T_fixed − T_fdm) · dx²  [J/m]
             if has_fixed:
@@ -169,13 +194,24 @@ class Solver:
                 # Re-pin fixed-temperature cells after each sub-step.
                 T[fixed_mask] = fixed_temps[fixed_mask]
 
-            # Track worst-case per-sub-step delta over non-fixed cells only.
+            # Track worst-case delta (for diagnostics) and final sub-step delta
+            # (for steady-state rate estimation) over non-fixed cells only.
+            # Include flux injection so a spatially-uniform but still-rising
+            # flux-only grid does not trigger a false steady-state signal.
             if np.any(not_fixed):
-                step_delta = float(np.max(np.abs(dT[not_fixed])))
+                if has_flux:
+                    total_dT = dT.copy()
+                    total_dT[flux_active] += flux_q[flux_active] * dt * inv_rhocp[flux_active]
+                    step_delta = float(np.max(np.abs(total_dT[not_fixed])))
+                else:
+                    step_delta = float(np.max(np.abs(dT[not_fixed])))
+                last_step_delta = step_delta
                 if step_delta > max_delta:
                     max_delta = step_delta
 
-        self.last_max_delta  = max_delta
+        self.last_max_delta = max_delta
+        self.last_substep_delta = last_step_delta
         self.last_e_from_fixed = e_from_fixed
         self.last_e_from_sinks = e_from_sinks
+        self.last_e_from_flux = e_from_flux
         return T

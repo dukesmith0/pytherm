@@ -1,0 +1,652 @@
+{
+  "version": 1,
+  "grid": {
+    "rows": 8,
+    "cols": 8,
+    "ambient_temp_k": 293.15,
+    "dx_m": 0.02
+  },
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "material_id": "cu",
+      "temperature_k": 600.0,
+      "is_fixed": true,
+      "fixed_temp_k": 600.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 1,
+      "col": 6,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 5000.0
+    },
+    {
+      "row": 1,
+      "col": 7,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 4,
+      "col": 7,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 3,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 5,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 5,
+      "col": 7,
+      "material_id": "vacuum",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 0,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 1,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 2,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 3,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": true,
+      "flux_q": 2000.0
+    },
+    {
+      "row": 6,
+      "col": 4,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 5,
+      "material_id": "cu",
+      "temperature_k": 250.0,
+      "is_fixed": true,
+      "fixed_temp_k": 250.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 6,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 6,
+      "col": 7,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 0,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 1,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 2,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 3,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 4,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 5,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 6,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 7,
+      "col": 7,
+      "material_id": "al6061",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    }
+  ],
+  "custom_materials": []
+}

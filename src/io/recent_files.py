@@ -26,9 +26,9 @@ def _write_recent(files: list[str]) -> None:
 
 
 def add_recent(path: str) -> list[str]:
+    norm = str(Path(path).resolve())
     files = load_recent()
-    if path in files:
-        files.remove(path)
+    files = [f for f in files if str(Path(f).resolve()) != norm]
     files.insert(0, path)
     files = files[:_MAX_RECENT]
     _write_recent(files)

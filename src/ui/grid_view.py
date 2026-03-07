@@ -59,6 +59,8 @@ class GridView(QGraphicsView):
     cell_painted = pyqtSignal()
     # Emitted once at the very start of each paint stroke (before any cells change)
     paint_started = pyqtSignal()
+    # Emitted when middle-click eyedropper picks a material
+    material_eyedropped = pyqtSignal(object)
 
     def __init__(self, scene: GridScene) -> None:
         super().__init__(scene)
@@ -94,11 +96,22 @@ class GridView(QGraphicsView):
         self._dx_m: float = 0.01   # physical cell size in metres; updated by set_dx()
         self.setMouseTracking(True)
 
-        # Cell clipboard for Ctrl+C/V in select mode
-        self._cell_clipboard: Cell | None = None
+        # Rectangular clipboard for Ctrl+C/V in select mode.
+        # Stores list of (dr, dc, Cell) where (dr, dc) is offset from top-left of copied selection.
+        self._cell_clipboard: list[tuple[int, int, Cell]] | None = None
 
         # Paint temperature override (None = use cell's existing temperature)
         self._paint_temp: float | None = None
+
+        # Draw brush heat settings (stamped onto painted cells)
+        self._draw_is_fixed: bool = False
+        self._draw_fixed_temp_k: float = 293.15
+        self._draw_is_flux: bool = False
+        self._draw_flux_q: float = 0.0
+        self._draw_label: str = ""
+
+        # Vacuum material reference for Delete key (set by app.py via set_vacuum_material)
+        self._vacuum_material: Material | None = None
 
     # --- Public API (called by toolbar / sidebar) ---
 
@@ -123,6 +136,22 @@ class GridView(QGraphicsView):
         """Set temperature override applied on each paint stroke (None = don't override)."""
         self._paint_temp = temp_k
 
+    def set_draw_heat_settings(self, is_fixed: bool, fixed_temp_k: float,
+                               is_flux: bool, flux_q: float) -> None:
+        """Update the heat boundary settings stamped onto painted cells."""
+        self._draw_is_fixed = is_fixed
+        self._draw_fixed_temp_k = fixed_temp_k
+        self._draw_is_flux = is_flux
+        self._draw_flux_q = flux_q
+
+    def set_draw_label(self, label: str) -> None:
+        """Set the label stamped onto painted cells (empty string = keep existing)."""
+        self._draw_label = label
+
+    def set_vacuum_material(self, material: Material) -> None:
+        """Set the vacuum material used by the Delete key to clear selected cells."""
+        self._vacuum_material = material
+
     def zoom_to_selection(self) -> None:
         """Fit the view to the current selection bounding box."""
         if not self._selection:
@@ -145,8 +174,22 @@ class GridView(QGraphicsView):
         shift = bool(event.modifiers() & Qt.KeyboardModifier.ShiftModifier)
 
         if event.button() == Qt.MouseButton.LeftButton:
-            if ctrl and cell:
-                # Ctrl: start Bresenham line anchor
+            if ctrl and cell and self._mode == "select":
+                # Ctrl+click in select mode: toggle individual cell
+                self._cancel_anchors()
+                new_sel = set(self._selection)
+                if cell in new_sel:
+                    new_sel.discard(cell)
+                else:
+                    new_sel.add(cell)
+                if new_sel:
+                    self._do_select(list(new_sel))
+                else:
+                    self._clear_selection()
+                    self.scene().refresh()
+
+            elif ctrl and cell:
+                # Ctrl: start Bresenham line anchor (draw/fill mode)
                 self._cancel_painting()
                 self._rect_anchor = None
                 self._line_anchor = cell
@@ -177,11 +220,26 @@ class GridView(QGraphicsView):
                     self._flood_fill(*cell)
                     self.scene().refresh()
                 elif cell:
-                    self._do_select([cell])
+                    if self._selection == {cell}:
+                        self._clear_selection()
+                        self.cells_selected.emit([])
+                        self.scene().refresh()
+                    else:
+                        self._do_select([cell])
+                elif self._mode == "select" and self._selection:
+                    self._clear_selection()
+                    self.cells_selected.emit([])
+                    self.scene().refresh()
 
         elif event.button() == Qt.MouseButton.MiddleButton:
-            self._mid_drag_pos = event.pos()
-            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            if cell and self._mode == "draw":
+                # Middle-click eyedropper: pick the cell's material as active
+                mat = self.scene()._grid.cell(*cell).material
+                self.set_active_material(mat)
+                self.material_eyedropped.emit(mat)
+            else:
+                self._mid_drag_pos = event.pos()
+                self.setCursor(Qt.CursorShape.ClosedHandCursor)
 
         elif event.button() == Qt.MouseButton.RightButton and cell:
             self._cancel_anchors()
@@ -217,7 +275,8 @@ class GridView(QGraphicsView):
         busy = self._painting or self._line_anchor or self._rect_anchor
         if cell and not busy:
             g = self.scene()._grid
-            self._tooltip.update_cell(g.cell(*cell), self._dx_m, g.ambient_temp_k)
+            row, col = cell
+            self._tooltip.update_cell(g.cell(row, col), self._dx_m, g.ambient_temp_k, row, col)
             self._tooltip.move_near(self.mapToGlobal(event.pos()))
             self._tooltip.show()
         else:
@@ -268,19 +327,61 @@ class GridView(QGraphicsView):
         ctrl = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
         if key == Qt.Key.Key_Escape:
             self._cancel_anchors()
+            if self._selection:
+                self._clear_selection()
+                self.cells_selected.emit([])
+                self.scene().refresh()
+        elif (key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace)
+              and self._mode == "select"
+              and self._selection
+              and not self._drawing_locked):
+            vacuum = self._vacuum_material
+            if vacuum is not None:
+                self.paint_started.emit()
+                for r, c in self._selection:
+                    self.scene()._grid.set_cell(r, c, material=vacuum,
+                                                is_fixed=False, is_flux=False)
+                self.cell_painted.emit()
+                self.scene().invalidate_fixed_cells()
+                self.scene().refresh()
+        elif ctrl and key == Qt.Key.Key_A and self._mode == "select":
+            g = self.scene()._grid
+            cells = [(r, c) for r in range(g.rows) for c in range(g.cols)
+                     if not g.cell(r, c).material.is_vacuum]
+            if cells:
+                self._do_select(cells)
         elif ctrl and key == Qt.Key.Key_C and self._mode == "select" and self._selection:
-            first = min(self._selection)
-            self._cell_clipboard = copy(self.scene()._grid.cell(*first))
+            r_min = min(r for r, c in self._selection)
+            c_min = min(c for r, c in self._selection)
+            g = self.scene()._grid
+            self._cell_clipboard = [
+                (r - r_min, c - c_min, copy(g.cell(r, c)))
+                for r, c in self._selection
+            ]
         elif (ctrl and key == Qt.Key.Key_V
               and self._mode == "select"
               and self._selection
               and self._cell_clipboard is not None):
-            cb = self._cell_clipboard
-            g  = self.scene()._grid
+            anchor_r = min(r for r, c in self._selection)
+            anchor_c = min(c for r, c in self._selection)
+            g = self.scene()._grid
+            targets = [(anchor_r + dr, anchor_c + dc, cb) for dr, dc, cb in self._cell_clipboard]
+            out_of_bounds = [(r, c) for r, c, _ in targets if not (0 <= r < g.rows and 0 <= c < g.cols)]
+            if out_of_bounds:
+                from PyQt6.QtWidgets import QMessageBox
+                answer = QMessageBox.question(
+                    self, "Paste Clipped",
+                    f"{len(out_of_bounds)} cell(s) fall outside the grid and will be skipped.\n"
+                    "Continue with the partial paste?",
+                )
+                if answer != QMessageBox.StandardButton.Yes:
+                    return
             self.paint_started.emit()
-            for r, c in self._selection:
-                g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
-                           is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp)
+            for r, c, cb in targets:
+                if 0 <= r < g.rows and 0 <= c < g.cols:
+                    g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
+                               is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp,
+                               is_flux=cb.is_flux, flux_q=cb.flux_q, label=cb.label)
             self.cell_painted.emit()
             self.scene().invalidate_fixed_cells()
             self.scene().refresh()
@@ -296,8 +397,14 @@ class GridView(QGraphicsView):
             self._fitted = True
 
     def wheelEvent(self, event) -> None:
+        old_pos = self.mapToScene(event.position().toPoint())
         factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
         self.scale(factor, factor)
+        new_pos = self.mapToScene(event.position().toPoint())
+        delta = new_pos - old_pos
+        t = self.transform()
+        t.translate(delta.x(), delta.y())
+        self.setTransform(t)
 
     def fit_grid(self) -> None:
         self.fitInView(self.scene().sceneRect().adjusted(-8, -8, 8, 8),
@@ -320,11 +427,35 @@ class GridView(QGraphicsView):
 
     def _paint_cell(self, row: int, col: int) -> None:
         if self._active_material is not None:
-            self.scene()._grid.set_cell(
-                row, col,
-                material=self._active_material,
-                temperature=self._paint_temp,
-            )
+            if self._active_material.is_vacuum:
+                self.scene()._grid.set_cell(
+                    row, col,
+                    material=self._active_material,
+                    is_fixed=False,
+                    is_flux=False,
+                )
+            else:
+                kwargs: dict = {
+                    "material": self._active_material,
+                    "temperature": self._paint_temp,
+                }
+                if self._draw_is_fixed:
+                    kwargs.update({
+                        "is_fixed": True,
+                        "is_flux": False,
+                        "fixed_temp": self._draw_fixed_temp_k,
+                    })
+                elif self._draw_is_flux:
+                    kwargs.update({
+                        "is_flux": True,
+                        "is_fixed": False,
+                        "flux_q": self._draw_flux_q,
+                    })
+                else:
+                    kwargs.update({"is_fixed": False, "is_flux": False})
+                if self._draw_label:
+                    kwargs["label"] = self._draw_label
+                self.scene()._grid.set_cell(row, col, **kwargs)
             self.cell_painted.emit()
 
     def _do_select(self, cells: list[tuple[int, int]]) -> None:

@@ -17,28 +17,33 @@ from src.rendering.units import TempSpinBox
 class NewGridDialog(QDialog):
     """Modal dialog for configuring a new simulation grid."""
 
-    def __init__(self, materials: dict, parent=None) -> None:
+    def __init__(self, materials: dict, parent=None, defaults=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("New Grid")
         self.setFixedWidth(280)
+
+        d_rows   = defaults.default_rows    if defaults else 20
+        d_cols   = defaults.default_cols    if defaults else 20
+        d_dx_cm  = (defaults.default_dx_m * 100.0) if defaults else 1.0
+        d_amb_k  = defaults.ambient_temp_k  if defaults else 293.15
 
         form = QFormLayout()
         form.setLabelAlignment(form.labelAlignment())
 
         self._rows = QSpinBox()
-        self._rows.setRange(1, 40)
-        self._rows.setValue(10)
+        self._rows.setRange(1, 200)
+        self._rows.setValue(d_rows)
         form.addRow("Rows:", self._rows)
 
         self._cols = QSpinBox()
-        self._cols.setRange(1, 40)
-        self._cols.setValue(10)
+        self._cols.setRange(1, 200)
+        self._cols.setValue(d_cols)
         form.addRow("Columns:", self._cols)
 
         self._cell_size = QDoubleSpinBox()
         self._cell_size.setRange(0.1, 100.0)
         self._cell_size.setDecimals(1)
-        self._cell_size.setValue(1.0)
+        self._cell_size.setValue(d_dx_cm)
         self._cell_size.setSuffix(" cm")
         form.addRow("Cell size:", self._cell_size)
 
@@ -46,7 +51,7 @@ class NewGridDialog(QDialog):
         self._ambient = TempSpinBox()
         self._ambient.setRange(lo, hi)
         self._ambient.setDecimals(1)
-        self._ambient.setValue(_units.to_display(293.15))  # 20 °C default
+        self._ambient.setValue(_units.to_display(d_amb_k))
         self._ambient.setSuffix(f" {_units.suffix()}")
         form.addRow("Ambient temp:", self._ambient)
 

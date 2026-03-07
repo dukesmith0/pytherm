@@ -15,18 +15,22 @@ class GridHistory:
     Then call undo() / redo() to restore.
     """
 
-    MAX_SNAPSHOTS = 50
-
     def __init__(self) -> None:
+        self._max_snapshots = 50
         self._undo: list[_Snapshot] = []
         self._redo: list[_Snapshot] = []
 
     # --- Public API ---
 
+    def set_max_steps(self, n: int) -> None:
+        self._max_snapshots = n
+        while len(self._undo) > n:
+            self._undo.pop(0)
+
     def push(self, grid: Grid) -> None:
         """Capture grid's current state as a new undo step."""
         self._undo.append(self._snap(grid))
-        if len(self._undo) > self.MAX_SNAPSHOTS:
+        if len(self._undo) > self._max_snapshots:
             self._undo.pop(0)
         self._redo.clear()
 

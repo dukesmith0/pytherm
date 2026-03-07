@@ -6,7 +6,7 @@ from typing import Callable
 from PyQt6.QtCore import Qt, QUrl, pyqtSignal
 from PyQt6.QtGui import QColor, QDesktopServices
 from PyQt6.QtWidgets import (
-    QDialog, QDialogButtonBox, QFrame, QHBoxLayout, QLabel,
+    QDialog, QDialogButtonBox, QDockWidget, QFrame, QHBoxLayout, QLabel,
     QMainWindow, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget,
 )
 
@@ -16,12 +16,20 @@ from src.version import VERSION
 class MainWindow(QMainWindow):
     new_grid_requested = pyqtSignal()
     open_requested = pyqtSignal()
+    welcome_requested = pyqtSignal()
+    legend_toggled = pyqtSignal(bool)
+    delta_toggled = pyqtSignal(bool)
+    diagnostics_requested = pyqtSignal()
+    preferences_requested = pyqtSignal()
     save_requested = pyqtSignal()
     save_as_requested = pyqtSignal()
     export_requested = pyqtSignal()
+    export_csv_requested = pyqtSignal()
     materials_manager_requested = pyqtSignal()
     undo_requested = pyqtSignal()
     redo_requested = pyqtSignal()
+    new_plot_requested = pyqtSignal()
+    command_palette_requested = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -50,6 +58,8 @@ class MainWindow(QMainWindow):
 
         self.open_recent_menu = file_menu.addMenu("Open Recent")
 
+        self.open_template_menu = file_menu.addMenu("Open Template")
+
         file_menu.addSeparator()
 
         save_action = file_menu.addAction("Save")
@@ -66,10 +76,13 @@ class MainWindow(QMainWindow):
         export_action.setShortcut("Ctrl+E")
         export_action.triggered.connect(self.export_requested)
 
+        csv_action = file_menu.addAction("Export Cell Data as CSV...")
+        csv_action.triggered.connect(self.export_csv_requested)
+
         file_menu.addSeparator()
 
-        mgr_action = file_menu.addAction("Materials Manager...")
-        mgr_action.triggered.connect(self.materials_manager_requested)
+        welcome_action = file_menu.addAction("Return to Welcome Screen")
+        welcome_action.triggered.connect(self.welcome_requested)
 
         edit_menu = self.menuBar().addMenu("Edit")
 
@@ -80,6 +93,52 @@ class MainWindow(QMainWindow):
         self._redo_action = edit_menu.addAction("Redo")
         self._redo_action.setShortcut("Ctrl+Shift+Z")
         self._redo_action.triggered.connect(self.redo_requested)
+
+        edit_menu.addSeparator()
+
+        mgr_action = edit_menu.addAction("Materials Manager...")
+        mgr_action.triggered.connect(self.materials_manager_requested)
+
+        self._view_menu = self.menuBar().addMenu("View")
+        view_menu = self._view_menu
+
+        self._delta_action = view_menu.addAction("Temperature Rise (dT)")
+        self._delta_action.setCheckable(True)
+        self._delta_action.setShortcut("Ctrl+D")
+        self._delta_action.setToolTip("Show each cell's temperature rise (T - T_amb) in heatmap mode")
+        self._delta_action.toggled.connect(self.delta_toggled)
+
+        self._legend_action = view_menu.addAction("Temperature Legend")
+        self._legend_action.setCheckable(True)
+        self._legend_action.setShortcut("Ctrl+L")
+        self._legend_action.setToolTip("Show/hide the floating temperature scale overlay")
+        self._legend_action.toggled.connect(self.legend_toggled)
+
+        view_menu.addSeparator()
+
+        new_plot_action = view_menu.addAction("New Temperature Plot")
+        new_plot_action.setToolTip("Open an additional temperature plot panel")
+        new_plot_action.triggered.connect(self.new_plot_requested)
+
+        tools_menu = self.menuBar().addMenu("Tools")
+
+        palette_action = tools_menu.addAction("Command Palette...")
+        palette_action.setShortcut("Ctrl+Shift+P")
+        palette_action.setToolTip("Open the command palette (Ctrl+Shift+P)")
+        palette_action.triggered.connect(self.command_palette_requested)
+
+        tools_menu.addSeparator()
+
+        prefs_action = tools_menu.addAction("Preferences...")
+        prefs_action.setShortcut("Ctrl+,")
+        prefs_action.triggered.connect(self.preferences_requested)
+
+        tools_menu.addSeparator()
+
+        diag_action = tools_menu.addAction("Debug Diagnostics...")
+        diag_action.setShortcut("Ctrl+Shift+D")
+        diag_action.setToolTip("Show simulation and grid diagnostics")
+        diag_action.triggered.connect(self.diagnostics_requested)
 
         help_menu = self.menuBar().addMenu("Help")
 
@@ -187,6 +246,13 @@ class MainWindow(QMainWindow):
 
     def _open_bug_report(self) -> None:
         QDesktopServices.openUrl(QUrl("https://github.com/dukesmith0/pytherm/issues/new"))
+
+    def set_legend_checked(self, checked: bool) -> None:
+        self._legend_action.setChecked(checked)
+
+    def add_dock_widget(self, area: Qt.DockWidgetArea, dock: QDockWidget) -> None:
+        self.addDockWidget(area, dock)
+        self._view_menu.addAction(dock.toggleViewAction())
 
     def _build_central(self) -> None:
         root = QWidget()

@@ -14,7 +14,7 @@ class Material:
     rho: float       # density               kg/m³
     cp: float        # specific heat         J/(kg·K)
     note: str = ""   # optional user note, max 100 chars
-    abbr: str = ""   # 1–4 char label shown in cell corner (e.g. "Cu", "FR4", "A36")
+    abbr: str = ""   # up to 8 char abbreviation shown in cell (e.g. "Cu", "FR4", "Silicon")
     category: str = ""   # display group, e.g. "Metals" (empty = ungrouped / top-level)
     is_builtin: bool = False
 

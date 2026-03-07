@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 from pathlib import Path
 
 from src.models.material import Material, load_materials
@@ -90,7 +91,8 @@ class MaterialRegistry:
         try:
             with open(self._custom_path) as f:
                 data = json.load(f)
-        except Exception:
+        except Exception as e:
+            print(f"Warning: could not load {self._custom_path}: {e}", file=sys.stderr)
             return  # corrupt file — start with no custom materials
         for entry in data.get("materials", []):
             try:
