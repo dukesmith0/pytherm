@@ -5,7 +5,7 @@ from copy import copy
 
 from PyQt6.QtCore import Qt, QRectF, pyqtSignal
 from PyQt6.QtGui import QPainter
-from PyQt6.QtWidgets import QGraphicsView
+from PyQt6.QtWidgets import QGraphicsView, QMenu, QMessageBox
 
 from src.models.material import Material
 from src.simulation.cell import Cell
@@ -152,6 +152,16 @@ class GridView(QGraphicsView):
         """Set the vacuum material used by the Delete key to clear selected cells."""
         self._vacuum_material = material
 
+    def select_cells(self, cells: list[tuple[int, int]], center: bool = True) -> None:
+        """Programmatically select cells and optionally center the view on them."""
+        self._do_select(cells)
+        if center and cells:
+            rows = [r for r, c in cells]
+            cols = [c for r, c in cells]
+            mid_r = (min(rows) + max(rows)) / 2
+            mid_c = (min(cols) + max(cols)) / 2
+            self.centerOn((mid_c + 0.5) * CELL_PX, (mid_r + 0.5) * CELL_PX)
+
     def zoom_to_selection(self) -> None:
         """Fit the view to the current selection bounding box."""
         if not self._selection:
@@ -241,7 +251,7 @@ class GridView(QGraphicsView):
                 self._mid_drag_pos = event.pos()
                 self.setCursor(Qt.CursorShape.ClosedHandCursor)
 
-        elif event.button() == Qt.MouseButton.RightButton and cell:
+        elif event.button() == Qt.MouseButton.RightButton and cell and self._mode == "select":
             self._cancel_anchors()
             self._do_select([cell])
 
@@ -322,6 +332,126 @@ class GridView(QGraphicsView):
         self._tooltip.hide()
         super().leaveEvent(event)
 
+    def contextMenuEvent(self, event) -> None:
+        cell = self._cell_at(event.pos())
+        g = self.scene()._grid
+        menu = QMenu(self)
+
+        if cell and self._mode == "select" and len(self._selection) > 1 and cell in self._selection:
+            # Multi-cell selection context
+            copy_act = menu.addAction("Copy Selection  Ctrl+C")
+            menu.addSeparator()
+            all_prot = all(g.cell(r, c).protected for r, c in self._selection)
+            prot_act = menu.addAction("Unprotect Selection" if all_prot else "Protect Selection")
+            menu.addSeparator()
+            clear_act = menu.addAction("Clear Selection  Esc")
+            chosen = menu.exec(event.globalPos())
+            if chosen == copy_act and self._selection:
+                r_min = min(r for r, c in self._selection)
+                c_min = min(c for r, c in self._selection)
+                self._cell_clipboard = [
+                    (r - r_min, c - c_min, copy(g.cell(r, c)))
+                    for r, c in self._selection
+                ]
+            elif chosen == prot_act:
+                self.paint_started.emit()
+                for r, c in self._selection:
+                    g.set_cell(r, c, protected=not all_prot)
+                self.cell_painted.emit()
+                self.scene().invalidate_fixed_cells()
+                self.scene().refresh()
+            elif chosen == clear_act:
+                self._clear_selection()
+                self.cells_selected.emit([])
+                self.scene().refresh()
+
+        elif cell:
+            # Single cell (auto-select if not already selected in select mode)
+            if self._mode == "select" and cell not in self._selection:
+                self._do_select([cell])
+            in_select = self._mode == "select"
+            copy_act   = menu.addAction("Copy Properties  Ctrl+C")
+            copy_act.setEnabled(in_select)
+            paste_act  = menu.addAction("Paste Properties  Ctrl+V")
+            paste_act.setEnabled(self._cell_clipboard is not None and in_select
+                                 and not g.cell(*cell).protected)
+            menu.addSeparator()
+            is_prot = g.cell(*cell).protected
+            prot_act = menu.addAction("Unprotect Cell  P" if is_prot else "Protect Cell  P")
+            lbl = g.cell(*cell).label
+            if lbl and in_select:
+                menu.addSeparator()
+                grp_act = menu.addAction(f'Select Group "{lbl}"')
+            else:
+                grp_act = None
+            chosen = menu.exec(event.globalPos())
+            if chosen == copy_act:
+                self._cell_clipboard = [(0, 0, copy(g.cell(*cell)))]
+            elif chosen == paste_act and self._cell_clipboard is not None and self._mode == "select":
+                targets = [(cell[0] + dr, cell[1] + dc, cb) for dr, dc, cb in self._cell_clipboard]
+                out_of_bounds = [(r, c) for r, c, _ in targets if not (0 <= r < g.rows and 0 <= c < g.cols)]
+                if out_of_bounds:
+                    answer = QMessageBox.question(
+                        self, "Paste Clipped",
+                        f"{len(out_of_bounds)} cell(s) fall outside the grid and will be skipped.\n"
+                        "Continue with the partial paste?",
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return
+                self.paint_started.emit()
+                for r, c, cb in targets:
+                    if 0 <= r < g.rows and 0 <= c < g.cols and not g.cell(r, c).protected:
+                        g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
+                                   is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp,
+                                   is_flux=cb.is_flux, flux_q=cb.flux_q, label=cb.label,
+                                   protected=cb.protected)
+                self.cell_painted.emit()
+                self.scene().invalidate_fixed_cells()
+                self.scene().refresh()
+            elif chosen == prot_act:
+                self.paint_started.emit()
+                g.set_cell(*cell, protected=not is_prot)
+                self.cell_painted.emit()
+                self.scene().invalidate_fixed_cells()
+                self.scene().refresh()
+            elif chosen == grp_act and grp_act is not None:
+                group = [
+                    (r, c)
+                    for r in range(g.rows) for c in range(g.cols)
+                    if g.cell(r, c).label == lbl and not g.cell(r, c).material.is_vacuum
+                ]
+                self._do_select(group)
+
+        elif self._cell_clipboard is not None and self._selection and self._mode == "select":
+            # Off-grid with clipboard data and active selection
+            paste_act = menu.addAction("Paste  Ctrl+V")
+            chosen = menu.exec(event.globalPos())
+            if chosen == paste_act:
+                anchor_r = min(r for r, c in self._selection)
+                anchor_c = min(c for r, c in self._selection)
+                targets = [(anchor_r + dr, anchor_c + dc, cb) for dr, dc, cb in self._cell_clipboard]
+                out_of_bounds = [(r, c) for r, c, _ in targets if not (0 <= r < g.rows and 0 <= c < g.cols)]
+                if out_of_bounds:
+                    answer = QMessageBox.question(
+                        self, "Paste Clipped",
+                        f"{len(out_of_bounds)} cell(s) fall outside the grid and will be skipped.\n"
+                        "Continue with the partial paste?",
+                    )
+                    if answer != QMessageBox.StandardButton.Yes:
+                        return
+                self.paint_started.emit()
+                for r, c, cb in targets:
+                    if 0 <= r < g.rows and 0 <= c < g.cols and not g.cell(r, c).protected:
+                        g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
+                                   is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp,
+                                   is_flux=cb.is_flux, flux_q=cb.flux_q, label=cb.label,
+                                   protected=cb.protected)
+                self.cell_painted.emit()
+                self.scene().invalidate_fixed_cells()
+                self.scene().refresh()
+        else:
+            event.ignore()
+
     def keyPressEvent(self, event) -> None:
         key  = event.key()
         ctrl = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
@@ -339,11 +469,21 @@ class GridView(QGraphicsView):
             if vacuum is not None:
                 self.paint_started.emit()
                 for r, c in self._selection:
-                    self.scene()._grid.set_cell(r, c, material=vacuum,
-                                                is_fixed=False, is_flux=False)
+                    if not self.scene()._grid.cell(r, c).protected:
+                        self.scene()._grid.set_cell(r, c, material=vacuum,
+                                                    is_fixed=False, is_flux=False)
                 self.cell_painted.emit()
                 self.scene().invalidate_fixed_cells()
                 self.scene().refresh()
+        elif key == Qt.Key.Key_P and self._mode == "select" and self._selection:
+            g = self.scene()._grid
+            all_prot = all(g.cell(r, c).protected for r, c in self._selection)
+            self.paint_started.emit()
+            for r, c in self._selection:
+                g.set_cell(r, c, protected=not all_prot)
+            self.cell_painted.emit()
+            self.scene().invalidate_fixed_cells()
+            self.scene().refresh()
         elif ctrl and key == Qt.Key.Key_A and self._mode == "select":
             g = self.scene()._grid
             cells = [(r, c) for r in range(g.rows) for c in range(g.cols)
@@ -368,7 +508,6 @@ class GridView(QGraphicsView):
             targets = [(anchor_r + dr, anchor_c + dc, cb) for dr, dc, cb in self._cell_clipboard]
             out_of_bounds = [(r, c) for r, c, _ in targets if not (0 <= r < g.rows and 0 <= c < g.cols)]
             if out_of_bounds:
-                from PyQt6.QtWidgets import QMessageBox
                 answer = QMessageBox.question(
                     self, "Paste Clipped",
                     f"{len(out_of_bounds)} cell(s) fall outside the grid and will be skipped.\n"
@@ -378,10 +517,11 @@ class GridView(QGraphicsView):
                     return
             self.paint_started.emit()
             for r, c, cb in targets:
-                if 0 <= r < g.rows and 0 <= c < g.cols:
+                if 0 <= r < g.rows and 0 <= c < g.cols and not g.cell(r, c).protected:
                     g.set_cell(r, c, material=cb.material, temperature=cb.temperature,
                                is_fixed=cb.is_fixed, fixed_temp=cb.fixed_temp,
-                               is_flux=cb.is_flux, flux_q=cb.flux_q, label=cb.label)
+                               is_flux=cb.is_flux, flux_q=cb.flux_q, label=cb.label,
+                               protected=cb.protected)
             self.cell_painted.emit()
             self.scene().invalidate_fixed_cells()
             self.scene().refresh()
@@ -426,6 +566,8 @@ class GridView(QGraphicsView):
         return None
 
     def _paint_cell(self, row: int, col: int) -> None:
+        if self.scene()._grid.cell(row, col).protected:
+            return
         if self._active_material is not None:
             if self._active_material.is_vacuum:
                 self.scene()._grid.set_cell(
@@ -499,6 +641,9 @@ class GridView(QGraphicsView):
             if (r, c) in visited or not (0 <= r < rows and 0 <= c < cols):
                 continue
             if grid.cell(r, c).material.id != target_id:
+                continue
+            if grid.cell(r, c).protected:
+                visited.add((r, c))
                 continue
             visited.add((r, c))
             self._paint_cell(r, c)

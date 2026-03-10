@@ -30,6 +30,10 @@ class MainWindow(QMainWindow):
     redo_requested = pyqtSignal()
     new_plot_requested = pyqtSignal()
     command_palette_requested = pyqtSignal()
+    find_hottest_requested = pyqtSignal()
+    find_coldest_requested = pyqtSignal()
+    reset_selection_requested = pyqtSignal()
+    resize_grid_requested = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -98,6 +102,26 @@ class MainWindow(QMainWindow):
 
         mgr_action = edit_menu.addAction("Materials Manager...")
         mgr_action.triggered.connect(self.materials_manager_requested)
+
+        edit_menu.addSeparator()
+
+        hottest_action = edit_menu.addAction("Find Hottest Cell")
+        hottest_action.setShortcut("Ctrl+Shift+H")
+        hottest_action.triggered.connect(self.find_hottest_requested)
+
+        coldest_action = edit_menu.addAction("Find Coldest Cell")
+        coldest_action.setShortcut("Ctrl+Shift+L")
+        coldest_action.triggered.connect(self.find_coldest_requested)
+
+        edit_menu.addSeparator()
+
+        reset_sel_action = edit_menu.addAction("Reset Selection to Ambient")
+        reset_sel_action.triggered.connect(self.reset_selection_requested)
+
+        edit_menu.addSeparator()
+
+        resize_action = edit_menu.addAction("Resize Grid...")
+        resize_action.triggered.connect(self.resize_grid_requested)
 
         self._view_menu = self.menuBar().addMenu("View")
         view_menu = self._view_menu

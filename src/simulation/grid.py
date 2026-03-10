@@ -27,7 +27,8 @@ class Grid:
                  fixed_temp: float | None = None,
                  is_flux: bool | None = None,
                  flux_q: float | None = None,
-                 label: str | None = None) -> None:
+                 label: str | None = None,
+                 protected: bool | None = None) -> None:
         c = self._cells[row][col]
         if material is not None:
             c.material = material
@@ -43,6 +44,8 @@ class Grid:
             c.flux_q = flux_q
         if label is not None:
             c.label = label
+        if protected is not None:
+            c.protected = protected
 
     def reset_temperatures(self) -> None:
         """Reset simulated temperatures to ambient. Preserves materials and heat source configs."""
@@ -119,7 +122,7 @@ class Grid:
     def snapshot(self) -> list[list[tuple]]:
         """Return a deep-copyable snapshot of all cell state."""
         return [
-            [(c.material, c.temperature, c.is_fixed, c.fixed_temp, c.is_flux, c.flux_q, c.label)
+            [(c.material, c.temperature, c.is_fixed, c.fixed_temp, c.is_flux, c.flux_q, c.label, c.protected)
              for c in row]
             for row in self._cells
         ]
@@ -130,6 +133,7 @@ class Grid:
             for col, tup in enumerate(row):
                 mat, temp, is_fixed, fixed_temp, is_flux, flux_q = tup[:6]
                 lbl = tup[6] if len(tup) > 6 else ""
+                prot = tup[7] if len(tup) > 7 else False
                 self.set_cell(r, col,
                               material=mat,
                               temperature=temp,
@@ -137,7 +141,49 @@ class Grid:
                               fixed_temp=fixed_temp,
                               is_flux=is_flux,
                               flux_q=flux_q,
-                              label=lbl)
+                              label=lbl,
+                              protected=prot)
+
+    def resize(self, top: int, right: int, bottom: int, left: int,
+               vacuum_material: Material) -> None:
+        """Expand or trim grid edges. Positive = add rows/cols, negative = trim.
+        New cells are filled with vacuum at ambient temperature.
+        Clamped so at least 1 row and 1 col remain."""
+        def _new_cell() -> Cell:
+            return Cell(material=vacuum_material, temperature=self.ambient_temp_k,
+                        fixed_temp=self.ambient_temp_k)
+
+        trim_top    = min(max(0, -top),    max(0, self.rows - 1))
+        trim_bottom = min(max(0, -bottom), max(0, self.rows - trim_top - 1))
+        trim_left   = min(max(0, -left),   max(0, self.cols - 1))
+        trim_right  = min(max(0, -right),  max(0, self.cols - trim_left - 1))
+        add_top     = max(0, top)
+        add_bottom  = max(0, bottom)
+        add_left    = max(0, left)
+        add_right   = max(0, right)
+
+        # Trim rows from top/bottom
+        end = self.rows - trim_bottom if trim_bottom else None
+        cells = self._cells[trim_top:end]
+
+        # Trim/expand columns in each row
+        new_col_count = self.cols - trim_left - trim_right + add_left + add_right
+        trimmed_rows = []
+        for row in cells:
+            end_c = len(row) - trim_right if trim_right else None
+            trimmed = row[trim_left:end_c]
+            trimmed_rows.append(
+                [_new_cell() for _ in range(add_left)] + trimmed + [_new_cell() for _ in range(add_right)]
+            )
+        cells = trimmed_rows
+
+        # Add top/bottom rows
+        new_row = lambda: [_new_cell() for _ in range(new_col_count)]
+        cells = [new_row() for _ in range(add_top)] + cells + [new_row() for _ in range(add_bottom)]
+
+        self._cells = cells
+        self.rows = len(cells)
+        self.cols = len(cells[0]) if cells else 0
 
     def import_temperatures(self, T: np.ndarray) -> None:
         """Write solver output temperatures back into cells.

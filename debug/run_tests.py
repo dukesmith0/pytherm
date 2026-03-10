@@ -390,7 +390,7 @@ def _():
     finally:
         tmp_path.unlink(missing_ok=True)
     assert "software_version" in data
-    assert data["software_version"] == "0.4.0"
+    assert data["software_version"] == "0.5.0"
     assert data["sim_settings"]["boundary_conditions"]["top"] == "sink"
 
 
@@ -1082,12 +1082,166 @@ def _():
     assert panel._canvas._sync_pin_t is None
 
 
+# ── Grid.resize ───────────────────────────────────────────────────────────────
+
+@test("Grid.resize: expand top adds rows at top filled with vacuum")
+def _():
+    grid, reg = _make_grid(4, 4)
+    al = reg.get("al6061")
+    grid.set_cell(0, 0, material=al, temperature=400.0)
+    vac = reg.get("vacuum")
+    grid.resize(top=2, right=0, bottom=0, left=0, vacuum_material=vac)
+    assert grid.rows == 6 and grid.cols == 4
+    # New top rows should be vacuum at ambient
+    assert grid.cell(0, 0).material.is_vacuum
+    assert abs(grid.cell(0, 0).temperature - grid.ambient_temp_k) < 1e-9
+    # Original row 0 is now row 2
+    assert grid.cell(2, 0).material.id == "al6061"
+
+
+@test("Grid.resize: expand bottom adds rows at bottom")
+def _():
+    grid, reg = _make_grid(4, 4)
+    vac = reg.get("vacuum")
+    grid.resize(top=0, right=0, bottom=3, left=0, vacuum_material=vac)
+    assert grid.rows == 7 and grid.cols == 4
+
+
+@test("Grid.resize: expand left adds cols at left")
+def _():
+    grid, reg = _make_grid(4, 4)
+    al = reg.get("al6061")
+    grid.set_cell(0, 0, material=al)
+    vac = reg.get("vacuum")
+    grid.resize(top=0, right=0, bottom=0, left=2, vacuum_material=vac)
+    assert grid.rows == 4 and grid.cols == 6
+    # Original col 0 should now be at col 2
+    assert grid.cell(0, 2).material.id == "al6061"
+
+
+@test("Grid.resize: trim top removes rows from top")
+def _():
+    grid, reg = _make_grid(6, 4)
+    vac = reg.get("vacuum")
+    grid.resize(top=-2, right=0, bottom=0, left=0, vacuum_material=vac)
+    assert grid.rows == 4 and grid.cols == 4
+
+
+@test("Grid.resize: trim right removes cols from right")
+def _():
+    grid, reg = _make_grid(4, 6)
+    vac = reg.get("vacuum")
+    grid.resize(top=0, right=-3, bottom=0, left=0, vacuum_material=vac)
+    assert grid.rows == 4 and grid.cols == 3
+
+
+@test("Grid.resize: combined expand and trim")
+def _():
+    grid, reg = _make_grid(4, 4)
+    vac = reg.get("vacuum")
+    grid.resize(top=2, right=-1, bottom=0, left=1, vacuum_material=vac)
+    assert grid.rows == 6 and grid.cols == 4
+
+
+@test("Grid.resize: clamped to at least 1 row and 1 col")
+def _():
+    grid, reg = _make_grid(2, 2)
+    vac = reg.get("vacuum")
+    grid.resize(top=-100, right=-100, bottom=0, left=0, vacuum_material=vac)
+    assert grid.rows >= 1 and grid.cols >= 1
+
+
+@test("Grid.resize: preserves cell data for retained cells")
+def _():
+    grid, reg = _make_grid(4, 4)
+    al = reg.get("al6061")
+    grid.set_cell(2, 2, material=al, temperature=500.0, is_fixed=True, fixed_temp=500.0)
+    vac = reg.get("vacuum")
+    # Add 1 row to top -- original (2,2) moves to (3,2)
+    grid.resize(top=1, right=0, bottom=0, left=0, vacuum_material=vac)
+    c = grid.cell(3, 2)
+    assert c.material.id == "al6061"
+    assert abs(c.temperature - 500.0) < 1e-9
+    assert c.is_fixed is True
+
+
+# ── Cell.protected ────────────────────────────────────────────────────────────
+
+@test("Cell.protected: default is False")
+def _():
+    from src.simulation.cell import Cell
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    c = Cell(material=reg.get("vacuum"), temperature=293.15)
+    assert c.protected is False
+
+
+@test("Grid.set_cell: can set protected=True")
+def _():
+    grid, _ = _make_grid()
+    grid.set_cell(1, 1, protected=True)
+    assert grid.cell(1, 1).protected is True
+
+
+@test("Grid.set_cell: can toggle protected back to False")
+def _():
+    grid, _ = _make_grid()
+    grid.set_cell(1, 1, protected=True)
+    grid.set_cell(1, 1, protected=False)
+    assert grid.cell(1, 1).protected is False
+
+
+@test("Grid.snapshot/restore: protected survives round-trip")
+def _():
+    grid, reg = _make_grid()
+    al = reg.get("al6061")
+    grid.set_cell(0, 0, material=al, protected=True)
+    snap = grid.snapshot()
+    grid.set_cell(0, 0, protected=False)
+    assert grid.cell(0, 0).protected is False
+    grid.restore(snap)
+    assert grid.cell(0, 0).protected is True
+
+
+@test("Grid.restore: missing protected field defaults to False (backward compat)")
+def _():
+    grid, reg = _make_grid()
+    al = reg.get("al6061")
+    grid.set_cell(0, 0, material=al)
+    # Build a snapshot tuple with only 7 fields (pre-protected format)
+    snap = grid.snapshot()
+    old_fmt = [[tup[:7] for tup in row] for row in snap]
+    grid.set_cell(0, 0, protected=True)
+    grid.restore(old_fmt)
+    assert grid.cell(0, 0).protected is False
+
+
+@test("file_io: save_pytherm omits protected when False, includes when True")
+def _():
+    from src.io.file_io import save_pytherm, load_pytherm
+    grid, reg = _make_grid(2, 2)
+    al = reg.get("al6061")
+    grid.set_cell(0, 0, material=al, protected=True)
+    grid.set_cell(0, 1, material=al, protected=False)
+    with tempfile.NamedTemporaryFile(suffix=".pytherm", delete=False) as f:
+        path = Path(f.name)
+    try:
+        save_pytherm(path, grid, 0.01, [])
+        data = load_pytherm(path)
+        cells_by_rc = {(cd["row"], cd["col"]): cd for cd in data["cells"]}
+        assert cells_by_rc[(0, 0)].get("protected") is True
+        assert "protected" not in cells_by_rc[(0, 1)]  # omitted when False
+    finally:
+        path.unlink(missing_ok=True)
+
+
 # ── Run ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     passes = sum(1 for _, ok, _ in _results if ok)
     fails  = sum(1 for _, ok, _ in _results if not ok)
-    print(f"\nPyTherm v0.4.0 headless test results")
+    print(f"\nPyTherm v0.5.0 headless test results")
     print("=" * 60)
     for name, ok, msg in _results:
         status = PASS if ok else FAIL

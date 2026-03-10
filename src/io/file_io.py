@@ -35,6 +35,8 @@ def save_pytherm(
             }
             if cell.label:
                 entry["label"] = cell.label
+            if cell.protected:
+                entry["protected"] = True
             cells.append(entry)
 
     data = {

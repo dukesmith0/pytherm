@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QGraphicsScene
 
 from src.rendering import units as _units
 from src.rendering.heatmap_renderer import heatmap_color, text_color_for_bg
-from src.rendering.material_renderer import cell_color, draw_flame_icon, draw_lock_icon
+from src.rendering.material_renderer import cell_color, draw_flame_icon, draw_lock_icon, draw_pin_icon
 from src.simulation.grid import Grid
 
 # Scene coordinate size of each cell at 1:1 zoom.
@@ -52,9 +52,10 @@ class GridScene(QGraphicsScene):
         # Per-frame bounds cache: computed once in drawBackground, reused in drawForeground.
         self._frame_bounds: tuple[float, float] = (273.15, 373.15)
 
-        # Fixed-cell and flux-cell position caches: None = dirty, rebuilt lazily in drawForeground.
+        # Fixed-cell, flux-cell, and protected-cell position caches: None = dirty, rebuilt lazily.
         self._fixed_cells: set[tuple[int, int]] | None = None
         self._flux_cells: set[tuple[int, int]] | None = None
+        self._protected_cells: set[tuple[int, int]] | None = None
 
         # Non-vacuum cell list cache for heatmap bounds: None = dirty.
         self._nv_cells: list[tuple[int, int]] | None = None
@@ -87,15 +88,17 @@ class GridScene(QGraphicsScene):
         self._auto_t_max = None
         self._fixed_cells = None
         self._flux_cells = None
+        self._protected_cells = None
         self._nv_cells = None
         self._mat_image = None
         self._sync_scene_rect()
         self.update()
 
     def invalidate_fixed_cells(self) -> None:
-        """Mark the fixed/flux/nv-cell caches dirty so they rebuild next frame."""
+        """Mark the fixed/flux/protected/nv-cell caches dirty so they rebuild next frame."""
         self._fixed_cells = None
         self._flux_cells = None
+        self._protected_cells = None
         self._nv_cells = None
         self._mat_image = None
 
@@ -321,10 +324,11 @@ class GridScene(QGraphicsScene):
                 painter.fillRect(c * cp, r * cp, cp, cp, QColor(0, 150, 136, 70))
                 painter.drawRect(c * cp + 1, r * cp + 1, cp - 2, cp - 2)
 
-        # Lock icons on fixed-T cells and flame icons on flux cells (cached, lazily rebuilt)
+        # Pin icons on fixed-T cells, flame on flux cells, lock on protected cells (cached, lazily rebuilt)
         if self._fixed_cells is None:
             self._fixed_cells = set()
             self._flux_cells = set()
+            self._protected_cells = set()
             for _r in range(g.rows):
                 for _c in range(g.cols):
                     cell = g.cell(_r, _c)
@@ -332,12 +336,17 @@ class GridScene(QGraphicsScene):
                         self._fixed_cells.add((_r, _c))
                     if cell.is_flux:
                         self._flux_cells.add((_r, _c))
+                    if cell.protected:
+                        self._protected_cells.add((_r, _c))
         for r, c in self._fixed_cells:
             if r0 <= r < r1 and c0 <= c < c1:
-                draw_lock_icon(painter, c * cp, r * cp, cp)
+                draw_pin_icon(painter, c * cp, r * cp, cp)
         for r, c in self._flux_cells:
             if r0 <= r < r1 and c0 <= c < c1:
                 draw_flame_icon(painter, c * cp, r * cp, cp)
+        for r, c in self._protected_cells:
+            if r0 <= r < r1 and c0 <= c < c1:
+                draw_lock_icon(painter, c * cp, r * cp, cp)
 
         # Selected cell — white border highlight (single-cell select)
         if self._selected_cell is not None:

@@ -603,6 +603,7 @@ class TempPlotPanel(QDockWidget):
         bar = QHBoxLayout()
         self._info_label = QLabel("No selection")
         self._info_label.setStyleSheet("color: #888; font-size: 10px;")
+        self._info_label.setFixedWidth(110)  # wide enough for "Cell (199, 199)"
         bar.addWidget(self._info_label)
         bar.addStretch()
 

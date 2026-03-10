@@ -254,7 +254,7 @@
     <div class="header-text">
       <div class="header-title">PyTherm</div>
       <div class="header-subtitle">2D Heat Conduction Simulator</div>
-      <div class="header-meta">v0.4.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
+      <div class="header-meta">v0.5.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
       <a class="header-github" href="https://github.com/dukesmith0/pytherm">
         &#x2316;&nbsp; github.com/dukesmith0/pytherm
       </a>
@@ -372,6 +372,30 @@ cd pytherm</pre>
         <div class="feature-title">Energy conservation display</div>
         <div class="feature-desc">Bottom bar shows stored energy E, reference E_ref, and conservation error; confirms solver correctness in real time.</div>
       </div>
+      <div class="feature-card">
+        <div class="feature-title">Isotherms and hotspot overlay</div>
+        <div class="feature-desc">Draw temperature contour lines over the heatmap. Highlight cells above a configurable threshold in red.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Protect cells from overpainting</div>
+        <div class="feature-desc">Lock any cell so draw, fill, delete, and paste operations skip it. Toggle with right-click or the P key.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Named cell labels and group highlight</div>
+        <div class="feature-desc">Assign short text labels to cells. Cells with a shared label form a group; selecting one highlights the whole group in orange.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Temperature vs. time plots</div>
+        <div class="feature-desc">Dockable plot panels track selected cells over time. Multiple panels with synchronized cursors and pinned points.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Command palette</div>
+        <div class="feature-desc">Ctrl+Shift+P opens a fuzzy-search palette for all actions and materials -- no menu hunting required.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Grid resize and selection tools</div>
+        <div class="feature-desc">Add or trim rows/cols from any edge. Find the hottest or coldest cell instantly. Reset selected cells to ambient temperature.</div>
+      </div>
     </div>
 
     <hr class="sep" />
@@ -389,7 +413,7 @@ cd pytherm</pre>
 
   <!-- ── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="footer">
-    <span>PyTherm v0.4.0 &nbsp;·&nbsp; MIT License</span>
+    <span>PyTherm v0.5.0 &nbsp;·&nbsp; MIT License</span>
     <span>
       <a href="https://craigdukesmith.com">craigdukesmith.com</a>
       &nbsp;&nbsp;·&nbsp;&nbsp;

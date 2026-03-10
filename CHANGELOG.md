@@ -1,5 +1,47 @@
 # PyTherm Changelog
 
+## v0.5.0 — 2026-03-10
+
+### Added
+
+- **Protect cells from overpainting**: `cell.protected` flag prevents draw, flood-fill, delete, and paste operations from modifying a cell. Toggle via right-click context menu ("Protect Cell / Unprotect Cell", "Protect Selection") or `P` key in select mode. Protected cells show a yellow lock icon. Fixed-T cells now show a blue pin icon (replacing the lock). Saves in `.pytherm`; round-trips through undo/redo.
+- **PyInstaller packaging**: `pytherm.spec` + `.github/workflows/build.yml` for Windows/macOS/Linux release executables triggered on version tags. `src/utils/paths.py` provides `sys._MEIPASS`-aware path helpers so the frozen exe finds bundled data and writes user data next to itself.
+- **icon.ico**: App icon converted from `icon.svg` (16/32/48/64/128/256 px); referenced in `pytherm.spec`.
+- **Find Hottest / Coldest Cell**: `Edit > Find Hottest Cell (Ctrl+Shift+H)` and `Edit > Find Coldest Cell (Ctrl+Shift+L)` select and center the extremal non-fixed, non-vacuum cell.
+- **Reset Selection to Ambient**: `Edit > Reset Selection to Ambient` resets temperature of all selected non-fixed, non-flux, non-protected, non-vacuum cells.
+- **Selection Aggregate Stats**: status bar shows min/avg/max temperature and area for the current selection during playback.
+- **Right-click context menu**: copy/paste cell properties, protect/unprotect, select group by label. Works in draw mode (protect only) and select mode (all actions).
+- **Grid Resize**: `Edit > Resize Grid` opens a dialog to add or trim rows/cols from any edge. Clears undo history (same as New Grid). New cells are vacuum at ambient.
+- **Debug Diagnostics**: `Tools > Debug Diagnostics (Ctrl+Shift+D)` opens a non-modal dialog with live simulation stats updated each tick.
+- **Command Palette**: `Tools > Command Palette (Ctrl+Shift+P)` fuzzy-searchable list of all actions and materials.
+- **Named cell labels**: `Cell.label` (up to 8 chars). Cells with a shared label form a group -- orange group highlight appears on select. Labels shown in both material and heatmap views.
+- **Isotherm lines**: heatmap-mode overlay of temperature contour lines. Toggle + interval spinbox in toolbar heatmap controls.
+- **Hotspot highlight**: semi-transparent red overlay on cells above a configurable threshold (toolbar). Count shown in status bar during playback.
+- **Delta-T overlay (dT)**: `View > Temperature Rise (dT) (Ctrl+D)` -- heatmap shows signed T - T_ambient instead of absolute temperature.
+- **Return to Welcome Screen**: `File > Return to Welcome Screen` prompts save if dirty and reopens the startup dialog.
+- **Multiple temperature plot panels**: `View > New Temperature Plot` creates additional dockable plot panels. Panels can be pinned independently.
+- **Plot synchronized cursors**: Shift+hover draws a dashed gray cursor on all other panels; Shift+click places a global sync pin on all panels.
+- **Middle-click eyedropper**: middle-click a cell in draw mode to pick its material as active.
+- **Export Cell Data as CSV**: `File > Export > Export Cell Data as CSV` exports row, col, material, temperature for all cells.
+- **Ctrl+A selects all non-vacuum cells** in select mode.
+
+### Changed
+
+- Fixed-T cells now show a **blue pin icon** (was: yellow lock). Protected cells use the yellow lock.
+- `data/` and `templates/` path resolution updated to use `src/utils/paths.py` (frozen-exe safe).
+- `.gitignore`: removed `*.spec` entry so `pytherm.spec` can be committed.
+
+### Bug Fixes
+
+- **B-CONTEXT-MODE**: right-click in draw mode called `_do_select` unconditionally, switching the sidebar. Fixed with `and self._mode == "select"` guard.
+- **B-CONTEXT-COPY-DRAW**: "Copy Properties" in context menu was enabled in draw/fill mode. Now disabled unless in select mode.
+- **B-CONTEXT-DEAD-VAR**: dead variable `r_min, c_min = cell` in paste handler. Removed.
+- **B-PLOT-JITTER**: `_info_label` in `TempPlotPanel` had no fixed width; text changes caused layout reflow jitter. Fixed with `setFixedWidth(110)`.
+
+### Known Issues
+
+None.
+
 ## v0.4.0 — 2026-03-06
 
 ### Added

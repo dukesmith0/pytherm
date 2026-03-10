@@ -57,6 +57,45 @@ def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     painter.restore()
 
 
+def draw_pin_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
+    """Draw a small blue pin in the top-left corner of a fixed-temperature cell."""
+    painter.save()
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+    s = max(8, cp // 4)
+    pad = 2
+    head_r = max(2, s // 3)
+    shaft_w = max(1, s // 6)
+
+    px = x + pad + head_r
+    py_head = y + pad + head_r
+    py_tip  = y + pad + s
+
+    dark = QColor(30, 30, 30, 210)
+    blue = QColor(100, 200, 255, 230)
+
+    dark_pen = QPen(dark)
+    dark_pen.setWidth(shaft_w + 2)
+    dark_pen.setCosmetic(False)
+    painter.setPen(dark_pen)
+    painter.drawLine(px, py_head, px, py_tip)
+
+    blue_pen = QPen(blue)
+    blue_pen.setWidth(shaft_w)
+    blue_pen.setCosmetic(False)
+    painter.setPen(blue_pen)
+    painter.drawLine(px, py_head, px, py_tip)
+
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.setBrush(QBrush(dark))
+    painter.drawEllipse(px - head_r - 1, py_head - head_r - 1,
+                        (head_r + 1) * 2, (head_r + 1) * 2)
+    painter.setBrush(QBrush(blue))
+    painter.drawEllipse(px - head_r, py_head - head_r, head_r * 2, head_r * 2)
+
+    painter.restore()
+
+
 def draw_flame_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     """Draw a small orange flame in the top-left corner of a heat-flux cell."""
     painter.save()

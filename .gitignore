@@ -10,7 +10,7 @@ __pycache__/
 # Build / distribution
 dist/
 build/
-*.spec
+__MACOSX/
 
 # Virtual environments
 .venv/

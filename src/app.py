@@ -32,6 +32,7 @@ from src.ui.main_window import MainWindow
 from src.ui.load_dialogs import MaterialConflictDialog, MaterialImportDialog
 from src.ui.materials_manager import MaterialsManagerDialog
 from src.ui.new_grid_dialog import NewGridDialog
+from src.ui.resize_grid_dialog import ResizeGridDialog
 from src.ui.save_dialogs import CustomMaterialsBundleDialog
 from src.ui.sidebar import Sidebar
 from src.ui.toolbar import Toolbar
@@ -40,6 +41,7 @@ from src.ui.legend_widget import LegendOverlay
 from src.ui.preferences_dialog import PreferencesDialog
 from src.ui.temp_plot_panel import TempPlotPanel
 from src.ui.welcome_dialog import WelcomeDialog, make_app_icon
+from src.utils.paths import get_bundle_data_dir, get_user_data_dir, get_templates_dir
 from src.version import VERSION
 
 
@@ -75,11 +77,12 @@ def create_app() -> tuple[QApplication, MainWindow]:
     _apply_dark_theme(app)
     app.setWindowIcon(make_app_icon())
 
-    _data_dir  = Path(__file__).parent.parent / "data"
-    _prefs_path = _data_dir / "preferences.json"
-    prefs      = Preferences.load(_prefs_path)
+    _bundle_dir = get_bundle_data_dir()
+    _user_dir   = get_user_data_dir()
+    _prefs_path = _user_dir / "preferences.json"
+    prefs       = Preferences.load(_prefs_path)
 
-    registry   = MaterialRegistry(_data_dir / "materials.json", _data_dir / "user_materials.json")
+    registry   = MaterialRegistry(_bundle_dir / "materials.json", _user_dir / "user_materials.json")
     materials  = registry.all_materials
     grid       = Grid(
         prefs.default_rows, prefs.default_cols,
@@ -122,7 +125,11 @@ def create_app() -> tuple[QApplication, MainWindow]:
     view.set_active_material(next(iter(materials.values())))
 
     # ── Cell / group selection → properties panels ───────────────────────────
+    _current_selection: list[tuple[int, int]] = []
+
     def _on_cells_selected(cells: list[tuple[int, int]]) -> None:
+        nonlocal _current_selection
+        _current_selection = cells
         sidebar.show_cells(cells)
         for _p in _plot_panels:
             _p.set_tracked_cells(cells)
@@ -213,11 +220,23 @@ def create_app() -> tuple[QApplication, MainWindow]:
         T_active = T[mask]
         rcp_active = rho_cp[mask]
         if sim_clock.is_running:
-            lo  = _units.to_display(float(T_active.min()))
-            hi  = _units.to_display(float(T_active.max()))
-            avg = _units.to_display(float(T_active.mean()))
             suf = _units.suffix()
-            msg = f"T  min: {lo:.1f} {suf}   avg: {avg:.1f} {suf}   max: {hi:.1f} {suf}"
+            # Selection-scoped stats when cells are selected
+            sel = _current_selection
+            sel_active = [(r, c) for r, c in sel if rho_cp[r, c] > 0]
+            if sel_active:
+                sel_T = np.array([T[r, c] for r, c in sel_active])
+                lo  = _units.to_display(float(sel_T.min()))
+                hi  = _units.to_display(float(sel_T.max()))
+                avg = _units.to_display(float(sel_T.mean()))
+                area = len(sel_active) * solver.dx ** 2
+                msg = (f"Selection ({len(sel_active)} cells, {area*1e4:.2g} cm\u00b2)  "
+                       f"min: {lo:.1f} {suf}   avg: {avg:.1f} {suf}   max: {hi:.1f} {suf}")
+            else:
+                lo  = _units.to_display(float(T_active.min()))
+                hi  = _units.to_display(float(T_active.max()))
+                avg = _units.to_display(float(T_active.mean()))
+                msg = f"T  min: {lo:.1f} {suf}   avg: {avg:.1f} {suf}   max: {hi:.1f} {suf}"
             n_hot = scene.hotspot_count
             if n_hot > 0:
                 msg += f"   \u26a0 {n_hot} cell{'s' if n_hot != 1 else ''} above hotspot threshold"
@@ -716,6 +735,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 is_flux=cd.get("is_flux", False),
                 flux_q=cd.get("flux_q", 0.0),
                 label=cd.get("label", ""),
+                protected=cd.get("protected", False),
             )
 
         grid = new_grid
@@ -743,7 +763,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     def _rebuild_template_menu() -> None:
         """Scan <project_root>/templates/ and rebuild the Open Template menu."""
         window.open_template_menu.clear()
-        templates_dir = Path(__file__).parent.parent / "templates"
+        templates_dir = get_templates_dir()
         if not templates_dir.is_dir():
             no_item = window.open_template_menu.addAction("No templates folder found")
             no_item.setEnabled(False)
@@ -913,6 +933,70 @@ def create_app() -> tuple[QApplication, MainWindow]:
     QShortcut(QKeySequence("M"),               window).activated.connect(toolbar.activate_material_mode)
     QShortcut(QKeySequence("Ctrl+U"),          window).activated.connect(bottom_bar.cycle_unit)
 
+    # ── Find Hottest / Coldest Cell ───────────────────────────────────────────
+
+    def _find_extremal_cell(find_max: bool) -> None:
+        T = grid.temperature_array()
+        rho_cp = grid.rho_cp_array()
+        # active = non-vacuum AND not fixed-T
+        mask = (rho_cp > 0) & ~grid.fixed_mask()
+        if not np.any(mask):
+            window.statusBar().showMessage("No active cells to search.")
+            return
+        if find_max:
+            idx = int(np.argmax(np.where(mask, T, -np.inf)))
+        else:
+            idx = int(np.argmin(np.where(mask, T, np.inf)))
+        r, c = divmod(idx, grid.cols)
+        view.select_cells([(r, c)], center=True)
+        toolbar.activate_select_mode()
+
+    window.find_hottest_requested.connect(lambda: _find_extremal_cell(True))
+    window.find_coldest_requested.connect(lambda: _find_extremal_cell(False))
+
+    # ── Reset Selection to Ambient ─────────────────────────────────────────────
+
+    def _reset_selection_to_ambient() -> None:
+        sel = [
+            (r, c) for r, c in _current_selection
+            if not grid.cell(r, c).is_fixed and not grid.cell(r, c).is_flux
+            and not grid.cell(r, c).material.is_vacuum
+            and not grid.cell(r, c).protected
+        ]
+        if not sel:
+            return
+        _push_history()
+        for r, c in sel:
+            grid.cell(r, c).temperature = grid.ambient_temp_k
+        sim_clock.invalidate_arrays()
+        scene.refresh()
+        window.mark_dirty()
+
+    window.reset_selection_requested.connect(_reset_selection_to_ambient)
+
+    # ── Resize Grid ────────────────────────────────────────────────────────────
+
+    def _on_resize_grid(_checked: bool = False) -> None:
+        if sim_clock.is_running:
+            sim_clock.pause()
+        dlg = ResizeGridDialog(grid.rows, grid.cols, window)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        top, right, bottom, left = dlg.values()
+        vacuum = registry.get("vacuum")
+        grid.resize(top, right, bottom, left, vacuum)
+        history.clear()
+        sim_clock.reset()
+        sim_clock.set_grid(grid)
+        scene.set_grid(grid)
+        sidebar.set_grid(grid)
+        for _p in _plot_panels:
+            _p.set_grid(grid)
+        _on_cells_selected([])
+        window.mark_dirty()
+
+    window.resize_grid_requested.connect(_on_resize_grid)
+
     # ── Command Palette ───────────────────────────────────────────────────────
 
     def _open_command_palette(_checked: bool = False) -> None:
@@ -941,6 +1025,10 @@ def create_app() -> tuple[QApplication, MainWindow]:
             ("Undo",   window.undo_requested.emit),
             ("Redo",   window.redo_requested.emit),
             ("Materials Manager...", window.materials_manager_requested.emit),
+            ("Find Hottest Cell",    lambda: _find_extremal_cell(True)),
+            ("Find Coldest Cell",    lambda: _find_extremal_cell(False)),
+            ("Reset Selection to Ambient", _reset_selection_to_ambient),
+            ("Resize Grid...",       window.resize_grid_requested.emit),
             # View
             ("Temperature Legend",           lambda: window._legend_action.toggle()),
             ("Toggle Temperature Rise (dT)", lambda: window._delta_action.toggle()),

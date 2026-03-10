@@ -1,6 +1,6 @@
 ![PyTherm](docs/media/banner.svg)
 
-**PyTherm** is an interactive 2D heat conduction simulator built with Python, PyQt6, and NumPy. Draw a grid of engineering materials, configure heat sources and boundary conditions, and watch thermal conduction evolve in real time — running up to 10,000x faster than real time via explicit FDM with per-cell CFL sub-stepping.
+**PyTherm** is an interactive 2D heat conduction simulator built with Python, PyQt6, and NumPy. Draw a grid of engineering materials, configure heat sources and boundary conditions, and watch thermal conduction evolve in real time -- running up to 10,000x faster than real time via explicit FDM with per-cell CFL sub-stepping.
 
 ![Example](docs/media/example.gif)
 
@@ -43,16 +43,27 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 - Steady-state auto-stop (configurable threshold, default 0.01 K/s)
 - Temperature units: °C, K, °F, Rankine -- switchable live
 
+### Grid & Drawing
+
+- Draw, rectangle-fill, flood-fill, and select modes
+- Resize grid (add/trim any edge) via Edit > Resize Grid
+- Named cell labels (up to 8 chars); shared labels = group highlight
+- Protect cells from overpainting (lock icon); right-click or press `P`
+- Rectangular copy/paste of cell properties (Ctrl+C / Ctrl+V)
+- Middle-click eyedropper in draw mode picks a material
+- Undo/redo (configurable stack depth)
+
 ### UI
 
-- Zoomable/pannable grid canvas with material and heatmap view modes
+- Zoomable/pannable grid canvas; material and heatmap view modes
 - 4 heatmap palettes: Classic, Viridis, Plasma, Grayscale
 - Floating temperature legend (Ctrl+L); delta-T overlay (Ctrl+D)
+- Isotherm lines overlay (toolbar); hotspot highlight overlay (toolbar)
 - Cell hover tooltip: live T, stored delta-E, thermal time constant τ, thermal resistance R
-- Named cell labels (up to 8 chars) with group highlight
-- Draw, rectangle-fill, flood-fill, and select modes; multi-cell group editing
-- Configurable undo/redo stack; save/load `.pytherm` JSON; PNG export
+- Selection aggregate stats in status bar (min/avg/max T for selected cells during playback)
 - Temperature vs. time plot for selected cells (multiple dockable panels, synchronized cursors)
+- Command palette (Ctrl+Shift+P) for all actions and materials
+- Save/load `.pytherm` JSON; PNG export; CSV export
 
 ---
 
@@ -67,19 +78,27 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 | G | Toggle grid lines |
 | D / S / W | Draw / Select / Fill mode |
 | H / M | Heatmap / Material view |
+| P | Protect / Unprotect selected cells (select mode) |
 | Ctrl+D | Toggle temperature rise (dT) overlay |
-| Ctrl+U | Cycle unit (°C → K → °F → R) |
+| Ctrl+U | Cycle unit (°C -> K -> °F -> R) |
 | Ctrl+A | Select all non-vacuum cells |
 | Ctrl+click | Toggle cell in selection |
 | Middle-click | Eyedropper -- pick material (draw mode) |
 | Escape | Deselect all |
 | Delete / Backspace | Clear selection to Vacuum |
 | Ctrl+Z / Ctrl+Shift+Z | Undo / Redo |
+| Ctrl+C / Ctrl+V | Copy / Paste cell properties (select mode) |
 | Ctrl+E | Export view as PNG |
 | Ctrl+L | Toggle Temperature Legend |
 | Ctrl+, | Preferences |
+| Ctrl+Shift+H | Find hottest cell |
+| Ctrl+Shift+L | Find coldest cell |
+| Ctrl+Shift+P | Command Palette |
+| Ctrl+Shift+D | Debug Diagnostics |
 
 **Drawing:** Left-click/drag = paint, Shift+drag = rectangle fill, Ctrl+drag = straight line.
+
+**Right-click (select mode):** Copy / Paste properties, Protect / Unprotect, Select Group by label.
 
 **Edge BCs:** Set Top/Bottom/Left/Right independently in the toolbar: **Insulator** or **Sink** (held at ambient).
 
@@ -94,11 +113,20 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 | New Grid | File > New Grid |
 | Open / Open Recent | File > Open |
 | Open Template | File > Open Template |
+| Return to Welcome Screen | File > Return to Welcome Screen |
 | Save / Save As | File > Save (Ctrl+S) |
-| Export image / CSV | File > Export... |
+| Export Image | File > Export > Export as PNG (Ctrl+E) |
+| Export CSV | File > Export > Export Cell Data as CSV |
 | Materials Manager | Edit > Materials Manager |
+| Find Hottest Cell | Edit > Find Hottest Cell (Ctrl+Shift+H) |
+| Find Coldest Cell | Edit > Find Coldest Cell (Ctrl+Shift+L) |
+| Reset Selection to Ambient | Edit > Reset Selection to Ambient |
+| Resize Grid | Edit > Resize Grid |
 | Temperature Legend | View > Temperature Legend (Ctrl+L) |
+| Delta-T Overlay | View > Temperature Rise (dT) (Ctrl+D) |
+| New Temperature Plot | View > New Temperature Plot |
 | Preferences | Tools > Preferences (Ctrl+,) |
+| Command Palette | Tools > Command Palette (Ctrl+Shift+P) |
 | Debug Diagnostics | Tools > Debug Diagnostics (Ctrl+Shift+D) |
 
 ---
@@ -123,6 +151,51 @@ The FDM solver (`src/simulation/solver.py`) operates on NumPy arrays cached at t
 | Per-cell CFL | Global bound is ~2000x too conservative on mixed-material grids |
 | Explicit time integration | Stability guaranteed by CFL; sufficient for interactive use |
 | Kelvin internally | No negative-temperature edge cases; conversions only at the display layer |
+
+---
+
+## Architecture (for contributors)
+
+```text
+src/
+  app.py                 # create_app() -- all wiring (~1000 lines)
+  simulation/
+    cell.py              # Cell dataclass (material, T, is_fixed, is_flux, label, protected)
+    grid.py              # 2D array of Cells; snapshot/restore for undo; resize()
+    solver.py            # FDM engine -- harmonic mean of k, per-cell CFL sub-stepping
+    sim_clock.py         # QTimer loop: play/pause/step/reset, steady-state check
+    history.py           # GridHistory: 50-step undo/redo stack
+  ui/
+    toolbar.py           # Top toolbar: mode, dx, view, heatmap, borders, isotherms, hotspot
+    bottom_bar.py        # Play/Pause, Reset, Speed, Step, Stop-at-SS, time, energy display
+    grid_scene.py        # QGraphicsScene: material/heatmap rendering, overlays
+    grid_view.py         # QGraphicsView: zoom/pan, draw/select/fill, keyboard shortcuts
+    sidebar.py           # MaterialPicker + DrawPropertiesPanel + CellPropertiesPanel
+    main_window.py       # QMainWindow: menus, signals, dirty tracking
+  rendering/
+    heatmap_renderer.py  # heatmap_color(), LUT cache
+    material_renderer.py # cell_color(), draw_pin_icon(), draw_lock_icon(), draw_flame_icon()
+    units.py             # C/K/F/R conversion, TempSpinBox, fmt_energy()
+  models/
+    material.py          # Material frozen dataclass
+    material_registry.py # built-ins + custom, saves user_materials.json
+  utils/
+    paths.py             # get_bundle_data_dir/get_user_data_dir/get_templates_dir (frozen-exe safe)
+  io/
+    file_io.py           # save_pytherm / load_pytherm (.pytherm JSON, atomic writes)
+    recent_files.py      # Recent file list (persisted to user data dir)
+data/
+  materials.json         # 45 built-in materials (8 categories)
+```
+
+**Key patterns:**
+
+- `nonlocal grid` in `create_app()` -- all closures share one `grid` ref, rebound on New/Open. Never capture `grid` as a default argument.
+- `pre_cell_modified` / `pre_group_modified` signals emitted BEFORE grid writes (for undo).
+- `paint_started` emitted once per brush stroke (not per cell) for undo granularity.
+- All JSON files use atomic writes: `.tmp` sibling + `os.replace()`.
+- Protected cells (`cell.protected`) are skipped by draw, flood-fill, delete, and paste. Toggle via right-click or `P`.
+- Fixed-T cells show a blue pin icon; heat-flux cells show a flame; protected cells show a yellow lock.
 
 ---
 

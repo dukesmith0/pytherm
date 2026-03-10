@@ -4,7 +4,9 @@ import json
 import os
 from pathlib import Path
 
-_RECENT_PATH = Path(__file__).parent.parent.parent / "data" / "recent_files.json"
+from src.utils.paths import get_user_data_dir
+
+_RECENT_PATH = get_user_data_dir() / "recent_files.json"
 _MAX_RECENT = 10
 
 
