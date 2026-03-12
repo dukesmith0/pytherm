@@ -43,5 +43,11 @@ htmlcov/
 # Vibe
 .vibe/
 
+# Misc (personal notes, drafts, non-project files)
+.misc/
+
+# Data gathering (scraper scripts, raw CSVs -- dev-only tools, not shipped)
+.data-gathering/
+
 # Claude Code project context (machine-local)
 CLAUDE.md

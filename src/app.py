@@ -352,6 +352,33 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
     window.new_plot_requested.connect(_make_plot_panel)
 
+    # ── Grid rebind helper ─────────────────────────────────────────────────
+    _DEFAULT_BC = {"top": "insulator", "bottom": "insulator",
+                   "left": "insulator", "right": "insulator"}
+
+    def _apply_new_grid(new_grid: Grid, dx_m: float, *,
+                        bc: dict | None = None,
+                        file_path: str | None = None) -> None:
+        nonlocal grid
+        grid = new_grid
+        _current_selection.clear()
+        solver.dx = dx_m
+        history.clear()
+        sim_clock.reset()
+        sim_clock.set_grid(grid)
+        scene.set_grid(grid)
+        sidebar.set_grid(grid)
+        sidebar.set_dx(solver.dx)
+        toolbar.set_dx(solver.dx)
+        view.set_dx(solver.dx)
+        view.reset_zoom()
+        bottom_bar.set_ambient(grid.ambient_temp_k)
+        for _p in _plot_panels:
+            _p.set_grid(grid)
+        if bc is not None:
+            toolbar.set_boundary_conditions(bc)
+        window.mark_clean(file_path)
+
     _legend_overlay = LegendOverlay(view)
     _legend_overlay.hide()
 
@@ -604,7 +631,6 @@ def create_app() -> tuple[QApplication, MainWindow]:
             no_item.setEnabled(False)
 
     def _do_open(path: str | None = None, add_to_recent: bool = True) -> None:
-        nonlocal grid
         if path is None:
             path, _ = QFileDialog.getOpenFileName(
                 window, "Open", "", "PyTherm Files (*.pytherm)"
@@ -630,7 +656,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
             return
 
         file_sw_ver = data.get("software_version")
-        if file_sw_ver and file_sw_ver != VERSION:
+        if file_sw_ver and file_sw_ver != VERSION and add_to_recent:
             box = QMessageBox(window)
             box.setWindowTitle("Version Mismatch")
             box.setIcon(QMessageBox.Icon.Information)
@@ -738,25 +764,12 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 protected=cd.get("protected", False),
             )
 
-        grid = new_grid
-        solver.dx = gd["dx_m"]
-        history.clear()
-        sim_clock.reset()
-        sim_clock.set_grid(grid)
-        scene.set_grid(grid)
-        sidebar.set_grid(grid)
-        sidebar.set_dx(solver.dx)
-        toolbar.set_dx(solver.dx)
-        view.set_dx(solver.dx)
-        view.reset_zoom()
-        for _p in _plot_panels:
-            _p.set_grid(grid)
-        # Restore sim settings (default: all-insulator BCs)
-        _DEFAULT_BC = {"top": "insulator", "bottom": "insulator",
-                       "left": "insulator", "right": "insulator"}
         ss = data.get("sim_settings", {})
-        toolbar.set_boundary_conditions(ss.get("boundary_conditions", _DEFAULT_BC))
-        window.mark_clean(path if add_to_recent else None)
+        _apply_new_grid(
+            new_grid, gd["dx_m"],
+            bc=ss.get("boundary_conditions", _DEFAULT_BC),
+            file_path=path if add_to_recent else None,
+        )
         if add_to_recent:
             _rebuild_recent_menu(add_recent(path))
 
@@ -790,7 +803,6 @@ def create_app() -> tuple[QApplication, MainWindow]:
             empty.setEnabled(False)
 
     def _on_return_to_welcome(_checked: bool = False) -> None:
-        nonlocal grid
         if sim_clock.is_running:
             sim_clock.pause()
         if window.is_dirty and not _prompt_save_before_continuing("Return to Welcome"):
@@ -799,21 +811,8 @@ def create_app() -> tuple[QApplication, MainWindow]:
         welcome2.exec()
         if welcome2.action == "new":
             rows, cols, dx_m, ambient_k, base_mat_id = welcome2.new_grid_values()
-            grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
-            solver.dx = dx_m
-            history.clear()
-            sim_clock.reset()
-            sim_clock.set_grid(grid)
-            scene.set_grid(grid)
-            sidebar.set_grid(grid)
-            sidebar.set_dx(solver.dx)
-            toolbar.set_dx(solver.dx)
-            view.set_dx(solver.dx)
-            view.reset_zoom()
-            bottom_bar.set_ambient(grid.ambient_temp_k)
-            for _p in _plot_panels:
-                _p.set_grid(grid)
-            window.mark_clean()
+            new_grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
+            _apply_new_grid(new_grid, dx_m)
         elif welcome2.action == "open":
             _do_open()
         elif welcome2.action == "recent":
@@ -827,7 +826,6 @@ def create_app() -> tuple[QApplication, MainWindow]:
     # ── New Grid ──────────────────────────────────────────────────────────────
 
     def _on_new_grid() -> None:
-        nonlocal grid
         if sim_clock.is_running:
             ans = QMessageBox.question(
                 window, "New Grid",
@@ -845,23 +843,8 @@ def create_app() -> tuple[QApplication, MainWindow]:
             return
 
         rows, cols, dx_m, ambient_k, base_mat_id = dlg.values()
-        grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
-        solver.dx = dx_m
-        history.clear()
-        sim_clock.reset()
-        sim_clock.set_grid(grid)
-        scene.set_grid(grid)
-        sidebar.set_grid(grid)
-        sidebar.set_dx(solver.dx)
-        toolbar.set_dx(solver.dx)
-        toolbar.set_boundary_conditions({"top": "insulator", "bottom": "insulator",
-                                         "left": "insulator", "right": "insulator"})
-        view.set_dx(solver.dx)
-        view.reset_zoom()
-        bottom_bar.set_ambient(grid.ambient_temp_k)
-        for _p in _plot_panels:
-            _p.set_grid(grid)
-        window.mark_clean()
+        new_grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
+        _apply_new_grid(new_grid, dx_m, bc=_DEFAULT_BC)
 
     window.new_grid_requested.connect(_on_new_grid)
 
@@ -1067,20 +1050,8 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
     if welcome.action == "new":
         rows, cols, dx_m, ambient_k, base_mat_id = welcome.new_grid_values()
-        grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
-        solver.dx = dx_m
-        history.clear()
-        sim_clock.reset()
-        sim_clock.set_grid(grid)
-        scene.set_grid(grid)
-        sidebar.set_grid(grid)
-        sidebar.set_dx(solver.dx)
-        toolbar.set_dx(solver.dx)
-        view.set_dx(solver.dx)
-        bottom_bar.set_ambient(grid.ambient_temp_k)
-        for _p in _plot_panels:
-            _p.set_grid(grid)
-        window.mark_clean()
+        new_grid = Grid(rows, cols, registry.get(base_mat_id), ambient_temp_k=ambient_k)
+        _apply_new_grid(new_grid, dx_m)
 
     window.show()
 

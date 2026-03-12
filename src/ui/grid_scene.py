@@ -91,6 +91,8 @@ class GridScene(QGraphicsScene):
         self._protected_cells = None
         self._nv_cells = None
         self._mat_image = None
+        self._group_highlight = set()
+        self._group_highlight_label = ""
         self._sync_scene_rect()
         self.update()
 
@@ -338,15 +340,19 @@ class GridScene(QGraphicsScene):
                         self._flux_cells.add((_r, _c))
                     if cell.protected:
                         self._protected_cells.add((_r, _c))
-        for r, c in self._fixed_cells:
+        icon_w = max(8, cp // 4) + 2  # icon width + padding, matches icon sizing
+        all_icon_cells = self._fixed_cells | self._flux_cells | self._protected_cells
+        for r, c in all_icon_cells:
             if r0 <= r < r1 and c0 <= c < c1:
-                draw_pin_icon(painter, c * cp, r * cp, cp)
-        for r, c in self._flux_cells:
-            if r0 <= r < r1 and c0 <= c < c1:
-                draw_flame_icon(painter, c * cp, r * cp, cp)
-        for r, c in self._protected_cells:
-            if r0 <= r < r1 and c0 <= c < c1:
-                draw_lock_icon(painter, c * cp, r * cp, cp)
+                off = 0
+                if (r, c) in self._fixed_cells:
+                    draw_pin_icon(painter, c * cp, r * cp, cp, x_offset=off)
+                    off += icon_w
+                if (r, c) in self._flux_cells:
+                    draw_flame_icon(painter, c * cp, r * cp, cp, x_offset=off)
+                    off += icon_w
+                if (r, c) in self._protected_cells:
+                    draw_lock_icon(painter, c * cp, r * cp, cp, x_offset=off)
 
         # Selected cell — white border highlight (single-cell select)
         if self._selected_cell is not None:

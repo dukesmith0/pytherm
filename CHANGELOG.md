@@ -1,5 +1,24 @@
 # PyTherm Changelog
 
+## v0.5.1 — 2026-03-11
+
+### Changed
+
+- **196 built-in materials**: expanded from 45 materials across 8 categories to 196 materials across 26+ hierarchical subcategories. Comma-delimited category paths (e.g. "Metals,Pure") render as nested collapsible groups in the sidebar.
+- **`_apply_new_grid` helper**: extracted shared grid-rebind logic from 4 call sites (New Grid, Open, Welcome, Return-to-Welcome) into a single helper with `nonlocal grid`. Reduced `create_app()` from ~1094 to ~1063 lines and eliminated ~60 lines of duplication.
+- **Documentation consolidation**: `.vibe/` files, `MEMORY.md`, `CLAUDE.md`, `README.md`, and `docs/index.html` updated to reflect material expansion and refactoring.
+
+### Bug Fixes
+
+- **B-ICON-OVERLAP**: multiple cell icons (protected + fixed-T, or protected + flux) drawn at the same position now stack side-by-side with cumulative x-offset.
+- **B-TEMPLATE-VERSION**: opening a template no longer shows a version incompatibility warning dialog.
+- **B-GROUP-HIGHLIGHT-PERSIST**: orange group-label highlight no longer persists after opening a new file or creating a new grid.
+- **B-SAVE-CATEGORY**: `material_registry.save_custom()` now includes the `category` field, preventing custom materials from losing their category on save.
+
+### Known Issues
+
+None.
+
 ## v0.5.0 — 2026-03-10
 
 ### Added

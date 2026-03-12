@@ -8,12 +8,28 @@
 
 ## Quick Start
 
+### Option A: Standalone Executable (no install)
+
+Download the latest release for your platform from the [Releases page](https://github.com/dukesmith0/pytherm/releases):
+
+- **Windows:** `PyTherm-Windows.exe`
+- **macOS:** `PyTherm-macOS`
+- **Linux:** `PyTherm-Linux`
+
+Place the executable in a folder where you have write access (e.g. Documents or Desktop). A `data/` folder will be created alongside it on first launch to store preferences and custom materials.
+
+> **Windows note:** The `.exe` is unsigned. Windows SmartScreen will show a warning on first launch -- click "More info" then "Run anyway".
+
+### Option B: Run from Source
+
 **Requirements:** Python 3.10+, PyQt6, NumPy
 
 ```sh
 pip install -r requirements.txt
 python main.py
 ```
+
+---
 
 A startup dialog lets you set grid dimensions, cell size (dx), and ambient temperature. Click **Create New Grid** to begin, or load a bundled example from **File > Open Template**.
 
@@ -32,7 +48,7 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 
 ### Materials
 
-- 45 built-in materials across 8 categories: metals, woods, polymers, construction, electronics, gases, liquids
+- 196 built-in materials across 26+ subcategories: metals, ceramics, polymers, construction, electronics, gases, liquids, minerals, earth, food, and more
 - Add, edit, and delete custom materials via Edit > Materials Manager; persisted to JSON
 - Import/export material sets as JSON
 
@@ -158,7 +174,7 @@ The FDM solver (`src/simulation/solver.py`) operates on NumPy arrays cached at t
 
 ```text
 src/
-  app.py                 # create_app() -- all wiring (~1000 lines)
+  app.py                 # create_app() -- all wiring (~1060 lines)
   simulation/
     cell.py              # Cell dataclass (material, T, is_fixed, is_flux, label, protected)
     grid.py              # 2D array of Cells; snapshot/restore for undo; resize()
@@ -185,7 +201,7 @@ src/
     file_io.py           # save_pytherm / load_pytherm (.pytherm JSON, atomic writes)
     recent_files.py      # Recent file list (persisted to user data dir)
 data/
-  materials.json         # 45 built-in materials (8 categories)
+  materials.json         # 196 built-in materials (26+ subcategories)
 ```
 
 **Key patterns:**

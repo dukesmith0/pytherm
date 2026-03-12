@@ -16,7 +16,7 @@ def cell_color(cell: Cell) -> QColor:
     return _color_cache[color]
 
 
-def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
+def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int, x_offset: int = 0) -> None:
     """Draw a small yellow padlock in the top-left corner of a cell.
 
     A dark outline is drawn behind both the body and shackle so the icon
@@ -31,7 +31,7 @@ def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     inset = bw // 4
     stroke_w = max(1, s // 5)
 
-    bx = x + pad
+    bx = x + pad + x_offset
     by = y + pad + s - bh     # body sits below the shackle
 
     dark   = QColor(30, 30, 30, 210)
@@ -57,7 +57,7 @@ def draw_lock_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     painter.restore()
 
 
-def draw_pin_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
+def draw_pin_icon(painter: QPainter, x: int, y: int, cp: int, x_offset: int = 0) -> None:
     """Draw a small blue pin in the top-left corner of a fixed-temperature cell."""
     painter.save()
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -67,7 +67,7 @@ def draw_pin_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     head_r = max(2, s // 3)
     shaft_w = max(1, s // 6)
 
-    px = x + pad + head_r
+    px = x + pad + head_r + x_offset
     py_head = y + pad + head_r
     py_tip  = y + pad + s
 
@@ -96,7 +96,7 @@ def draw_pin_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     painter.restore()
 
 
-def draw_flame_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
+def draw_flame_icon(painter: QPainter, x: int, y: int, cp: int, x_offset: int = 0) -> None:
     """Draw a small orange flame in the top-left corner of a heat-flux cell."""
     painter.save()
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -105,7 +105,7 @@ def draw_flame_icon(painter: QPainter, x: int, y: int, cp: int) -> None:
     fw = max(5, s * 2 // 3)
     pad = 2
 
-    fx = float(x + pad)
+    fx = float(x + pad + x_offset)
     fy = float(y + pad)
     fh = float(s)
     cw = float(fw)

@@ -76,6 +76,7 @@ class MaterialRegistry:
                     "cp": m.cp,
                     "note": m.note,
                     "abbr": m.abbr,
+                    "category": m.category,
                 }
                 for m in self._custom.values()
             ]

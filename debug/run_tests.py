@@ -390,7 +390,7 @@ def _():
     finally:
         tmp_path.unlink(missing_ok=True)
     assert "software_version" in data
-    assert data["software_version"] == "0.5.0"
+    assert data["software_version"] == "0.5.1"
     assert data["sim_settings"]["boundary_conditions"]["top"] == "sink"
 
 
@@ -1236,12 +1236,151 @@ def _():
         path.unlink(missing_ok=True)
 
 
+# ── MaterialRegistry: expanded library ────────────────────────────────────────
+
+@test("MaterialRegistry: 190+ built-in materials load")
+def _():
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    assert len(reg.builtins) >= 190, f"Expected >=190, got {len(reg.builtins)}"
+
+
+@test("MaterialRegistry: all materials have required fields")
+def _():
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    for mid, mat in reg.builtins.items():
+        assert mat.id, f"{mid} missing id"
+        assert mat.name, f"{mid} missing name"
+        assert mat.color, f"{mid} missing color"
+        assert mat.category is not None, f"{mid} missing category"
+
+
+@test("MaterialRegistry: no duplicate IDs in builtins")
+def _():
+    import json
+    data_dir = Path(__file__).parent.parent / "data"
+    with open(data_dir / "materials.json") as f:
+        mats = json.load(f)["materials"]
+    ids = [m["id"] for m in mats]
+    dupes = [i for i in ids if ids.count(i) > 1]
+    assert not dupes, f"Duplicate IDs: {set(dupes)}"
+
+
+@test("MaterialRegistry: subcategories use comma-delimited paths")
+def _():
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    subcats = [m for m in reg.builtins.values() if "," in (m.category or "")]
+    assert len(subcats) > 50, f"Expected >50 subcategorized, got {len(subcats)}"
+
+
+@test("MaterialRegistry: save_custom includes category field")
+def _():
+    import json, tempfile
+    from src.models.material_registry import MaterialRegistry
+    from src.models.material import Material
+    data_dir = Path(__file__).parent.parent / "data"
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+        f.write(b'{"materials": []}')
+        tmp_path = Path(f.name)
+    try:
+        reg = MaterialRegistry(data_dir / "materials.json", tmp_path)
+        mat = Material(
+            id="test_custom", name="Test", color="#FF0000",
+            k=1.0, rho=1000, cp=500, abbr="Tst",
+            category="Test,Sub", note="test", is_builtin=False,
+        )
+        reg.add_or_update_custom(mat)
+        with open(tmp_path) as f:
+            data = json.load(f)
+        saved = data["materials"][0]
+        assert saved["category"] == "Test,Sub"
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+@test("MaterialRegistry: existing material IDs preserved after expansion")
+def _():
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    expected = ["vacuum", "al6061", "cu", "ag", "au", "fe_a36", "ss304",
+        "cast_iron", "titanium", "nickel", "pine", "oak", "birch", "mdf",
+        "eps", "aerogel", "nat_rubber", "sil_rubber", "pvc", "nylon_66",
+        "hdpe", "float_glass", "concrete", "brick", "drywall",
+        "mineral_wool", "sandstone", "silicon", "fr4", "therm_paste",
+        "alumina", "gaas", "solder", "air", "nitrogen", "argon",
+        "hydrogen", "water", "seawater", "ethylene_glycol",
+        "antifreeze_50_50", "engine_oil", "hydraulic_fluid", "gasoline",
+        "r134a"]
+    for eid in expected:
+        assert eid in reg.builtins, f"Missing preserved ID: {eid}"
+
+
+# ── MaterialPicker: subcategory rendering ─────────────────────────────────────
+
+@test("MaterialPicker: builds nested groups from subcategories")
+def _():
+    import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    from PyQt6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication([])
+    from src.models.material_registry import MaterialRegistry
+    from src.ui.sidebar import MaterialPicker
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    picker = MaterialPicker(reg.all_materials)
+    # Should have nested groups (depth > 0)
+    nested = [k for k, v in picker._group_info.items() if v[3] > 0]
+    assert len(nested) > 10, f"Expected >10 nested groups, got {len(nested)}"
+
+
+@test("MaterialPicker: _group_info stores 4-tuple (header, content, name, depth)")
+def _():
+    import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    from PyQt6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication([])
+    from src.models.material_registry import MaterialRegistry
+    from src.ui.sidebar import MaterialPicker
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    picker = MaterialPicker(reg.all_materials)
+    for key, info in picker._group_info.items():
+        assert len(info) == 4, f"Group {key}: expected 4-tuple, got {len(info)}"
+
+
+@test("MaterialPicker: filter propagates to ancestor groups")
+def _():
+    import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    from PyQt6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication([])
+    from src.models.material_registry import MaterialRegistry
+    from src.ui.sidebar import MaterialPicker
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    picker = MaterialPicker(reg.all_materials)
+    picker.show()
+    # Filter for "copper" - should be in Metals,Pure
+    picker._apply_filter("copper")
+    # Metals,Pure group should be visible
+    if "Metals,Pure" in picker._group_info:
+        h, cw, _, _ = picker._group_info["Metals,Pure"]
+        assert not h.isHidden(), "Metals,Pure header should be visible"
+    # Parent Metals group should also be visible
+    if "Metals" in picker._group_info:
+        h, cw, _, _ = picker._group_info["Metals"]
+        assert not h.isHidden(), "Metals header should be visible"
+
+
 # ── Run ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     passes = sum(1 for _, ok, _ in _results if ok)
     fails  = sum(1 for _, ok, _ in _results if not ok)
-    print(f"\nPyTherm v0.5.0 headless test results")
+    print(f"\nPyTherm v0.5.1 headless test results")
     print("=" * 60)
     for name, ok, msg in _results:
         status = PASS if ok else FAIL

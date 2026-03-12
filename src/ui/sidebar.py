@@ -35,7 +35,10 @@ class MaterialPicker(QWidget):
 
     material_selected = pyqtSignal(object)  # emits Material
 
-    _CATEGORY_ORDER = ["Metals", "Woods", "Polymers", "Construction", "Electronics", "Gases", "Liquids"]
+    _CATEGORY_ORDER = [
+        "Metals", "Woods", "Polymers", "Construction", "Electronics",
+        "Minerals", "Gases", "Liquids", "Earth", "Organic", "Food",
+    ]
 
     def __init__(self, materials: dict[str, Material], parent=None) -> None:
         super().__init__(parent)
@@ -116,45 +119,67 @@ class MaterialPicker(QWidget):
             if item.widget():
                 item.widget().deleteLater()
 
-        # Partition materials
+        # Partition materials into a category tree.
+        # Category "Metals,Pure" -> tree["Metals"]["Pure"]["__mats__"] = [mat, ...]
         vacuum_mat: Material | None = None
-        grouped: dict[str, list[Material]] = {}
+        tree: dict = {}
         custom_mats: list[Material] = []
 
         for mat in materials.values():
             if mat.is_vacuum:
                 vacuum_mat = mat
             elif mat.is_builtin:
-                cat = mat.category or "Other"
-                grouped.setdefault(cat, []).append(mat)
+                parts = [p.strip() for p in (mat.category or "Other").split(",")]
+                node = tree
+                for part in parts:
+                    node = node.setdefault(part, {})
+                node.setdefault("__mats__", []).append(mat)
             else:
                 custom_mats.append(mat)
 
-        # 1. Vacuum at top — no group header
+        # 1. Vacuum at top
         if vacuum_mat:
             btn = self._make_button(vacuum_mat)
             self._buttons[vacuum_mat.id] = btn
             self._mat_group[vacuum_mat.id] = None
             self._clayout.addWidget(btn)
 
-        # 2. Builtin categories in fixed order, then any extras
+        # 2. Builtin categories in fixed order, then extras
         seen: set[str] = set()
-        for cat in self._CATEGORY_ORDER:
-            if cat in grouped:
-                seen.add(cat)
-                self._add_group(cat, grouped[cat])
-        for cat, mats in grouped.items():
-            if cat not in seen:
-                self._add_group(cat, mats)
+        for top in self._CATEGORY_ORDER:
+            if top in tree:
+                seen.add(top)
+                self._render_node(top, top, tree[top], self._clayout, 0)
+        for top in sorted(tree.keys()):
+            if top not in seen:
+                self._render_node(top, top, tree[top], self._clayout, 0)
 
         # 3. Custom "My Materials" section
         if custom_mats:
-            self._add_group("My Materials", custom_mats)
+            self._add_group(
+                "My Materials", "My Materials", custom_mats, self._clayout, 0
+            )
 
         self._clayout.addStretch()
 
         if hasattr(self, "_search"):
             self._apply_filter(self._search.text())
+
+    def _render_node(
+        self, display_name: str, full_path: str, node: dict,
+        layout: QVBoxLayout, depth: int,
+    ) -> None:
+        """Recursively render a category tree node."""
+        mats = node.get("__mats__", [])
+        children = {k: v for k, v in node.items() if k != "__mats__"}
+
+        # Add this node's header + content container
+        cl = self._add_group(display_name, full_path, mats, layout, depth)
+
+        # Recurse into children (sorted alphabetically)
+        for child_name in sorted(children.keys()):
+            child_path = f"{full_path},{child_name}"
+            self._render_node(child_name, child_path, children[child_name], cl, depth + 1)
 
     def _apply_filter(self, text: str) -> None:
         """Show/hide material buttons and group headers based on a name substring match."""
@@ -163,7 +188,7 @@ class MaterialPicker(QWidget):
         if not query:
             for btn in self._buttons.values():
                 btn.setVisible(True)
-            for cat, (hdr, cw) in self._group_info.items():
+            for cat, (hdr, cw, _dn, _d) in self._group_info.items():
                 hdr.setVisible(True)
                 cw.setVisible(not self._group_collapsed.get(cat, True))
             return
@@ -176,57 +201,78 @@ class MaterialPicker(QWidget):
             abbr_match = query in (mat.abbr.lower() if mat else "")
             matches = name_match or abbr_match
             btn.setVisible(matches)
-            cat = self._mat_group.get(mid)
-            if cat is not None and matches:
-                group_has_match[cat] = True
+            if matches:
+                # Mark this group and all ancestor groups as having a match
+                cat = self._mat_group.get(mid)
+                while cat is not None:
+                    if cat in group_has_match:
+                        group_has_match[cat] = True
+                    if "," in cat:
+                        cat = cat.rsplit(",", 1)[0]
+                    else:
+                        break
 
-        for cat, (hdr, cw) in self._group_info.items():
+        for cat, (hdr, cw, _dn, _d) in self._group_info.items():
             has_match = group_has_match.get(cat, False)
             hdr.setVisible(has_match)
             cw.setVisible(has_match)
 
-    def _add_group(self, category: str, mats: list[Material]) -> None:
-        collapsed = self._group_collapsed.get(category, True)
+    def _add_group(
+        self, display_name: str, full_key: str, mats: list[Material],
+        layout: QVBoxLayout, depth: int = 0,
+    ) -> QVBoxLayout:
+        """Add a collapsible group. Returns the content layout for nesting children."""
+        collapsed = self._group_collapsed.get(full_key, True)
+        indent = "  " * (depth + 1)
 
-        header_btn = QPushButton(f"  {'▶' if collapsed else '▼'}  {category}")
-        header_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #252525;
-                color: #999;
+        if depth == 0:
+            bg, color, font_size = "#252525", "#999", "10px"
+        else:
+            bg, color, font_size = "#222222", "#777", "9px"
+
+        header_btn = QPushButton(f"{indent}{'▶' if collapsed else '▼'}  {display_name}")
+        header_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {bg};
+                color: {color};
                 border: none;
                 border-radius: 2px;
                 padding: 3px 4px;
                 text-align: left;
-                font-size: 10px;
+                font-size: {font_size};
                 font-weight: bold;
-            }
-            QPushButton:hover { background-color: #2e2e2e; }
+            }}
+            QPushButton:hover {{ background-color: #2e2e2e; }}
         """)
-        self._clayout.addWidget(header_btn)
+        layout.addWidget(header_btn)
 
         content = QWidget()
         cl = QVBoxLayout(content)
-        cl.setContentsMargins(4, 0, 0, 2)
+        margin_left = 4 + depth * 8
+        cl.setContentsMargins(margin_left, 0, 0, 2)
         cl.setSpacing(2)
 
         for mat in mats:
             btn = self._make_button(mat)
             self._buttons[mat.id] = btn
-            self._mat_group[mat.id] = category
+            self._mat_group[mat.id] = full_key
             cl.addWidget(btn)
 
         content.setVisible(not collapsed)
-        self._clayout.addWidget(content)
-        self._group_info[category] = (header_btn, content)
+        layout.addWidget(content)
+        self._group_info[full_key] = (header_btn, content, display_name, depth)
 
-        def _toggle(_checked: bool = False, cat: str = category,
-                    hdr: QPushButton = header_btn, cw: QWidget = content) -> None:
+        def _toggle(_checked: bool = False, k: str = full_key,
+                    hdr: QPushButton = header_btn, cw: QWidget = content,
+                    name: str = display_name, d: int = depth) -> None:
             will_collapse = cw.isVisible()
-            self._group_collapsed[cat] = will_collapse
+            self._group_collapsed[k] = will_collapse
             cw.setVisible(not will_collapse)
-            hdr.setText(f"  {'▶' if will_collapse else '▼'}  {cat}")
+            ind = "  " * (d + 1)
+            hdr.setText(f"{ind}{'▶' if will_collapse else '▼'}  {name}")
 
         header_btn.clicked.connect(_toggle)
+        return cl
 
     def _make_button(self, mat: Material) -> QPushButton:
         text_color = "#000" if _luminance(mat.color) > 0.5 else "#eee"
@@ -269,14 +315,20 @@ class MaterialPicker(QWidget):
         if material.id not in self._buttons:
             return
         self._buttons[material.id].setChecked(True)
-        # Expand the group containing this material if it is currently collapsed
-        group_key = self._mat_group.get(material.id)
-        if group_key and group_key in self._group_info:
-            hdr, cw = self._group_info[group_key]
-            if not cw.isVisible():
-                self._group_collapsed[group_key] = False
-                cw.setVisible(True)
-                hdr.setText(f"  \u25bc  {group_key}")
+        # Expand the group and all ancestor groups if collapsed
+        key = self._mat_group.get(material.id)
+        while key:
+            if key in self._group_info:
+                hdr, cw, display_name, depth = self._group_info[key]
+                if not cw.isVisible():
+                    self._group_collapsed[key] = False
+                    cw.setVisible(True)
+                    indent = "  " * (depth + 1)
+                    hdr.setText(f"{indent}\u25bc  {display_name}")
+            if "," in key:
+                key = key.rsplit(",", 1)[0]
+            else:
+                break
         if emit:
             self.material_selected.emit(material)
 
