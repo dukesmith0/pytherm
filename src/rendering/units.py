@@ -137,3 +137,36 @@ class TempSpinBox(QDoubleSpinBox):
             except ValueError:
                 pass
         return super().valueFromText(text)
+
+
+class KelvinSpinBox(QDoubleSpinBox):
+    """QDoubleSpinBox that accepts typed unit shortcuts and returns Kelvin.
+
+    Unlike TempSpinBox (which returns display units), this always returns
+    the value in Kelvin. Use for settings that store temperatures in K.
+    """
+
+    def validate(self, text: str, pos: int):
+        sfx   = self.suffix()
+        inner = text[: -len(sfx)].rstrip() if (sfx and text.endswith(sfx)) else text.rstrip()
+        if inner and inner[-1].lower() in _UNIT_CHARS:
+            num_part = inner[:-1].strip()
+            if num_part in ("", "-", "+"):
+                return QValidator.State.Intermediate, text, pos
+            try:
+                float(num_part)
+                return QValidator.State.Acceptable, text, pos
+            except ValueError:
+                pass
+        return super().validate(text, pos)
+
+    def valueFromText(self, text: str) -> float:
+        sfx   = self.suffix()
+        inner = text[: -len(sfx)].rstrip() if (sfx and text.endswith(sfx)) else text.rstrip()
+        if inner and inner[-1].lower() in _UNIT_CHARS:
+            try:
+                num = float(inner[:-1].strip())
+                return _typed_unit_to_kelvin(num, inner[-1])
+            except ValueError:
+                pass
+        return super().valueFromText(text)

@@ -18,10 +18,15 @@ class Preferences:
     max_plot_points: int = 500
     ss_threshold_k_per_s: float = 0.01
     min_auto_heatmap_range_k: float = 10.0
+    heatmap_auto_init: bool = True
+    heatmap_scale_mode: str = "smart"  # "static" | "live" | "smart"
     smooth_step: bool = False
     step_history_size: int = 20
     isotherm_color: str = "#E6E6E6"
+    isotherm_line_width: int = 2
+    reverse_palette: bool = False
     plot_every_n_ticks: int = 1
+    theme: str = "dark"
 
     _VALID_UNITS = {"\u00b0C", "K", "\u00b0F", "R"}
 

@@ -7,13 +7,14 @@ from typing import Callable
 import numpy as np
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QFont, QPalette, QShortcut, QKeySequence
+from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence
 from PyQt6.QtWidgets import (
     QApplication, QDialog, QFileDialog, QHBoxLayout, QMessageBox,
     QPlainTextEdit, QPushButton, QVBoxLayout,
 )
 
 
+from src.app_theme import apply_theme
 from src.io.file_io import load_pytherm, save_pytherm
 from src.io.recent_files import add_recent, load_recent, remove_recent
 from src.models.material import Material
@@ -49,36 +50,14 @@ from src.utils.paths import get_bundle_data_dir, get_user_data_dir, get_template
 from src.version import VERSION
 
 
-def _apply_dark_theme(app: QApplication) -> None:
-    """Dark CAD-style palette - mimics ANSYS/Fluent look."""
-    app.setStyle("Fusion")
-    p = QPalette()
-    p.setColor(QPalette.ColorRole.Window,          QColor(45,  45,  45))
-    p.setColor(QPalette.ColorRole.WindowText,      QColor(220, 220, 220))
-    p.setColor(QPalette.ColorRole.Base,            QColor(30,  30,  30))
-    p.setColor(QPalette.ColorRole.AlternateBase,   QColor(55,  55,  55))
-    p.setColor(QPalette.ColorRole.Text,            QColor(220, 220, 220))
-    p.setColor(QPalette.ColorRole.Button,          QColor(50,  50,  50))
-    p.setColor(QPalette.ColorRole.ButtonText,      QColor(220, 220, 220))
-    p.setColor(QPalette.ColorRole.Highlight,       QColor(0,   150, 136))  # teal accent
-    p.setColor(QPalette.ColorRole.HighlightedText, QColor(255, 255, 255))
-    p.setColor(QPalette.ColorRole.Mid,             QColor(60,  60,  60))
-    p.setColor(QPalette.ColorRole.Dark,            QColor(20,  20,  20))
-    p.setColor(QPalette.ColorRole.Shadow,          QColor(10,  10,  10))
-    p.setColor(QPalette.ColorRole.ToolTipBase,     QColor(35,  35,  35))
-    p.setColor(QPalette.ColorRole.ToolTipText,     QColor(200, 200, 200))
-    # Disabled state — dim text so greyed-out widgets are visually obvious
-    dis = QPalette.ColorGroup.Disabled
-    p.setColor(dis, QPalette.ColorRole.Text,       QColor(90,  90,  90))
-    p.setColor(dis, QPalette.ColorRole.WindowText, QColor(90,  90,  90))
-    p.setColor(dis, QPalette.ColorRole.ButtonText, QColor(90,  90,  90))
-    p.setColor(dis, QPalette.ColorRole.Base,       QColor(38,  38,  38))
-    app.setPalette(p)
-
 
 def create_app() -> tuple[QApplication, MainWindow]:
     app = QApplication(sys.argv)
-    _apply_dark_theme(app)
+    # Theme is applied after prefs load, but we need the app first.
+    # Load prefs early to get theme before building UI.
+    _user_dir_early = get_user_data_dir()
+    _prefs_early = Preferences.load(_user_dir_early / "preferences.json")
+    apply_theme(app, _prefs_early.theme)
     app.setWindowIcon(make_app_icon())
 
     _bundle_dir = get_bundle_data_dir()
@@ -94,8 +73,17 @@ def create_app() -> tuple[QApplication, MainWindow]:
         ambient_temp_k=prefs.ambient_temp_k,
     )
     scene      = GridScene(grid)
+    scene.set_theme(prefs.theme)
     scene.set_min_auto_range(prefs.min_auto_heatmap_range_k)
+    scene.set_heatmap_auto(prefs.heatmap_auto_init)
+    scene.set_scale_mode(prefs.heatmap_scale_mode)
     scene.set_isotherm_color(QColor(prefs.isotherm_color))
+    scene.set_isotherm_line_width(prefs.isotherm_line_width)
+
+    from src.rendering.heatmap_renderer import set_reversed as _set_reversed
+    _set_reversed(prefs.reverse_palette)
+    import src.ui.temp_plot_panel as _tpp
+    _tpp._plot_theme = prefs.theme
     view       = GridView(scene)
 
     # dx = physical cell size in metres; default from prefs
@@ -118,9 +106,11 @@ def create_app() -> tuple[QApplication, MainWindow]:
     toolbar.set_dx(solver.dx)
     view.set_dx(solver.dx)
     bottom_bar  = BottomBar()
+    bottom_bar.set_dx(solver.dx)
     bottom_bar.set_unit_value(prefs.unit)     # sync combo to prefs unit (no listeners yet)
     bottom_bar.set_speed_value(prefs.sim_speed)
     sidebar     = Sidebar(materials, grid)
+    sidebar.set_theme(prefs.theme)
 
     # ── Draw / Select / Fill mode ────────────────────────────────────────────
     toolbar.mode_changed.connect(view.set_mode)
@@ -173,6 +163,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
             sidebar.draw_panel.fixed_temp_k,
             sidebar.draw_panel.is_flux,
             sidebar.draw_panel.flux_q,
+            sidebar.draw_panel.is_volumetric_flux,
         )
         view.set_draw_label(sidebar.draw_panel.label)
 
@@ -193,8 +184,10 @@ def create_app() -> tuple[QApplication, MainWindow]:
         )
         if ans == QMessageBox.StandardButton.Yes:
             solver.dx = dx_m
+            scene._dx_m = dx_m
             view.set_dx(dx_m)
             sidebar.set_dx(dx_m)
+            bottom_bar.set_dx(dx_m)
             sim_clock.reset()
             window.mark_dirty()
         else:
@@ -276,8 +269,15 @@ def create_app() -> tuple[QApplication, MainWindow]:
     sim_clock.state_changed.connect(view.set_drawing_locked)
 
     # ── View mode and heatmap scale ──────────────────────────────────────────
-    toolbar.view_mode_changed.connect(scene.set_view_mode)
+    def _on_view_mode_changed(mode: str) -> None:
+        scene.set_view_mode(mode)
+        if _legend_overlay.isVisible():
+            _legend_overlay.update_bounds(*scene.legend_bounds,
+                                         flow_mode=(mode == "flow"))
+
+    toolbar.view_mode_changed.connect(_on_view_mode_changed)
     toolbar.heatmap_auto_changed.connect(scene.set_heatmap_auto)
+    toolbar.heatmap_scale_mode_changed.connect(scene.set_scale_mode)
     toolbar.heatmap_range_changed.connect(scene.set_heatmap_range)
 
     from src.rendering.heatmap_renderer import set_palette as _set_palette
@@ -417,11 +417,13 @@ def create_app() -> tuple[QApplication, MainWindow]:
         _step_history.clear()
         sim_clock.reset()
         sim_clock.set_grid(grid)
+        scene._dx_m = dx_m
         scene.set_grid(grid)
         sidebar.set_grid(grid)
         sidebar.set_dx(solver.dx)
         toolbar.set_dx(solver.dx)
         view.set_dx(solver.dx)
+        bottom_bar.set_dx(solver.dx)
         view.reset_zoom()
         bottom_bar.set_ambient(grid.ambient_temp_k)
         for _p in _plot_panels:
@@ -431,11 +433,13 @@ def create_app() -> tuple[QApplication, MainWindow]:
         window.mark_clean(file_path)
 
     _legend_overlay = LegendOverlay(view)
+    _legend_overlay.set_theme(prefs.theme)
     _legend_overlay.hide()
 
     def _on_legend_toggled(show: bool) -> None:
         if show:
-            _legend_overlay.update_bounds(*scene.frame_bounds)
+            _legend_overlay.update_bounds(*scene.legend_bounds,
+                                         flow_mode=(scene._view_mode == "flow"))
             _legend_overlay.show()
         else:
             _legend_overlay.hide()
@@ -443,7 +447,8 @@ def create_app() -> tuple[QApplication, MainWindow]:
     window.legend_toggled.connect(_on_legend_toggled)
     _legend_overlay.closed.connect(lambda: window._legend_action.setChecked(False))
     sim_clock.tick.connect(
-        lambda _t: _legend_overlay.update_bounds(*scene.frame_bounds)
+        lambda _t: _legend_overlay.update_bounds(*scene.legend_bounds,
+                                                flow_mode=(scene._view_mode == "flow"))
         if _legend_overlay.isVisible() else None
     )
 
@@ -477,8 +482,29 @@ def create_app() -> tuple[QApplication, MainWindow]:
             _step_history.set_max_size(new_prefs.step_history_size)
         if new_prefs.isotherm_color != prefs.isotherm_color:
             scene.set_isotherm_color(QColor(new_prefs.isotherm_color))
+        if new_prefs.isotherm_line_width != prefs.isotherm_line_width:
+            scene.set_isotherm_line_width(new_prefs.isotherm_line_width)
+        if new_prefs.reverse_palette != prefs.reverse_palette:
+            _set_reversed(new_prefs.reverse_palette)
+            scene.refresh()
+        if new_prefs.heatmap_auto_init != prefs.heatmap_auto_init:
+            scene.set_heatmap_auto(new_prefs.heatmap_auto_init)
+            toolbar.set_auto_init(new_prefs.heatmap_auto_init)
+        if new_prefs.heatmap_scale_mode != prefs.heatmap_scale_mode:
+            scene.set_scale_mode(new_prefs.heatmap_scale_mode)
+            toolbar.set_scale_mode(new_prefs.heatmap_scale_mode)
         if new_prefs.plot_every_n_ticks != prefs.plot_every_n_ticks:
             _plot_every_n[0] = new_prefs.plot_every_n_ticks
+        if new_prefs.theme != prefs.theme:
+            apply_theme(app, new_prefs.theme)
+            scene.set_theme(new_prefs.theme)
+            sidebar.set_theme(new_prefs.theme)
+            _legend_overlay.set_theme(new_prefs.theme)
+            _tpp._plot_theme = new_prefs.theme
+            for _p in _plot_panels:
+                _p.repaint()
+            if _convergence_panel is not None:
+                _convergence_panel.repaint()
         prefs = new_prefs
         prefs.save(_prefs_path)
 
@@ -727,7 +753,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
             return
 
         try:
-            data = load_pytherm(Path(path))
+            data = load_pytherm(Path(path), require_version=add_to_recent)
         except Exception as e:
             QMessageBox.critical(window, "Load Error", f"Failed to load file:\n{e}")
             return
@@ -761,7 +787,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
             except Exception as e:
                 print(f"Warning: skipped malformed custom material entry: {e}")
 
-        # Exact duplicates: same id AND same properties — silently reuse existing.
+        # Exact duplicates: same id AND same properties -- silently reuse existing.
         def _is_exact_duplicate(mat: Material) -> bool:
             existing = registry.all_materials.get(mat.id)
             return (
@@ -837,6 +863,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 fixed_temp=cd.get("fixed_temp_k", 0.0),
                 is_flux=cd.get("is_flux", False),
                 flux_q=cd.get("flux_q", 0.0),
+                is_volumetric_flux=cd.get("is_volumetric_flux", True),
                 label=cd.get("label", ""),
                 protected=cd.get("protected", False),
             )
@@ -991,6 +1018,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     QShortcut(QKeySequence("N"),               window).activated.connect(bottom_bar.trigger_step)
     QShortcut(QKeySequence("H"),               window).activated.connect(toolbar.activate_heatmap_mode)
     QShortcut(QKeySequence("M"),               window).activated.connect(toolbar.activate_material_mode)
+    QShortcut(QKeySequence("Q"),               window).activated.connect(toolbar.activate_flow_mode)
     QShortcut(QKeySequence("Ctrl+U"),          window).activated.connect(bottom_bar.cycle_unit)
 
     # ── Step History ────────────────────────────────────────────────────────────
@@ -1094,7 +1122,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 "Select at least 2 cells, then use this tool.\n\n"
                 "The first half of the selection is treated as the source,\n"
                 "the second half as the sink.\n\n"
-                "Tip: select source cells first, then Shift+click sink cells."
+                "Tip: select source cells first, then Ctrl+click sink cells."
             )
             return
         # Split selection: fixed-T cells as source, rest as sink.
@@ -1169,8 +1197,9 @@ def create_app() -> tuple[QApplication, MainWindow]:
             ("Reset Selection to Ambient", _reset_selection_to_ambient),
             ("Resize Grid...",       window.resize_grid_requested.emit),
             # View
-            ("Temperature Legend",           lambda: window._legend_action.toggle()),
+            ("Color Legend",                 lambda: window._legend_action.toggle()),
             ("Toggle Temperature Rise (dT)", lambda: window._delta_action.toggle()),
+            ("Heat Flow view",         toolbar.activate_flow_mode),
             ("New Temperature Plot",     _make_plot_panel),
             ("Convergence Graph",        _show_convergence_graph),
             ("Find Hottest Cell",        lambda: _find_extremal_cell(True)),
@@ -1182,6 +1211,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
             # Tools
             ("Preferences...",   window.preferences_requested.emit),
             ("Debug Diagnostics...", window.diagnostics_requested.emit),
+            ("Keyboard Shortcuts...", window._show_shortcuts),
         ]
         # Add "Switch to <material>" for every material in the registry
         for mat_id, mat in registry.all_materials.items():

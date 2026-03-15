@@ -35,14 +35,14 @@ def _crash_code(exc: BaseException) -> tuple[str, str]:
     if "solver" in tb_str.lower() or "sim_clock" in tb_str.lower():
         return "ERR_SOLVER", "The simulation solver encountered an unexpected error."
     if isinstance(exc, (KeyError, AttributeError, TypeError, ValueError)):
-        return "ERR_DATA", "Unexpected data structure — the file may be from a different version."
+        return "ERR_DATA", "Unexpected data structure -- the file may be from a different version."
     return "ERR_UNKNOWN", f"An unexpected error occurred ({type(exc).__name__})."
 
 
 class CrashDialog(QDialog):
     def __init__(self, exc: BaseException) -> None:
         super().__init__()
-        self.setWindowTitle("PyTherm — Unexpected Error")
+        self.setWindowTitle("PyTherm -- Unexpected Error")
         self.setMinimumWidth(520)
 
         code, hint = _crash_code(exc)

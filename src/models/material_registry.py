@@ -47,7 +47,7 @@ class MaterialRegistry:
         self.save_custom()
 
     def add_session_materials(self, materials: list[Material]) -> None:
-        """Add materials for this session only — does NOT write to disk."""
+        """Add materials for this session only -- does NOT write to disk."""
         for m in materials:
             self._custom[m.id] = m
 
@@ -94,7 +94,7 @@ class MaterialRegistry:
                 data = json.load(f)
         except Exception as e:
             print(f"Warning: could not load {self._custom_path}: {e}", file=sys.stderr)
-            return  # corrupt file — start with no custom materials
+            return  # corrupt file -- start with no custom materials
         for entry in data.get("materials", []):
             try:
                 m = Material(**entry, is_builtin=False)

@@ -7,6 +7,25 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QStyle, QWidget
 from src.rendering import units as _units
 from src.rendering.heatmap_renderer import heatmap_color
 
+_legend_theme = "dark"
+
+def _lc():
+    if _legend_theme == "light":
+        return {
+            "bg": QColor(245, 245, 248), "border": QColor(180, 180, 180),
+            "title_bg": "#e0e0e0", "title_border": "#bbb",
+            "title_text": "#333", "label": QColor(40, 40, 40),
+            "tick": QColor(150, 150, 150), "tick_label": QColor(60, 60, 60),
+            "btn_text": "#555", "btn_hover": "#ddd",
+        }
+    return {
+        "bg": QColor(30, 30, 30), "border": QColor(68, 68, 68),
+        "title_bg": "#2a2a2a", "title_border": "#444",
+        "title_text": "#ccc", "label": QColor(200, 200, 200),
+        "tick": QColor(100, 100, 100), "tick_label": QColor(180, 180, 180),
+        "btn_text": "#aaa", "btn_hover": "#3a3a3a",
+    }
+
 _BTN_STYLE = (
     "QPushButton { background: transparent; color: #aaa; font-size: 11px; "
     "border: none; padding: 0; }"
@@ -34,6 +53,7 @@ class LegendOverlay(QWidget):
         super().__init__(parent)
         self._t_min: float = 273.15
         self._t_max: float = 373.15
+        self._flow_mode: bool = False
         self._pinned: bool = True
         self._expanded: bool = False
         self._drag_origin: QPoint | None = None
@@ -49,10 +69,20 @@ class LegendOverlay(QWidget):
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def update_bounds(self, t_min: float, t_max: float) -> None:
-        if t_min != self._t_min or t_max != self._t_max:
+    def set_theme(self, theme: str) -> None:
+        global _legend_theme
+        _legend_theme = theme
+        lc = _lc()
+        self._titlebar.setStyleSheet(
+            f"#LegendTitleBar {{ background: {lc['title_bg']}; border-bottom: 1px solid {lc['title_border']}; }}"
+        )
+        self.update()
+
+    def update_bounds(self, t_min: float, t_max: float, flow_mode: bool = False) -> None:
+        if t_min != self._t_min or t_max != self._t_max or flow_mode != self._flow_mode:
             self._t_min = t_min
             self._t_max = t_max
+            self._flow_mode = flow_mode
             self.update()
 
     # ── Internal layout ───────────────────────────────────────────────────────
@@ -69,7 +99,7 @@ class LegendOverlay(QWidget):
         row.setContentsMargins(6, 0, 4, 0)
         row.setSpacing(2)
 
-        lbl = QLabel("Temp Scale")
+        lbl = QLabel("Color Scale")
         lbl.setStyleSheet("color: #ccc; font-size: 10px;")
         row.addWidget(lbl)
         row.addStretch()
@@ -163,8 +193,9 @@ class LegendOverlay(QWidget):
         p = QPainter(self)
 
         # Background + border
-        p.fillRect(self.rect(), QColor(30, 30, 30))
-        border_pen = QPen(QColor(68, 68, 68))
+        lc = _lc()
+        p.fillRect(self.rect(), lc["bg"])
+        border_pen = QPen(lc["border"])
         border_pen.setWidth(1)
         p.setPen(border_pen)
         p.drawRect(0, 0, self.width() - 1, self.height() - 1)
@@ -190,23 +221,37 @@ class LegendOverlay(QWidget):
         font = QFont()
         font.setPixelSize(10)
         p.setFont(font)
-        p.setPen(QColor(200, 200, 200))
+        p.setPen(lc["label"])
 
-        suf = _units.suffix()
         lx  = bx + bw + 4
 
-        p.drawText(lx, by + 11,      f"{_units.to_display(self._t_max):.0f} {suf}")
-        p.drawText(lx, by + bh,      f"{_units.to_display(self._t_min):.0f} {suf}")
+        def _fmt(v: float) -> str:
+            if self._flow_mode:
+                if v < 1e-9:
+                    return "0 W"
+                if v >= 1e6:
+                    return f"{v / 1e6:.1f} MW"
+                if v >= 1000:
+                    return f"{v / 1000:.1f} kW"
+                if v >= 1:
+                    return f"{v:.1f} W"
+                if v >= 0.001:
+                    return f"{v * 1000:.0f} mW"
+                return f"{v * 1e6:.0f} \u00b5W"
+            return f"{_units.to_display(v):.0f} {_units.suffix()}"
+
+        p.drawText(lx, by + 11, _fmt(self._t_max))
+        p.drawText(lx, by + bh, _fmt(self._t_min))
 
         if self._expanded:
-            tick_pen = QPen(QColor(100, 100, 100))
+            tick_pen = QPen(lc["tick"])
             p.setPen(tick_pen)
             for frac in (0.25, 0.5, 0.75):
                 t   = self._t_max - frac * (self._t_max - self._t_min)
                 ty  = by + int(frac * bh)
                 p.drawLine(bx + bw, ty, bx + bw + 3, ty)
-                p.setPen(QColor(180, 180, 180))
-                p.drawText(lx, ty + 4, f"{_units.to_display(t):.0f}")
+                p.setPen(lc["tick_label"])
+                p.drawText(lx, ty + 4, _fmt(t))
                 p.setPen(tick_pen)
 
         p.end()

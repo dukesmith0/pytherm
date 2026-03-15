@@ -22,6 +22,7 @@ env/
 .idea/
 *.suo
 *.user
+.markdownlint.json
 
 # OS
 .DS_Store

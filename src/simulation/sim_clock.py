@@ -14,7 +14,7 @@ class SimClock(QObject):
     On each timer tick:
       1. Compute simulated dt = wall_dt × speed_multiplier
       2. Export temperature array from Grid
-      3. Call Solver.advance() — internally sub-stepped for CFL stability
+      3. Call Solver.advance() -- internally sub-stepped for CFL stability
       4. Import updated temperatures back into Grid
       5. Refresh the scene
       6. Emit tick(total_sim_time)
@@ -186,6 +186,7 @@ class SimClock(QObject):
                 "fixed_temps": self._grid.fixed_temps_array(),
                 "flux_mask":   self._grid.flux_mask(),
                 "flux_q":      self._grid.flux_q_array(),
+                "vol_flux":    self._grid.volumetric_flux_mask(),
             }
         k           = self._arr_cache["k"]
         rho_cp      = self._arr_cache["rho_cp"]
@@ -193,7 +194,9 @@ class SimClock(QObject):
         fixed_temps = self._arr_cache["fixed_temps"]
         flux_mask   = self._arr_cache["flux_mask"]
         flux_q      = self._arr_cache["flux_q"]
-        T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, flux_mask, flux_q, duration=dt_sim)
+        vol_flux    = self._arr_cache["vol_flux"]
+        T_new = self._solver.advance(T, k, rho_cp, fixed_mask, fixed_temps, flux_mask, flux_q,
+                                     duration=dt_sim, vol_flux_mask=vol_flux)
 
         if np.any(np.isnan(T_new) | np.isinf(T_new)):
             self.pause()

@@ -71,7 +71,7 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 
 ### UI
 
-- Zoomable/pannable grid canvas; material and heatmap view modes
+- Zoomable/pannable grid canvas; material, heatmap, and heat flux view modes
 - 4 heatmap palettes: Classic, Viridis, Plasma, Grayscale
 - Floating temperature legend (Ctrl+L); delta-T overlay (Ctrl+D)
 - Isotherm lines overlay (toolbar); hotspot highlight overlay (toolbar)
@@ -80,6 +80,13 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 - Temperature vs. time plot for selected cells (multiple dockable panels, synchronized cursors)
 - Command palette (Ctrl+Shift+P) for all actions and materials
 - Save/load `.pytherm` JSON; PNG export; CSV export
+- Save/load temperature plots as `.pythermplot` files; File > Open Plot viewer
+- Convergence graph: dockable dT/dt vs time panel (log scale, SS threshold line)
+- Thermal resistance report (Analysis menu): R_th = dT/Q between cell groups
+- Step history navigation with `[` / `]` keys and timestamps
+- Smooth step animation (opt-in via Preferences)
+- Light and dark theme (Preferences)
+- Keyboard shortcuts dialog (Help > Keyboard Shortcuts, Ctrl+/)
 
 ---
 
@@ -100,7 +107,8 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 | Ctrl+A | Select all non-vacuum cells |
 | Ctrl+click | Toggle cell in selection |
 | Middle-click | Eyedropper -- pick material (draw mode) |
-| Escape | Deselect all |
+| [ / ] | Step history back / forward |
+| Escape | Deselect all / return to present (history) |
 | Delete / Backspace | Clear selection to Vacuum |
 | Ctrl+Z / Ctrl+Shift+Z | Undo / Redo |
 | Ctrl+C / Ctrl+V | Copy / Paste cell properties (select mode) |
@@ -111,6 +119,7 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 | Ctrl+Shift+L | Find coldest cell |
 | Ctrl+Shift+P | Command Palette |
 | Ctrl+Shift+D | Debug Diagnostics |
+| Ctrl+/ | Keyboard Shortcuts |
 
 **Drawing:** Left-click/drag = paint, Shift+drag = rectangle fill, Ctrl+drag = straight line.
 
@@ -134,16 +143,21 @@ A startup dialog lets you set grid dimensions, cell size (dx), and ambient tempe
 | Export Image | File > Export > Export as PNG (Ctrl+E) |
 | Export CSV | File > Export > Export Cell Data as CSV |
 | Materials Manager | Edit > Materials Manager |
-| Find Hottest Cell | Edit > Find Hottest Cell (Ctrl+Shift+H) |
-| Find Coldest Cell | Edit > Find Coldest Cell (Ctrl+Shift+L) |
-| Reset Selection to Ambient | Edit > Reset Selection to Ambient |
 | Resize Grid | Edit > Resize Grid |
+| Reset Selection to Ambient | Edit > Reset Selection to Ambient |
 | Temperature Legend | View > Temperature Legend (Ctrl+L) |
 | Delta-T Overlay | View > Temperature Rise (dT) (Ctrl+D) |
+| Heat Flux Overlay | View > Heat Flux Overlay |
 | New Temperature Plot | View > New Temperature Plot |
+| Convergence Graph | View > Convergence Graph |
+| Find Hottest Cell | View > Find Hottest Cell (Ctrl+Shift+H) |
+| Find Coldest Cell | View > Find Coldest Cell (Ctrl+Shift+L) |
+| Thermal Resistance Report | Analysis > Thermal Resistance Report |
+| Open Plot | File > Open Plot |
 | Preferences | Tools > Preferences (Ctrl+,) |
 | Command Palette | Tools > Command Palette (Ctrl+Shift+P) |
 | Debug Diagnostics | Tools > Debug Diagnostics (Ctrl+Shift+D) |
+| Keyboard Shortcuts | Help > Keyboard Shortcuts (Ctrl+/) |
 
 ---
 
@@ -174,12 +188,14 @@ The FDM solver (`src/simulation/solver.py`) operates on NumPy arrays cached at t
 
 ```text
 src/
-  app.py                 # create_app() -- all wiring (~1060 lines)
+  app.py                 # create_app() -- all wiring (~1270 lines)
   simulation/
     cell.py              # Cell dataclass (material, T, is_fixed, is_flux, label, protected)
     grid.py              # 2D array of Cells; snapshot/restore for undo; resize()
     solver.py            # FDM engine -- harmonic mean of k, per-cell CFL sub-stepping
-    sim_clock.py         # QTimer loop: play/pause/step/reset, steady-state check
+    sim_clock.py         # QTimer loop: play/pause/step/reset, steady-state, smooth step
+    step_history.py      # StepHistory: circular T snapshot buffer for [/] navigation
+    thermal_resistance.py # compute_rth() -- R_th between cell groups
     history.py           # GridHistory: 50-step undo/redo stack
   ui/
     toolbar.py           # Top toolbar: mode, dx, view, heatmap, borders, isotherms, hotspot

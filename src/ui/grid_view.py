@@ -53,7 +53,7 @@ def _rect_cells(r1: int, c1: int, r2: int, c2: int) -> list[tuple[int, int]]:
 
 
 class GridView(QGraphicsView):
-    # Emitted on any selection commit — list of (row, col) tuples (length >= 1)
+    # Emitted on any selection commit -- list of (row, col) tuples (length >= 1)
     cells_selected = pyqtSignal(list)
     # Emitted whenever at least one cell's material is changed by drawing
     cell_painted = pyqtSignal()
@@ -73,7 +73,7 @@ class GridView(QGraphicsView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        # Do NOT call setBackgroundBrush — it prevents scene.drawBackground from being called
+        # Do NOT call setBackgroundBrush -- it prevents scene.drawBackground from being called
         self._fitted = False
 
         # Drawing / interaction state
@@ -108,6 +108,7 @@ class GridView(QGraphicsView):
         self._draw_fixed_temp_k: float = 293.15
         self._draw_is_flux: bool = False
         self._draw_flux_q: float = 0.0
+        self._draw_is_vol_flux: bool = False
         self._draw_label: str = ""
 
         # Vacuum material reference for Delete key (set by app.py via set_vacuum_material)
@@ -137,12 +138,14 @@ class GridView(QGraphicsView):
         self._paint_temp = temp_k
 
     def set_draw_heat_settings(self, is_fixed: bool, fixed_temp_k: float,
-                               is_flux: bool, flux_q: float) -> None:
+                               is_flux: bool, flux_q: float,
+                               is_volumetric_flux: bool = False) -> None:
         """Update the heat boundary settings stamped onto painted cells."""
         self._draw_is_fixed = is_fixed
         self._draw_fixed_temp_k = fixed_temp_k
         self._draw_is_flux = is_flux
         self._draw_flux_q = flux_q
+        self._draw_is_vol_flux = is_volumetric_flux
 
     def set_draw_label(self, label: str) -> None:
         """Set the label stamped onto painted cells (empty string = keep existing)."""
@@ -281,7 +284,7 @@ class GridView(QGraphicsView):
                 self._paint_cell(*cell)
                 self.scene().refresh()
 
-        # Hover tooltip — hide while actively interacting
+        # Hover tooltip -- hide while actively interacting
         busy = self._painting or self._line_anchor or self._rect_anchor
         if cell and not busy:
             g = self.scene()._grid
@@ -592,6 +595,7 @@ class GridView(QGraphicsView):
                         "is_flux": True,
                         "is_fixed": False,
                         "flux_q": self._draw_flux_q,
+                        "is_volumetric_flux": self._draw_is_vol_flux,
                     })
                 else:
                     kwargs.update({"is_fixed": False, "is_flux": False})
@@ -632,7 +636,7 @@ class GridView(QGraphicsView):
         grid = self.scene()._grid
         target_id = grid.cell(start_row, start_col).material.id
         if self._active_material.id == target_id:
-            return  # painting same material — no-op
+            return  # painting same material -- no-op
         rows, cols = grid.rows, grid.cols
         visited: set[tuple[int, int]] = set()
         queue: deque[tuple[int, int]] = deque([(start_row, start_col)])

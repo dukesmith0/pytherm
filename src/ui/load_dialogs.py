@@ -38,10 +38,10 @@ class MaterialImportDialog(QDialog):
         layout.addWidget(desc)
 
         self._session_radio = QRadioButton(
-            "Session only — available now, not saved to your materials"
+            "Session only -- available now, not saved to your materials"
         )
         self._persist_radio = QRadioButton(
-            "Save to your custom materials — available in future sessions"
+            "Save to your custom materials -- available in future sessions"
         )
         self._session_radio.setChecked(True)
         layout.addWidget(self._session_radio)
@@ -94,7 +94,7 @@ class MaterialConflictDialog(QDialog):
             orig_lbl = QLabel(mat.name)
             orig_lbl.setStyleSheet("color: #aaa; min-width: 120px;")
             arrow = QLabel("\u2192")
-            arrow.setStyleSheet("color: #666; padding: 0 6px;")
+            arrow.setStyleSheet("color: #999; padding: 0 6px;")
             edit = QLineEdit(f"{mat.name}-Copy")
             self._edits.append(edit)
             row.addWidget(orig_lbl)

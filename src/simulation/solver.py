@@ -74,7 +74,8 @@ class Solver:
                 fixed_temps: np.ndarray,
                 flux_mask: np.ndarray,
                 flux_q: np.ndarray,
-                duration: float) -> np.ndarray:
+                duration: float,
+                vol_flux_mask: np.ndarray | None = None) -> np.ndarray:
         """Advance the temperature field by `duration` simulated seconds.
 
         Internally sub-steps to satisfy the CFL stability condition:
@@ -83,7 +84,7 @@ class Solver:
         mixed-material grids are not forced to use the overly conservative
         global k_max / rhocp_min estimate.
 
-        Returns a new array — does not modify the input T.
+        Returns a new array -- does not modify the input T.
         """
         T = T.copy()
 
@@ -101,7 +102,7 @@ class Solver:
         bc  = self.boundary_conditions
         amb = self.ambient_k
 
-        # Precompute interface conductivities — depend only on material layout,
+        # Precompute interface conductivities -- depend only on material layout,
         # which doesn't change during sub-stepping.
         #
         # Harmonic mean: k_eff = 2·k₁·k₂ / (k₁ + k₂)
@@ -141,8 +142,20 @@ class Solver:
         if has_flux:
             flux_active = flux_mask & (rho_cp > 0) & ~fixed_mask
             has_flux = bool(np.any(flux_active))  # skip if all flux cells are vacuum/fixed
+            if has_flux:
+                # Convert to effective volumetric source (W/m^3) for uniform handling.
+                # Surface flux (W/m^2): divide by dx to get W/m^3.
+                # Volumetric flux (W/m^3): use as-is.
+                flux_eff = flux_q.copy()
+                if vol_flux_mask is not None:
+                    # Surface flux cells: divide by dx to convert W/m^2 -> W/m^3.
+                    # Volumetric flux cells: already in W/m^3, use as-is.
+                    surface = flux_active & ~vol_flux_mask
+                    if np.any(surface):
+                        flux_eff[surface] = flux_q[surface] / self.dx
         else:
             flux_active = None
+            flux_eff = flux_q
         top_sink    = bc.get("top")    == SINK
         bottom_sink = bc.get("bottom") == SINK
         left_sink   = bc.get("left")   == SINK
@@ -181,9 +194,11 @@ class Solver:
             T += dT
 
             # Inject heat from flux cells before fixed-T pinning.
+            # flux_eff is in W/m^3 (converted from surface or volumetric input).
+            # dT = q_vol * dt / (rho*cp).  Energy = q_vol * dt * dx^2 [J/m depth].
             if has_flux:
-                T[flux_active] += flux_q[flux_active] * dt * inv_rhocp[flux_active]
-                e_from_flux += float(np.sum(flux_q[flux_active])) * dt * dx2
+                T[flux_active] += flux_eff[flux_active] * dt * inv_rhocp[flux_active]
+                e_from_flux += float(np.sum(flux_eff[flux_active])) * dt * dx2
 
             # Energy injected/removed by fixed-T cells (pinning correction).
             # E_fixed = ρCₚ · (T_fixed − T_fdm) · dx²  [J/m]
@@ -201,7 +216,7 @@ class Solver:
             if np.any(not_fixed):
                 if has_flux:
                     total_dT = dT.copy()
-                    total_dT[flux_active] += flux_q[flux_active] * dt * inv_rhocp[flux_active]
+                    total_dT[flux_active] += flux_eff[flux_active] * dt * inv_rhocp[flux_active]
                     step_delta = float(np.max(np.abs(total_dT[not_fixed])))
                 else:
                     step_delta = float(np.max(np.abs(dT[not_fixed])))

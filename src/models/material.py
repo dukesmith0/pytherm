@@ -21,13 +21,13 @@ class Material:
     @property
     def alpha(self) -> float:
         # Thermal diffusivity α = k / (ρ × Cₚ)  [m²/s]
-        # Returns 0 for vacuum/inert materials (k=rho=cp=0) — no heat transport.
+        # Returns 0 for vacuum/inert materials (k=rho=cp=0) -- no heat transport.
         denom = self.rho * self.cp
         return 0.0 if denom == 0 else self.k / denom
 
     @property
     def is_vacuum(self) -> bool:
-        """True for thermally inert materials (k=ρ=Cₚ=0) — perfect insulators."""
+        """True for thermally inert materials (k=ρ=Cₚ=0) -- perfect insulators."""
         return self.rho == 0 and self.cp == 0
 
 

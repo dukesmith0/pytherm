@@ -132,10 +132,10 @@ class MainWindow(QMainWindow):
         self._delta_action.setToolTip("Show each cell's temperature rise (T - T_amb) in heatmap mode")
         self._delta_action.toggled.connect(self.delta_toggled)
 
-        self._legend_action = view_menu.addAction("Temperature Legend")
+        self._legend_action = view_menu.addAction("Color Legend")
         self._legend_action.setCheckable(True)
         self._legend_action.setShortcut("Ctrl+L")
-        self._legend_action.setToolTip("Show/hide the floating temperature scale overlay")
+        self._legend_action.setToolTip("Show/hide the floating color scale overlay (temperature or flux)")
         self._legend_action.toggled.connect(self.legend_toggled)
 
         view_menu.addSeparator()
@@ -189,6 +189,10 @@ class MainWindow(QMainWindow):
         # ── Help ──
         help_menu = self.menuBar().addMenu("Help")
 
+        shortcuts_action = help_menu.addAction("Keyboard Shortcuts...")
+        shortcuts_action.setShortcut("Ctrl+/")
+        shortcuts_action.triggered.connect(self._show_shortcuts)
+
         whats_new = help_menu.addAction("What's New...")
         whats_new.triggered.connect(self._show_changelog)
 
@@ -199,6 +203,81 @@ class MainWindow(QMainWindow):
 
         about_action = help_menu.addAction("About PyTherm...")
         about_action.triggered.connect(self._show_about)
+
+    def _show_shortcuts(self) -> None:
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Keyboard Shortcuts")
+        dlg.resize(460, 520)
+
+        layout = QVBoxLayout(dlg)
+        layout.setContentsMargins(12, 12, 12, 12)
+
+        viewer = QTextEdit()
+        viewer.setReadOnly(True)
+        viewer.setMarkdown(
+            "## Drawing\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| D | Draw mode |\n"
+            "| S | Select mode |\n"
+            "| W | Fill mode |\n"
+            "| P | Toggle protect (select mode) |\n"
+            "| Delete | Clear selected cells to vacuum |\n"
+            "| Middle-click | Eyedropper (pick material) |\n"
+            "\n## Selection\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| Ctrl+A | Select all non-vacuum cells |\n"
+            "| Ctrl+C | Copy selection |\n"
+            "| Ctrl+V | Paste selection |\n"
+            "| Ctrl+Shift+H | Find hottest cell |\n"
+            "| Ctrl+Shift+L | Find coldest cell |\n"
+            "\n## Simulation\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| Space | Play / Pause |\n"
+            "| R | Reset temperatures |\n"
+            "| N | Step simulation |\n"
+            "| [ | Step history back |\n"
+            "| ] | Step history forward |\n"
+            "| Escape | Return to present (history) |\n"
+            "\n## View\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| H | Heatmap view |\n"
+            "| M | Material view |\n"
+            "| Q | Heat flow view |\n"
+            "| G | Toggle grid lines |\n"
+            "| F | Fit grid to window |\n"
+            "| Ctrl+Shift+F | Zoom to selection |\n"
+            "| Ctrl+D | Toggle temperature rise (dT) |\n"
+            "| Ctrl+L | Toggle color legend |\n"
+            "| Ctrl+U | Cycle temperature unit |\n"
+            "\n## File / Edit\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| Ctrl+N | New Grid |\n"
+            "| Ctrl+O | Open |\n"
+            "| Ctrl+S | Save |\n"
+            "| Ctrl+Shift+S | Save As |\n"
+            "| Ctrl+E | Export view as image |\n"
+            "| Ctrl+Z | Undo |\n"
+            "| Ctrl+Shift+Z | Redo |\n"
+            "\n## Tools\n"
+            "| Shortcut | Action |\n"
+            "|---|---|\n"
+            "| Ctrl+Shift+P | Command palette |\n"
+            "| Ctrl+, | Preferences |\n"
+            "| Ctrl+Shift+D | Debug diagnostics |\n"
+            "| Ctrl+/ | This dialog |\n"
+        )
+        layout.addWidget(viewer)
+
+        btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        btns.rejected.connect(dlg.reject)
+        layout.addWidget(btns)
+
+        dlg.exec()
 
     def _show_changelog(self) -> None:
         changelog_path = Path(__file__).parent.parent.parent / "CHANGELOG.md"
@@ -266,7 +345,7 @@ class MainWindow(QMainWindow):
         text_col.addWidget(sub)
 
         meta = QLabel(f'v{VERSION}  ·  Craig "Duke" Smith  ·  2026')
-        meta.setStyleSheet("color: #555577; font-size: 10px;")
+        meta.setStyleSheet("color: #8888aa; font-size: 10px;")
         text_col.addWidget(meta)
 
         gh = QLabel('<a href="https://github.com/dukesmith0/pytherm" '
@@ -401,7 +480,7 @@ class MainWindow(QMainWindow):
 def _placeholder(layout: QHBoxLayout | QVBoxLayout, text: str) -> None:
     lbl = QLabel(text)
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    lbl.setStyleSheet("color: #555; font-size: 11px;")
+    lbl.setStyleSheet("color: #999; font-size: 11px;")
     layout.addWidget(lbl)
 
 

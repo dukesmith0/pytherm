@@ -26,7 +26,7 @@ class PlotViewerDialog(QDialog):
         bar = QHBoxLayout()
         series_names = list(data.get("series", {}).keys())
         info = QLabel(f"{len(series_names)} series, read-only")
-        info.setStyleSheet("color: #888; font-size: 10px;")
+        info.setStyleSheet("color: #aaa; font-size: 10px;")
         bar.addWidget(info)
         bar.addStretch()
 

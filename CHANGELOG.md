@@ -1,5 +1,41 @@
 # PyTherm Changelog
 
+## v1.0.0 -- 2026-03-15
+
+### Added
+
+- **Heat flow view**: third view mode alongside Material and Heatmap. Colors cells by total heat flow rate (W) using the active palette. Shows flow values in each cell (W/kW/mW). Toggle with the Heat Flow button or Q key.
+- **Volumetric heat flux**: flux cells now support volumetric (W/m^3) or surface (W/m^2) modes via a checkbox in the sidebar. Volumetric is the default (matches v0.6.0 behavior). Both modes support negative values for heat removal.
+- **Light/dark theme**: switchable in Preferences. Theme applies to canvas, sidebar, material picker, plots, convergence graph, and color legend. Dark is the default.
+- **Keyboard shortcuts help**: Help > Keyboard Shortcuts (Ctrl+/) shows a searchable dialog with 30+ shortcuts in 5 categories.
+- **Heatmap scale modes**: Static (fixed bounds), Live (tracks grid min/max every frame), and Smart (bounds only expand). Configurable in Preferences alongside Auto-init toggle.
+- **Reverse palette**: Preferences checkbox flips the heatmap color palette (hot=blue, cold=red).
+- **Isotherm customization**: color picker and line width (1-5px) in Preferences.
+- **Color legend**: renamed from Temperature Legend, adapts units for heat flow mode. Floating, draggable, theme-aware.
+- **6 new example templates**: Diamond Heatspreader, Thermos Flask, Conduction Race (Cu vs Steel), Nuclear Fuel Rod (volumetric flux), Re-entry Tile (1500K plasma), Thermoelectric Cooler (negative flux).
+- **Social preview**: 1280x640 SVG with icon grid for GitHub.
+
+### Changed
+
+- **Templates version-free**: templates no longer include version fields, preventing version mismatch warnings on app updates. User saves still include version.
+- **File validation**: version field is optional for template loading (backward compat), required for user files.
+- **Toolbar decluttered**: Auto-init and Scale mode moved to Preferences. Toolbar keeps Min/Max spinboxes, Palette, Isotherms.
+- **Max speed**: removed 10,000x speed option (1,000x is the max).
+- **Theme extraction**: QPalette theme code moved from app.py to app_theme.py.
+- **Accessibility**: secondary text contrast improved across 6 files (all >= 4:1 on dark, >= 3:1 on light).
+
+### Bug Fixes
+
+- **QColor import crash**: `QColor` accidentally removed from app.py imports when extracting theme code.
+- **Heat flow zero display**: values < 1e-9 now show "0 W" instead of "0.0e+00W".
+- **Legend units on view switch**: Color Legend now updates units immediately when switching between Heatmap and Heat Flow while paused.
+- **Flux regression**: volumetric flux default changed to True so existing files and templates behave identically to v0.6.0.
+- **Missing template materials**: pipe_cross_section referenced non-existent material IDs (carbon_steel, water_25c), fixed to fe_a36/water.
+
+### Known Issues
+
+None.
+
 ## v0.6.0 -- 2026-03-14
 
 ### Added

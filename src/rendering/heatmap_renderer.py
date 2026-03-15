@@ -59,6 +59,7 @@ def _build_lut(stops: list[tuple[float, tuple[int, int, int]]]) -> list[QColor]:
 _LUTS: dict[str, list[QColor]] = {name: _build_lut(stops) for name, stops in _PALETTE_STOPS.items()}
 _active_lut: list[QColor] = _LUTS["Classic"]
 _active_palette_name: str = "Classic"
+_reversed: bool = False
 
 
 def set_palette(name: str) -> None:
@@ -66,6 +67,16 @@ def set_palette(name: str) -> None:
     global _active_lut, _active_palette_name
     _active_palette_name = name if name in _LUTS else "Classic"
     _active_lut = _LUTS[_active_palette_name]
+
+
+def set_reversed(rev: bool) -> None:
+    """Flip the palette so hot=blue and cold=red."""
+    global _reversed
+    _reversed = rev
+
+
+def is_reversed() -> bool:
+    return _reversed
 
 
 def active_palette_name() -> str:
@@ -81,7 +92,10 @@ def heatmap_color(temp_k: float, t_min_k: float, t_max_k: float) -> QColor:
     if t_max_k <= t_min_k:
         return _active_lut[_LUT_SIZE // 2]
     t = (temp_k - t_min_k) / (t_max_k - t_min_k)
-    idx = int(max(0.0, min(1.0, t)) * (_LUT_SIZE - 1))
+    t = max(0.0, min(1.0, t))
+    if _reversed:
+        t = 1.0 - t
+    idx = int(t * (_LUT_SIZE - 1))
     return _active_lut[idx]
 
 

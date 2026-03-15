@@ -50,7 +50,7 @@ class CustomMaterialsBundleDialog(QDialog):
             is_required = mat.id in self._required_ids
             label = f"{mat.name}  (k={mat.k:g}, ρ={mat.rho:g}, Cₚ={mat.cp:g})"
             if is_required:
-                label += "  — required"
+                label += "  -- required"
             cb = QCheckBox(label)
             cb.setChecked(is_required)  # optional materials start unchecked
             cb.setEnabled(not is_required)

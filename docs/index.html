@@ -254,7 +254,7 @@
     <div class="header-text">
       <div class="header-title">PyTherm</div>
       <div class="header-subtitle">2D Heat Conduction Simulator</div>
-      <div class="header-meta">v0.6.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
+      <div class="header-meta">v1.0.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
       <a class="header-github" href="https://github.com/dukesmith0/pytherm">
         &#x2316;&nbsp; github.com/dukesmith0/pytherm
       </a>
@@ -283,6 +283,33 @@
 
     <!-- Getting started -->
     <p class="section-label">Getting Started</p>
+
+    <p style="color:#aaa; margin-bottom:16px;">
+      <strong style="color:#eee;">Option A: Standalone executable</strong> &mdash; no Python required
+    </p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Download</div>
+          <div class="step-desc">
+            Go to the <a href="https://github.com/dukesmith0/pytherm/releases/latest">latest release</a>
+            and download the executable for your platform (Windows, macOS, or Linux).
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Run</div>
+          <div class="step-desc">Double-click the downloaded file. No installation needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="color:#aaa; margin: 20px 0 16px;">
+      <strong style="color:#eee;">Option B: From source</strong> &mdash; for development or customization
+    </p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -412,6 +439,34 @@ cd pytherm</pre>
         <div class="feature-title">Step history navigation</div>
         <div class="feature-desc">Browse through past temperature snapshots with [ and ] keys. Escape returns to the present state.</div>
       </div>
+      <div class="feature-card">
+        <div class="feature-title">Heat flow view</div>
+        <div class="feature-desc">Third view mode showing heat flow rate (W) per cell. Identify thermal bottlenecks at a glance. Toggle with Q key.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Volumetric heat flux</div>
+        <div class="feature-desc">Flux cells support surface (W/m&sup2;) or volumetric (W/m&sup3;) modes. Negative flux for heat removal (TEC, cooling).</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Light and dark themes</div>
+        <div class="feature-desc">Switch between dark CAD-style and clean light theme. Canvas, sidebar, plots, legend all adapt. Persisted in Preferences.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Heatmap scale modes</div>
+        <div class="feature-desc">Static, Live, or Smart bounds. Auto-init from grid data or set manually. Reverse palette option.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">15 example templates</div>
+        <div class="feature-desc">From 1D conduction bars to nuclear fuel rods, thermos flasks, and thermoelectric coolers. Load from File > Templates.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Keyboard shortcuts reference</div>
+        <div class="feature-desc">Help &gt; Keyboard Shortcuts (Ctrl+/) shows every hotkey in a searchable table. 30+ shortcuts across 5 categories.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">9 example templates</div>
+        <div class="feature-desc">File &gt; Open Template includes PCB, heat sink, building wall, brake rotor, pipe cross-section, 1D conduction bar, and more.</div>
+      </div>
     </div>
 
     <hr class="sep" />
@@ -429,7 +484,7 @@ cd pytherm</pre>
 
   <!-- ── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="footer">
-    <span>PyTherm v0.6.0 &nbsp;·&nbsp; MIT License</span>
+    <span>PyTherm v1.0.0 &nbsp;·&nbsp; MIT License</span>
     <span>
       <a href="https://craigdukesmith.com">craigdukesmith.com</a>
       &nbsp;&nbsp;·&nbsp;&nbsp;

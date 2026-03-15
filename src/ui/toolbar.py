@@ -30,7 +30,8 @@ class Toolbar(QToolBar):
     mode_changed                = pyqtSignal(str)          # "draw" | "select" | "fill"
     dx_changed                  = pyqtSignal(float)        # new dx in metres
     view_mode_changed           = pyqtSignal(str)          # "material" | "heatmap"
-    heatmap_auto_changed        = pyqtSignal(bool)
+    heatmap_auto_changed        = pyqtSignal(bool)         # auto-init from grid bounds
+    heatmap_scale_mode_changed  = pyqtSignal(str)          # "static" | "live" | "smart"
     heatmap_range_changed       = pyqtSignal(float, float) # (min_K, max_K)
     palette_changed             = pyqtSignal(str)          # palette name
     isotherm_changed            = pyqtSignal(bool, float)  # (enabled, interval_K)
@@ -99,23 +100,28 @@ class Toolbar(QToolBar):
         # -- View mode toggle -------------------------------------------------
         self._btn_material = QPushButton("Material")
         self._btn_heatmap  = QPushButton("Heatmap")
-        for btn in (self._btn_material, self._btn_heatmap):
+        self._btn_flux     = QPushButton("Heat Flow")
+        for btn in (self._btn_material, self._btn_heatmap, self._btn_flux):
             btn.setCheckable(True)
             btn.setFixedWidth(80)
 
-        self._btn_material.setToolTip("Material view \u2014 show each cell's material color")
-        self._btn_heatmap.setToolTip("Heatmap view \u2014 show cell temperatures as a blue-to-red color gradient")
+        self._btn_material.setToolTip("Material view -- show each cell's material color")
+        self._btn_heatmap.setToolTip("Heatmap view -- show cell temperatures as a color gradient")
+        self._btn_flux.setToolTip("Heat flow view -- show rate of heat flow (W) through each cell")
 
         self._view_group = QButtonGroup(self)
         self._view_group.addButton(self._btn_material)
         self._view_group.addButton(self._btn_heatmap)
+        self._view_group.addButton(self._btn_flux)
         self._btn_material.setChecked(True)
 
         self._layout.addWidget(self._btn_material)
         self._layout.addWidget(self._btn_heatmap)
+        self._layout.addWidget(self._btn_flux)
 
         self._btn_material.toggled.connect(lambda on: on and self._set_view("material"))
         self._btn_heatmap.toggled.connect(lambda on: on and self._set_view("heatmap"))
+        self._btn_flux.toggled.connect(lambda on: on and self._set_view("flow"))
 
         # -- Heatmap scale controls (hidden in material mode) -----------------
         self._hm_min_k: float = 273.15   # 0 C
@@ -126,11 +132,6 @@ class Toolbar(QToolBar):
         hm.setContentsMargins(4, 0, 4, 0)
         hm.setSpacing(6)
 
-        self._hm_auto = QCheckBox("Auto")
-        self._hm_auto.setChecked(True)
-        self._hm_auto.setToolTip("Auto-scale: fit the color range to the current min/max temperature each frame")
-        hm.addWidget(self._hm_auto)
-
         hm.addWidget(QLabel("Min:"))
         self._hm_min = TempSpinBox()
         lo, hi = _units.spinbox_range()
@@ -138,8 +139,7 @@ class Toolbar(QToolBar):
         self._hm_min.setValue(_units.to_display(self._hm_min_k))
         self._hm_min.setSuffix(f" {_units.suffix()}")
         self._hm_min.setFixedWidth(100)
-        self._hm_min.setEnabled(False)
-        self._hm_min.setToolTip("Minimum temperature \u2014 mapped to blue on the heatmap (requires Auto off)")
+        self._hm_min.setToolTip("Minimum temperature -- cold end of color gradient (manual bounds)")
         hm.addWidget(self._hm_min)
 
         hm.addWidget(QLabel("Max:"))
@@ -148,8 +148,7 @@ class Toolbar(QToolBar):
         self._hm_max.setValue(_units.to_display(self._hm_max_k))
         self._hm_max.setSuffix(f" {_units.suffix()}")
         self._hm_max.setFixedWidth(100)
-        self._hm_max.setEnabled(False)
-        self._hm_max.setToolTip("Maximum temperature \u2014 mapped to red on the heatmap (requires Auto off)")
+        self._hm_max.setToolTip("Maximum temperature -- hot end of color gradient (manual bounds)")
         hm.addWidget(self._hm_max)
 
         hm.addWidget(QLabel("Palette:"))
@@ -274,7 +273,6 @@ class Toolbar(QToolBar):
         self._dx_spin.valueChanged.connect(
             lambda v: self.dx_changed.emit(v / 100.0)  # cm -> m
         )
-        self._hm_auto.toggled.connect(self._on_hm_auto_toggled)
         self._hm_min.valueChanged.connect(self._emit_hm_range)
         self._hm_max.valueChanged.connect(self._emit_hm_range)
         self._palette_combo.currentTextChanged.connect(self.palette_changed)
@@ -360,14 +358,21 @@ class Toolbar(QToolBar):
         sep.setStyleSheet("background: #444; margin: 4px 3px;")
         self._layout.addWidget(sep)
 
+    def activate_flow_mode(self) -> None:
+        """Switch to heat flow view."""
+        self._btn_flux.setChecked(True)
+
     def _set_view(self, mode: str) -> None:
-        self._heatmap_controls.setVisible(mode == "heatmap")
+        self._heatmap_controls.setVisible(mode in ("heatmap", "flow"))
         self.view_mode_changed.emit(mode)
 
-    def _on_hm_auto_toggled(self, auto: bool) -> None:
-        self._hm_min.setEnabled(not auto)
-        self._hm_max.setEnabled(not auto)
+    def set_auto_init(self, auto: bool) -> None:
+        """Called from preferences to sync the auto-init state."""
         self.heatmap_auto_changed.emit(auto)
+
+    def set_scale_mode(self, mode: str) -> None:
+        """Called from preferences to sync the scale mode."""
+        self.heatmap_scale_mode_changed.emit(mode)
 
     def _emit_hm_range(self) -> None:
         lo = _units.from_display(self._hm_min.value())

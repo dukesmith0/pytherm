@@ -1,5 +1,4 @@
 {
-  "version": 1,
   "grid": {
     "rows": 18,
     "cols": 20,
@@ -3609,7 +3608,6 @@
     }
   ],
   "custom_materials": [],
-  "software_version": "0.4.0",
   "sim_settings": {
     "boundary_conditions": {
       "top": "sink",

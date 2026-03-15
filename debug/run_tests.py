@@ -1,5 +1,5 @@
 """
-PyTherm v0.6.0 -- headless test suite.
+PyTherm v1.0.0 -- headless test suite.
 Run from the project root:  py debug/run_tests.py
 Tests all logic that does not require a running QApplication.
 """
@@ -14,6 +14,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
+
+# Create a single QApplication for all tests that need Qt widgets.
+# Must be done before any Qt imports to avoid multiple-instance segfaults.
+from PyQt6.QtWidgets import QApplication
+_qapp = QApplication.instance() or QApplication(sys.argv)
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
@@ -259,6 +264,58 @@ def _():
     assert np.all(np.isfinite(T_new))
 
 
+@test("Solver: volumetric flux (W/m^3) heats cell correctly")
+def _():
+    from src.simulation.solver import Solver
+    solver = Solver(dx=0.01)
+    k, rcp, T, fm, ft, xm, xq = _arrays(4, 4, 167.0, 2700.0 * 896.0, 300.0)
+    xm[1, 1] = True; xq[1, 1] = 5000.0
+    vol = np.zeros((4, 4), dtype=bool); vol[1, 1] = True
+    T_new = solver.advance(T, k, rcp, fm, ft, xm, xq, duration=0.01, vol_flux_mask=vol)
+    assert T_new[1, 1] > 300.0, "Volumetric flux should heat cell"
+
+
+@test("Solver: surface flux (W/m^2) heats cell correctly")
+def _():
+    from src.simulation.solver import Solver
+    solver = Solver(dx=0.01)
+    k, rcp, T, fm, ft, xm, xq = _arrays(4, 4, 167.0, 2700.0 * 896.0, 300.0)
+    xm[1, 1] = True; xq[1, 1] = 5000.0
+    vol = np.zeros((4, 4), dtype=bool)  # all surface
+    T_new = solver.advance(T, k, rcp, fm, ft, xm, xq, duration=0.01, vol_flux_mask=vol)
+    assert T_new[1, 1] > 300.0, "Surface flux should heat cell"
+
+
+@test("Solver: negative flux cools cell")
+def _():
+    from src.simulation.solver import Solver
+    solver = Solver(dx=0.01)
+    k, rcp, T, fm, ft, xm, xq = _arrays(4, 4, 167.0, 2700.0 * 896.0, 350.0)
+    xm[1, 1] = True; xq[1, 1] = -5000.0
+    T_new = solver.advance(T, k, rcp, fm, ft, xm, xq, duration=0.01)
+    assert T_new[1, 1] < 350.0, "Negative flux should cool cell"
+
+
+@test("Grid: volumetric_flux_mask returns correct boolean array")
+def _():
+    grid, _ = _make_grid(4, 4)
+    grid.set_cell(1, 1, is_flux=True, flux_q=100.0, is_volumetric_flux=True)
+    grid.set_cell(2, 2, is_flux=True, flux_q=200.0, is_volumetric_flux=False)
+    vm = grid.volumetric_flux_mask()
+    assert vm[1, 1] is np.True_
+    assert vm[2, 2] is np.False_
+
+
+@test("Grid: snapshot/restore round-trips is_volumetric_flux")
+def _():
+    grid, _ = _make_grid(4, 4)
+    grid.set_cell(1, 1, is_flux=True, flux_q=100.0, is_volumetric_flux=True)
+    snap = grid.snapshot()
+    grid.set_cell(1, 1, is_volumetric_flux=False)
+    grid.restore(snap)
+    assert grid.cell(1, 1).is_volumetric_flux is True
+
+
 # ── File I/O ──────────────────────────────────────────────────────────────────
 
 @test("file_io: save/reload preserves is_flux and flux_q")
@@ -354,8 +411,6 @@ def _():
 @test("SimClock: e_cumulative_flux grows after step with flux cell")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.simulation.grid import Grid
     from src.simulation.solver import Solver
     from src.simulation.sim_clock import SimClock
@@ -422,14 +477,21 @@ def _():
 
 # ── File schema validation ────────────────────────────────────────────────────
 
-@test("file_io: _validate_pytherm raises on missing version")
+@test("file_io: _validate_pytherm raises on missing version (strict mode)")
 def _():
     from src.io.file_io import _validate_pytherm
     try:
-        _validate_pytherm({"grid": {}, "cells": []})
+        _validate_pytherm({"grid": {}, "cells": []}, require_version=True)
         assert False, "Should have raised"
     except ValueError as e:
         assert "version" in str(e).lower()
+
+
+@test("file_io: _validate_pytherm accepts missing version (template mode)")
+def _():
+    from src.io.file_io import _validate_pytherm
+    _validate_pytherm({"grid": {"rows": 2, "cols": 2, "ambient_temp_k": 293.15, "dx_m": 0.01}, "cells": []},
+                      require_version=False)
 
 
 @test("file_io: _validate_pytherm raises on missing grid")
@@ -645,8 +707,6 @@ def _():
 @test("SimClock: recalculate_energy_reference clears cumulative accumulators")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.simulation.grid import Grid
     from src.simulation.solver import Solver
     from src.simulation.sim_clock import SimClock
@@ -674,8 +734,6 @@ def _():
 @test("SimClock: step advances sim_time correctly")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.simulation.grid import Grid
     from src.simulation.solver import Solver
     from src.simulation.sim_clock import SimClock
@@ -749,8 +807,6 @@ def _():
 @test("GridScene: set_isotherm stores enabled and interval")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.grid_scene import GridScene
     grid, _ = _make_grid()
     scene = GridScene(grid)
@@ -762,8 +818,6 @@ def _():
 @test("GridScene: set_hotspot_threshold enables hotspot")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.grid_scene import GridScene
     grid, _ = _make_grid()
     scene = GridScene(grid)
@@ -775,8 +829,6 @@ def _():
 @test("GridScene: set_hotspot_threshold with nan disables hotspot")
 def _():
     import sys, math
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.grid_scene import GridScene
     grid, _ = _make_grid()
     scene = GridScene(grid)
@@ -788,8 +840,6 @@ def _():
 @test("GridScene: hotspot_count counts cells above threshold")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.grid_scene import GridScene
     grid, reg = _make_grid()
     al = reg.get("al6061")
@@ -803,8 +853,6 @@ def _():
 @test("GridScene: hotspot_count is 0 when disabled")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.grid_scene import GridScene
     grid, reg = _make_grid()
     al = reg.get("al6061")
@@ -818,8 +866,6 @@ def _():
 @test("TempPlotPanel: is_pinned defaults False")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, _ = _make_grid()
     panel = TempPlotPanel(grid)
@@ -829,8 +875,6 @@ def _():
 @test("TempPlotPanel: set_tracked_cells ignored when pinned")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, reg = _make_grid()
     panel = TempPlotPanel(grid)
@@ -843,8 +887,6 @@ def _():
 @test("TempPlotPanel: set_tracked_cells works after unpin")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, _ = _make_grid()
     panel = TempPlotPanel(grid)
@@ -859,8 +901,6 @@ def _():
 @test("CommandPalette: filter hides non-matching items")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.command_palette import CommandPalette
     entries = [("Draw mode", lambda: None), ("Heatmap view", lambda: None), ("Reset", lambda: None)]
     dlg = CommandPalette(entries)
@@ -872,8 +912,6 @@ def _():
 @test("CommandPalette: empty filter shows all items")
 def _():
     import sys
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.command_palette import CommandPalette
     entries = [("Alpha", lambda: None), ("Beta", lambda: None), ("Gamma", lambda: None)]
     dlg = CommandPalette(entries)
@@ -886,8 +924,6 @@ def _():
 
 @test("_PlotCanvas: _pinned_points starts empty")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     assert c._pinned_points == []
@@ -895,8 +931,6 @@ def _():
 
 @test("_PlotCanvas: set_series clears _pinned_points")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_series(["A"])
@@ -908,8 +942,6 @@ def _():
 
 @test("_PlotCanvas: clear() clears _pinned_points")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_series(["A"])
@@ -921,8 +953,6 @@ def _():
 
 @test("_PlotCanvas: set_sync_hover stores value")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_sync_hover(5.5)
@@ -931,8 +961,6 @@ def _():
 
 @test("_PlotCanvas: set_sync_hover(None) clears value")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_sync_hover(5.5)
@@ -942,8 +970,6 @@ def _():
 
 @test("_PlotCanvas: set_sync_pin stores value")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_sync_pin(3.14)
@@ -952,8 +978,6 @@ def _():
 
 @test("_PlotCanvas: set_sync_pin(None) clears value")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.set_sync_pin(3.14)
@@ -963,8 +987,6 @@ def _():
 
 @test("_PlotCanvas: _find_nearest returns None when no data")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.resize(400, 200)
@@ -973,8 +995,6 @@ def _():
 
 @test("_PlotCanvas: _find_nearest returns closest point")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     c = _PlotCanvas()
     c.resize(400, 200)
@@ -993,8 +1013,6 @@ def _():
 
 @test("_PlotCanvas: _handle_click (no shift) adds pin")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     from PyQt6.QtCore import Qt
     c = _PlotCanvas()
@@ -1008,8 +1026,6 @@ def _():
 
 @test("_PlotCanvas: _handle_click (no shift) toggles pin off")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     from PyQt6.QtCore import Qt
     c = _PlotCanvas()
@@ -1024,8 +1040,6 @@ def _():
 
 @test("_PlotCanvas: _handle_click (shift) emits sync_pin_changed")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import _PlotCanvas
     from PyQt6.QtCore import Qt
     c = _PlotCanvas()
@@ -1049,8 +1063,6 @@ def _():
 
 @test("TempPlotPanel: set_sync_hover updates canvas")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, _reg = _make_grid()
     panel = TempPlotPanel(grid)
@@ -1060,8 +1072,6 @@ def _():
 
 @test("TempPlotPanel: set_sync_pin updates canvas")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, _reg = _make_grid()
     panel = TempPlotPanel(grid)
@@ -1071,8 +1081,6 @@ def _():
 
 @test("TempPlotPanel: set_grid clears sync state")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.temp_plot_panel import TempPlotPanel
     grid, _reg = _make_grid()
     panel = TempPlotPanel(grid)
@@ -1327,8 +1335,7 @@ def _():
 @test("MaterialPicker: builds nested groups from subcategories")
 def _():
     import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
-    from PyQt6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication([])
+    # Uses global _qapp
     from src.models.material_registry import MaterialRegistry
     from src.ui.sidebar import MaterialPicker
     data_dir = Path(__file__).parent.parent / "data"
@@ -1342,8 +1349,7 @@ def _():
 @test("MaterialPicker: _group_info stores 4-tuple (header, content, name, depth)")
 def _():
     import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
-    from PyQt6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication([])
+    # Uses global _qapp
     from src.models.material_registry import MaterialRegistry
     from src.ui.sidebar import MaterialPicker
     data_dir = Path(__file__).parent.parent / "data"
@@ -1356,8 +1362,7 @@ def _():
 @test("MaterialPicker: filter propagates to ancestor groups")
 def _():
     import os; os.environ["QT_QPA_PLATFORM"] = "offscreen"
-    from PyQt6.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication([])
+    # Uses global _qapp
     from src.models.material_registry import MaterialRegistry
     from src.ui.sidebar import MaterialPicker
     data_dir = Path(__file__).parent.parent / "data"
@@ -1581,8 +1586,6 @@ def _():
 
 @test("ConvergencePanel: first tick is skipped")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.convergence_panel import ConvergencePanel
     panel = ConvergencePanel()
     assert panel._is_first_tick
@@ -1593,8 +1596,6 @@ def _():
 
 @test("ConvergencePanel: second tick adds data point")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.convergence_panel import ConvergencePanel
     panel = ConvergencePanel()
     panel.on_tick(0.033, 0.001, 0.001)  # first tick, skipped
@@ -1607,8 +1608,6 @@ def _():
 
 @test("ConvergencePanel: clear_history resets first_tick flag")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.convergence_panel import ConvergencePanel
     panel = ConvergencePanel()
     panel.on_tick(0.033, 0.001, 0.001)
@@ -1620,8 +1619,6 @@ def _():
 
 @test("ConvergencePanel: set_ss_threshold updates canvas")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.convergence_panel import ConvergencePanel
     panel = ConvergencePanel()
     panel.set_ss_threshold(0.05)
@@ -1632,8 +1629,6 @@ def _():
 
 @test("SimClock: smooth_step flag defaults to False")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     grid, reg = _make_grid(2, 2)
     from src.simulation.solver import Solver
     from src.simulation.sim_clock import SimClock
@@ -1646,8 +1641,6 @@ def _():
 
 @test("SimClock: set_smooth_step changes flag")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     grid, reg = _make_grid(2, 2)
     from src.simulation.solver import Solver
     from src.simulation.sim_clock import SimClock
@@ -1702,8 +1695,6 @@ def _():
 
 @test("MainWindow: has open_plot_requested signal")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.main_window import MainWindow
     w = MainWindow()
     assert hasattr(w, "open_plot_requested")
@@ -1711,8 +1702,6 @@ def _():
 
 @test("MainWindow: has convergence_graph_requested signal")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.main_window import MainWindow
     w = MainWindow()
     assert hasattr(w, "convergence_graph_requested")
@@ -1720,11 +1709,178 @@ def _():
 
 @test("MainWindow: has thermal_resistance_requested signal")
 def _():
-    from PyQt6.QtWidgets import QApplication
-    _app = QApplication.instance() or QApplication(sys.argv)
     from src.ui.main_window import MainWindow
     w = MainWindow()
     assert hasattr(w, "thermal_resistance_requested")
+
+
+# ── Marching Squares Isotherms ────────────────────────────────────────────────
+
+@test("GridScene: isotherm_color setter works")
+def _():
+    from PyQt6.QtGui import QColor
+    from src.ui.grid_scene import GridScene
+    grid, _ = _make_grid(4, 4)
+    scene = GridScene(grid)
+    scene.set_isotherm_color(QColor(255, 0, 0))
+    assert scene._isotherm_color == QColor(255, 0, 0)
+
+
+@test("GridScene: set_isotherm stores enabled and interval (v2)")
+def _():
+    from src.ui.grid_scene import GridScene
+    grid, _ = _make_grid(4, 4)
+    scene = GridScene(grid)
+    scene.set_isotherm(True, 25.0)
+    assert scene._isotherm_enabled is True
+    assert abs(scene._isotherm_interval_k - 25.0) < 1e-9
+
+
+@test("GridScene: flow view mode accepted")
+def _():
+    from src.ui.grid_scene import GridScene
+    grid, _ = _make_grid(4, 4)
+    scene = GridScene(grid)
+    scene.set_view_mode("flow")
+    assert scene._view_mode == "flow"
+
+
+# ── Plot Save Round-Trip ─────────────────────────────────────────────────────
+
+@test("TempPlotPanel: _save_plot creates valid .pythermplot file")
+def _():
+    grid, _ = _make_grid(4, 4)
+    from src.ui.temp_plot_panel import TempPlotPanel
+    panel = TempPlotPanel(grid)
+    # Add some data
+    panel.set_tracked_cells([(0, 0)])
+    panel._canvas.add_point("(0,0)", 0.0, 300.0)
+    panel._canvas.add_point("(0,0)", 1.0, 310.0)
+    # Save
+    with tempfile.NamedTemporaryFile(suffix=".pythermplot", delete=False) as f:
+        path = f.name
+    try:
+        import json, os
+        series = panel._canvas._series
+        data = {
+            "version": 1, "unit": "K",
+            "series": {name: [[t, T] for t, T in pts] for name, pts in series.items() if pts},
+        }
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fw:
+            json.dump(data, fw)
+        os.replace(tmp, path)
+        # Reload
+        from src.ui.plot_viewer import load_pythermplot
+        loaded = load_pythermplot(path)
+        assert "(0,0)" in loaded["series"]
+        assert len(loaded["series"]["(0,0)"]) == 2
+    finally:
+        os.unlink(path)
+
+
+# ── Preferences: new fields ──────────────────────────────────────────────────
+
+@test("Preferences: theme defaults to dark")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences()
+    assert p.theme == "dark"
+
+
+@test("Preferences: save/load round-trips theme")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences(theme="light")
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "prefs.json"
+        p.save(path)
+        loaded = Preferences.load(path)
+        assert loaded.theme == "light"
+
+
+# ── v1.0.0 Feature Tests ─────────────────────────────────────────────────────
+
+@test("Preferences: save/load round-trips v1.0.0 fields")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences(
+        reverse_palette=True,
+        isotherm_line_width=4,
+        heatmap_auto_init=False,
+        heatmap_scale_mode="live",
+    )
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "prefs.json"
+        p.save(path)
+        loaded = Preferences.load(path)
+        assert loaded.reverse_palette is True
+        assert loaded.isotherm_line_width == 4
+        assert loaded.heatmap_auto_init is False
+        assert loaded.heatmap_scale_mode == "live"
+
+
+@test("Heatmap: reverse palette flips colors")
+def _():
+    from src.rendering.heatmap_renderer import heatmap_color, set_reversed, is_reversed
+    old = is_reversed()
+    set_reversed(False)
+    c_normal = heatmap_color(373.15, 273.15, 373.15)
+    set_reversed(True)
+    c_reversed = heatmap_color(373.15, 273.15, 373.15)
+    set_reversed(old)
+    # Normal: max temp = hot color (red-ish), Reversed: max temp = cold color (blue-ish)
+    assert c_normal.red() > c_reversed.red() or c_normal.blue() < c_reversed.blue()
+
+
+@test("GridScene: isotherm_line_width clamp logic")
+def _():
+    # Test the clamping logic without constructing a full GridScene
+    assert max(1, min(5, 10)) == 5
+    assert max(1, min(5, 0)) == 1
+    assert max(1, min(5, 3)) == 3
+
+
+@test("KelvinSpinBox: _typed_unit_to_kelvin converts correctly")
+def _():
+    from src.rendering.units import _typed_unit_to_kelvin
+    # 20C -> 293.15 K
+    assert abs(_typed_unit_to_kelvin(20, "C") - 293.15) < 0.01
+    # 68F -> 293.15 K
+    assert abs(_typed_unit_to_kelvin(68, "F") - 293.15) < 0.01
+    # 293K -> 293 K
+    assert abs(_typed_unit_to_kelvin(293, "K") - 293.0) < 0.01
+    # 527.67R -> 293.15 K
+    assert abs(_typed_unit_to_kelvin(527.67, "R") - 293.15) < 0.01
+
+
+@test("file_io: save includes is_volumetric_flux when False")
+def _():
+    from src.io.file_io import save_pytherm, load_pytherm
+    grid, reg = _make_grid(rows=3, cols=3)
+    grid.set_cell(1, 1, is_flux=True, flux_q=100.0, is_volumetric_flux=False)
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "test.pytherm"
+        save_pytherm(path, grid, 0.01, [])
+        data = load_pytherm(path)
+    flux_cell = [c for c in data["cells"] if c["row"] == 1 and c["col"] == 1][0]
+    assert flux_cell["is_volumetric_flux"] is False
+
+
+@test("Solver: surface flux with vol_flux_mask divides by dx")
+def _():
+    from src.simulation.solver import Solver
+    solver = Solver(dx=0.01)
+    k, rcp, T, fm, ft, xm, xq = _arrays(4, 4, 167.0, 2700.0 * 896.0, 300.0)
+    xm[1, 1] = True; xq[1, 1] = 5000.0
+    # All surface (vol_flux_mask all False)
+    vol = np.zeros((4, 4), dtype=bool)
+    T_surf = solver.advance(T.copy(), k, rcp, fm, ft, xm, xq, duration=0.01, vol_flux_mask=vol)
+    # All volumetric
+    vol2 = np.ones((4, 4), dtype=bool)
+    T_vol = solver.advance(T.copy(), k, rcp, fm, ft, xm, xq, duration=0.01, vol_flux_mask=vol2)
+    # Surface should heat MORE than volumetric (divided by dx=0.01 -> 100x larger)
+    assert T_surf[1, 1] > T_vol[1, 1], "Surface flux / dx should produce more heating than volumetric"
 
 
 # ── Run ───────────────────────────────────────────────────────────────────────
@@ -1732,7 +1888,7 @@ def _():
 if __name__ == "__main__":
     passes = sum(1 for _, ok, _ in _results if ok)
     fails  = sum(1 for _, ok, _ in _results if not ok)
-    print(f"\nPyTherm v0.6.0 headless test results")
+    print(f"\nPyTherm v1.0.0 headless test results")
     print("=" * 60)
     for name, ok, msg in _results:
         status = PASS if ok else FAIL

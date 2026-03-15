@@ -1,0 +1,222 @@
+{
+  "pytherm_version": 1,
+  "grid": {
+    "rows": 1,
+    "cols": 20,
+    "dx_m": 0.01,
+    "ambient_temp_k": 293.15
+  },
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "material_id": "cu",
+      "temperature_k": 373.15,
+      "is_fixed": true,
+      "fixed_temp_k": 373.15,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Hot"
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 7,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 8,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 9,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 10,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 11,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 12,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 13,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 14,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 15,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 16,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 17,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 18,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0
+    },
+    {
+      "row": 0,
+      "col": 19,
+      "material_id": "cu",
+      "temperature_k": 293.15,
+      "is_fixed": true,
+      "fixed_temp_k": 293.15,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Cold"
+    }
+  ],
+  "custom_materials": [],
+  "sim_settings": {
+    "boundary_conditions": {
+      "top": "insulator",
+      "bottom": "insulator",
+      "left": "insulator",
+      "right": "insulator"
+    }
+  }
+}

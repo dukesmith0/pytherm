@@ -9,6 +9,28 @@ from collections import deque
 
 from PyQt6.QtCore import Qt, QPoint, QRectF, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QPainter, QPen
+
+_plot_theme = "dark"
+
+def _pc():
+    """Plot colors for the active theme."""
+    if _plot_theme == "light":
+        return {
+            "bg": QColor(245, 245, 248), "grid": QColor(200, 200, 210),
+            "grid2": QColor(210, 210, 220), "origin": QColor(180, 180, 200),
+            "axis": QColor(100, 100, 100), "tick": QColor(80, 80, 80),
+            "label": QColor(60, 60, 60), "crosshair": QColor(100, 100, 120),
+            "pin_line": QColor(40, 40, 50), "pin_label": QColor(40, 40, 50),
+            "placeholder": QColor(150, 150, 150),
+        }
+    return {
+        "bg": QColor(28, 28, 38), "grid": QColor(45, 45, 60),
+        "grid2": QColor(40, 40, 55), "origin": QColor(60, 60, 80),
+        "axis": QColor(70, 70, 70), "tick": QColor(80, 80, 80),
+        "label": QColor(120, 120, 120), "crosshair": QColor(140, 140, 160),
+        "pin_line": QColor(210, 210, 220), "pin_label": QColor(210, 210, 220),
+        "placeholder": QColor(80, 80, 80),
+    }
 from PyQt6.QtWidgets import (
     QCheckBox, QComboBox, QDockWidget, QFileDialog, QHBoxLayout, QLabel,
     QMessageBox, QPushButton, QToolTip, QVBoxLayout, QWidget,
@@ -334,8 +356,9 @@ class _PlotCanvas(QWidget):
     def _draw(self, painter: QPainter) -> None:
         w, h = self.width(), self.height()
         pad_l, pad_r, pad_t, pad_b = self._PAD_L, self._PAD_R, self._PAD_T, self._PAD_B
+        pc = _pc()
 
-        painter.fillRect(0, 0, w, h, QColor(28, 28, 38))
+        painter.fillRect(0, 0, w, h, pc["bg"])
 
         active_pts = [
             pt for name, s in self._series.items()
@@ -343,7 +366,7 @@ class _PlotCanvas(QWidget):
             for pt in s
         ]
         if not active_pts:
-            painter.setPen(QColor(80, 80, 80))
+            painter.setPen(pc["placeholder"])
             font = QFont()
             font.setPixelSize(11)
             painter.setFont(font)
@@ -390,7 +413,7 @@ class _PlotCanvas(QWidget):
         font = QFont()
         font.setPixelSize(9)
         painter.setFont(font)
-        grid_pen = QPen(QColor(45, 45, 60))
+        grid_pen = QPen(pc["grid"])
         grid_pen.setCosmetic(True)
         y_step = _nice_step(dT_d)
         y_tick = math.ceil(T_min_d / y_step) * y_step
@@ -400,13 +423,13 @@ class _PlotCanvas(QWidget):
             if pad_t <= gy <= pad_t + plot_h:
                 painter.setPen(grid_pen)
                 painter.drawLine(pad_l, gy, pad_l + plot_w, gy)
-                painter.setPen(QColor(75, 75, 95))
+                painter.setPen(pc["label"])
                 painter.drawText(2, gy + 4, f"{y_tick:.0f}")
             y_tick = round(y_tick + y_step, 10)
             tick_count += 1
-        grid_pen2 = QPen(QColor(40, 40, 55))
+        grid_pen2 = QPen(pc["grid2"])
         grid_pen2.setCosmetic(True)
-        origin_pen = QPen(QColor(60, 60, 80))
+        origin_pen = QPen(pc["origin"])
         origin_pen.setCosmetic(True)
         x_step = _nice_step(t_max - t_min)
         x_tick = math.ceil(t_min / x_step) * x_step
@@ -426,7 +449,7 @@ class _PlotCanvas(QWidget):
                 painter.drawLine(gx0, pad_t, gx0, pad_t + plot_h)
 
         # Axes
-        axis_pen = QPen(QColor(70, 70, 70))
+        axis_pen = QPen(pc["axis"])
         axis_pen.setCosmetic(True)
         painter.setPen(axis_pen)
         painter.drawLine(pad_l, pad_t, pad_l, pad_t + plot_h)
@@ -434,7 +457,7 @@ class _PlotCanvas(QWidget):
 
         # Axis labels
         suf = _units.suffix()
-        painter.setPen(QColor(120, 120, 120))
+        painter.setPen(pc["label"])
         painter.drawText(2, pad_t + plot_h + 4, f"{T_min_d:.0f}{suf}")
         painter.drawText(2, pad_t + 9,          f"{T_max_d:.0f}{suf}")
         t_min_lbl = f"{t_min:.1f}s" if abs(t_min) < 1000 else f"{t_min:.0f}s"
@@ -467,7 +490,7 @@ class _PlotCanvas(QWidget):
         if self._sync_hover_t is not None:
             sx = int(to_x(self._sync_hover_t))
             if pad_l <= sx <= pad_l + plot_w:
-                pen = QPen(QColor(140, 140, 160), 1, Qt.PenStyle.DashLine)
+                pen = QPen(pc["crosshair"], 1, Qt.PenStyle.DashLine)
                 pen.setCosmetic(True)
                 painter.setPen(pen)
                 painter.drawLine(sx, pad_t, sx, pad_t + plot_h)
@@ -485,7 +508,7 @@ class _PlotCanvas(QWidget):
         if self._sync_pin_t is not None:
             sx = int(to_x(self._sync_pin_t))
             if pad_l <= sx <= pad_l + plot_w:
-                pen = QPen(QColor(210, 210, 220), 1, Qt.PenStyle.SolidLine)
+                pen = QPen(pc["pin_label"], 1, Qt.PenStyle.SolidLine)
                 pen.setCosmetic(True)
                 painter.setPen(pen)
                 painter.drawLine(sx, pad_t, sx, pad_t + plot_h)
@@ -502,7 +525,7 @@ class _PlotCanvas(QWidget):
                     painter.setBrush(color)
                     painter.drawEllipse(nx - 4, ny - 4, 8, 8)
                     painter.setBrush(Qt.BrushStyle.NoBrush)
-                    painter.setPen(QColor(210, 210, 220))
+                    painter.setPen(pc["pin_label"])
                     painter.drawText(nx + 6, ny + 4, f"{_units.to_display(near[1]):.1f}{suf}")
 
         # Hover crosshairs: dashed lines (vertical + horizontal) in series color
@@ -604,7 +627,7 @@ class TempPlotPanel(QDockWidget):
         # Info bar
         bar = QHBoxLayout()
         self._info_label = QLabel("No selection")
-        self._info_label.setStyleSheet("color: #888; font-size: 10px;")
+        self._info_label.setStyleSheet("color: #aaa; font-size: 10px;")
         self._info_label.setFixedWidth(110)  # wide enough for "Cell (199, 199)"
         bar.addWidget(self._info_label)
         bar.addStretch()
@@ -647,7 +670,7 @@ class TempPlotPanel(QDockWidget):
         toggle_layout.setContentsMargins(0, 0, 0, 0)
         toggle_layout.setSpacing(8)
         show_lbl = QLabel("Show:")
-        show_lbl.setStyleSheet("color: #888; font-size: 10px;")
+        show_lbl.setStyleSheet("color: #aaa; font-size: 10px;")
         toggle_layout.addWidget(show_lbl)
         self._series_checks: dict[str, QCheckBox] = {}
         for i, name in enumerate(_GROUP_SERIES):

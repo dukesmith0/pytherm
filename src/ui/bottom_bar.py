@@ -71,7 +71,6 @@ class BottomBar(QToolBar):
             ("10\u00d7",     10.0),
             ("100\u00d7",    100.0),
             ("1 000\u00d7",  1_000.0),
-            ("10 000\u00d7", 10_000.0),
         ]:
             self._speed_combo.addItem(label, val)
         self._layout.addWidget(self._speed_combo)
@@ -105,7 +104,7 @@ class BottomBar(QToolBar):
         self._layout.addWidget(self._time_label)
 
         self._substep_label = QLabel("")
-        self._substep_label.setStyleSheet("padding: 0 4px; color: #666; font-size: 11px;")
+        self._substep_label.setStyleSheet("padding: 0 4px; color: #999; font-size: 11px;")
         self._layout.addWidget(self._substep_label)
 
         self._energy_label = QLabel("")
@@ -123,6 +122,11 @@ class BottomBar(QToolBar):
             "Total heat injection rate from fixed-T and heat-flux cells (W per metre depth)"
         )
         self._layout.addWidget(self._power_label)
+
+        self._dx_label = QLabel("")
+        self._dx_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._dx_label.setToolTip("Physical cell size (set in toolbar)")
+        self._layout.addWidget(self._dx_label)
 
         self._layout.addStretch()
 
@@ -209,6 +213,13 @@ class BottomBar(QToolBar):
         self._speed_combo.blockSignals(True)
         self._speed_combo.setCurrentIndex(best)
         self._speed_combo.blockSignals(False)
+
+    def set_dx(self, dx_m: float) -> None:
+        """Update the cell size display."""
+        if dx_m >= 0.01:
+            self._dx_label.setText(f"dx: {dx_m * 100:.2g} cm")
+        else:
+            self._dx_label.setText(f"dx: {dx_m * 1000:.3g} mm")
 
     def set_ambient(self, k_val: float) -> None:
         """Set the ambient spinbox without emitting ambient_changed."""

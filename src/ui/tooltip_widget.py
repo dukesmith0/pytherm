@@ -40,8 +40,9 @@ class CellTooltip(QWidget):
         self._energy = QLabel()
         self._tau    = QLabel()
         self._resist = QLabel()
+        self._flux_info = QLabel()
         for lbl in (self._k, self._alpha, self._temp, self._energy,
-                    self._tau, self._resist):
+                    self._tau, self._resist, self._flux_info):
             lbl.setStyleSheet("color: #aaa; font-size: 11px;")
             layout.addWidget(lbl)
 
@@ -68,16 +69,22 @@ class CellTooltip(QWidget):
             self._energy.setVisible(False)
 
         if rho_cp > 0 and dx_m > 0 and mat.k > 0:
-            # τ = ρ·Cₚ·dx² / k  [s]  — time constant to equilibrate one cell
             tau = rho_cp * dx_m ** 2 / mat.k
-            self._tau.setText(f"τ  =  {tau:.3g} s")
+            self._tau.setText(f"\u03c4  =  {tau:.3g} s")
             self._tau.setVisible(True)
-            # R = dx / k  [K·m²/W]  — thermal resistance per cell face
-            self._resist.setText(f"R  =  {dx_m / mat.k:.4g} K·m²/W")
+            self._resist.setText(f"R  =  {dx_m / mat.k:.4g} K\u00b7m\u00b2/W")
             self._resist.setVisible(True)
         else:
             self._tau.setVisible(False)
             self._resist.setVisible(False)
+
+        if cell.is_flux:
+            unit = "W/m\u00b3" if cell.is_volumetric_flux else "W/m\u00b2"
+            sign = "+" if cell.flux_q >= 0 else ""
+            self._flux_info.setText(f"q  =  {sign}{cell.flux_q:.2f} {unit}")
+            self._flux_info.setVisible(True)
+        else:
+            self._flux_info.setVisible(False)
 
         self.adjustSize()
 

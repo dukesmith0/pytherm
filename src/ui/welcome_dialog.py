@@ -91,11 +91,11 @@ class WelcomeDialog(QDialog):
     """Startup dialog shown when PyTherm launches.
 
     After exec(), inspect ``self.action``:
-      ``"new"``    — user filled grid options and clicked Create;
+      ``"new"``    -- user filled grid options and clicked Create;
                      call :meth:`new_grid_values` to retrieve them.
-      ``"open"``   — user clicked Open File.
-      ``"recent"`` — user clicked a recent file; ``self.recent_path`` is set.
-      ``""``        — dialog was dismissed without a choice (start with default grid).
+      ``"open"``   -- user clicked Open File.
+      ``"recent"`` -- user clicked a recent file; ``self.recent_path`` is set.
+      ``""``        -- dialog was dismissed without a choice (start with default grid).
     """
 
     def __init__(self, recent_files: list[str], materials: dict | None = None,
@@ -142,7 +142,7 @@ class WelcomeDialog(QDialog):
         text_col.addWidget(lbl_sub)
 
         lbl_meta = QLabel(f"{_VERSION}  ·  Made by {_AUTHOR}  ·  {_YEAR}")
-        lbl_meta.setStyleSheet("color: #555577; font-size: 11px;")
+        lbl_meta.setStyleSheet("color: #8888aa; font-size: 11px;")
         text_col.addWidget(lbl_meta)
 
         btn_gh = QPushButton("⌖  github.com/dukesmith0/pytherm")
@@ -258,7 +258,7 @@ class WelcomeDialog(QDialog):
                 r_btn.setToolTip(path)
                 r_btn.setStyleSheet("""
                     QPushButton {
-                        background: transparent; border: none; color: #888;
+                        background: transparent; border: none; color: #aaa;
                         text-align: left; padding: 4px 8px; font-size: 12px;
                         border-radius: 3px;
                     }
@@ -302,7 +302,7 @@ class WelcomeDialog(QDialog):
 
 def _section_label(text: str) -> QLabel:
     lbl = QLabel(text)
-    lbl.setStyleSheet("color: #666; font-size: 10px; font-weight: bold;")
+    lbl.setStyleSheet("color: #999; font-size: 10px; font-weight: bold;")
     return lbl
 
 

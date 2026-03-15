@@ -12,7 +12,7 @@ from src.rendering.material_renderer import cell_color, draw_flame_icon, draw_lo
 from src.simulation.grid import Grid
 
 # Scene coordinate size of each cell at 1:1 zoom.
-# Zoom is handled by QGraphicsView's transform — the scene itself never changes scale.
+# Zoom is handled by QGraphicsView's transform -- the scene itself never changes scale.
 CELL_PX = 32
 
 # Minimum on-screen cell size (pixels) before temperature labels are drawn in heatmap mode.
@@ -23,6 +23,7 @@ class GridScene(QGraphicsScene):
     def __init__(self, grid: Grid) -> None:
         super().__init__()
         self._grid = grid
+        self._dx_m: float = 0.01  # cell spacing in meters, updated by app.py
         self.show_grid_lines = True
         self._preview_rect: tuple[int, int, int, int] | None = None   # (r1,c1,r2,c2)
         self._preview_cells: list[tuple[int, int]] | None = None       # Bresenham line
@@ -30,13 +31,13 @@ class GridScene(QGraphicsScene):
         self._multi_selection: set[tuple[int, int]] = set()
 
         # Heatmap state
-        self._view_mode: str = "material"   # "material" | "heatmap"
-        self._heatmap_auto: bool = True
-        self._heatmap_t_min: float = 273.15  # 0 °C in K
-        self._heatmap_t_max: float = 373.15  # 100 °C in K
+        self._view_mode: str = "material"   # "material" | "heatmap" | "flow"
+        self._heatmap_auto: bool = True      # auto-init bounds from grid data
+        self._scale_mode: str = "smart"      # "static" | "live" | "smart"
+        self._heatmap_t_min: float = 273.15  # manual min (0 C in K)
+        self._heatmap_t_max: float = 373.15  # manual max (100 C in K)
 
-        # Anchored auto-scale: bounds only expand, never contract.
-        # None = not yet initialised for this simulation run.
+        # Anchored bounds for smart mode. None = not yet initialised.
         self._auto_t_min: float | None = None
         self._auto_t_max: float | None = None
         self._min_auto_range_k: float = 10.0  # minimum K span for auto heatmap scale
@@ -67,6 +68,10 @@ class GridScene(QGraphicsScene):
         self._isotherm_enabled: bool = False
         self._isotherm_interval_k: float = 50.0
         self._isotherm_color: QColor = QColor(230, 230, 230, 220)
+        self._isotherm_line_width: int = 2
+
+        # Flux view bounds (set per frame in _draw_flux_view)
+        self._flow_bounds: tuple[float, float] = (0.0, 1.0)
 
         # Hotspot overlay
         self._hotspot_enabled: bool = False
@@ -159,13 +164,22 @@ class GridScene(QGraphicsScene):
 
     def set_heatmap_auto(self, auto: bool) -> None:
         self._heatmap_auto = auto
+        self._auto_t_min = None
+        self._auto_t_max = None
+        self.update()
+
+    def set_scale_mode(self, mode: str) -> None:
+        self._scale_mode = mode
+        self._auto_t_min = None
+        self._auto_t_max = None
         self.update()
 
     def set_heatmap_range(self, t_min_k: float, t_max_k: float) -> None:
         self._heatmap_t_min = t_min_k
         self._heatmap_t_max = t_max_k
-        if not self._heatmap_auto:
-            self.update()
+        self._auto_t_min = None
+        self._auto_t_max = None
+        self.update()
 
     def set_min_auto_range(self, range_k: float) -> None:
         self._min_auto_range_k = max(0.1, range_k)
@@ -193,8 +207,18 @@ class GridScene(QGraphicsScene):
         self._isotherm_interval_k = max(0.01, interval_k)
         self.update()
 
+    @property
+    def legend_bounds(self) -> tuple[float, float]:
+        """Bounds for the legend overlay -- temperature or flux depending on view mode."""
+        if self._view_mode == "flow":
+            return self._flow_bounds
+        return self.frame_bounds
+
     def set_isotherm_color(self, color: QColor) -> None:
         self._isotherm_color = color
+
+    def set_isotherm_line_width(self, width: int) -> None:
+        self._isotherm_line_width = max(1, min(5, width))
         self.update()
 
     def set_hotspot_threshold(self, threshold_k: float) -> None:
@@ -219,7 +243,7 @@ class GridScene(QGraphicsScene):
     # --- Rendering ---
 
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:
-        painter.fillRect(rect, QColor(25, 25, 25))
+        painter.fillRect(rect, self._BG_COLOR)
 
         g  = self._grid
         cp = CELL_PX
@@ -231,9 +255,11 @@ class GridScene(QGraphicsScene):
         r1 = min(g.rows, int((rect.y() + rect.height()) / cp) + 1)
 
         if self._view_mode == "heatmap":
-            # Compute bounds once per frame; reused by drawForeground helpers.
             self._frame_bounds = self._heatmap_bounds()
             self._draw_heatmap(painter, g, cp, r0, r1, c0, c1)
+        elif self._view_mode == "flow":
+            self._frame_bounds = self._heatmap_bounds()
+            self._draw_flux_view(painter, g, cp, r0, r1, c0, c1)
         else:
             if self._mat_image is None:
                 self._mat_image = self._build_mat_image()
@@ -309,7 +335,7 @@ class GridScene(QGraphicsScene):
                 if r0 <= r < r1 and c0 <= c < c1:
                     painter.drawRect(c * cp, r * cp, cp - 1, cp - 1)
 
-        # Shift-drag rectangle preview — semi-transparent teal fill with border
+        # Shift-drag rectangle preview -- semi-transparent teal fill with border
         if self._preview_rect is not None:
             r1p, c1p, r2p, c2p = self._preview_rect
             x, y = c1p * cp, r1p * cp
@@ -321,7 +347,7 @@ class GridScene(QGraphicsScene):
             painter.setPen(pen)
             painter.drawRect(x, y, w - 1, h - 1)
 
-        # Ctrl-drag Bresenham line preview — per-cell teal fill with border
+        # Ctrl-drag Bresenham line preview -- per-cell teal fill with border
         if self._preview_cells is not None:
             pen = QPen(QColor(0, 200, 180))
             pen.setCosmetic(True)
@@ -359,7 +385,7 @@ class GridScene(QGraphicsScene):
                 if (r, c) in self._protected_cells:
                     draw_lock_icon(painter, c * cp, r * cp, cp, x_offset=off)
 
-        # Selected cell — white border highlight (single-cell select)
+        # Selected cell -- white border highlight (single-cell select)
         if self._selected_cell is not None:
             r, c = self._selected_cell
             x, y = c * cp, r * cp
@@ -369,32 +395,44 @@ class GridScene(QGraphicsScene):
             painter.setPen(pen)
             painter.drawRect(x + 1, y + 1, cp - 2, cp - 2)
 
-        # Grid coordinate overlay — row/col numbers at edges when zoomed in
+        # Grid coordinate overlay -- row/col numbers at edges when zoomed in
         self._draw_grid_coords(painter, g, cp, zoom)
 
-        # Hotspot highlight — semi-transparent red on cells above threshold (all views)
+        # Hotspot highlight -- semi-transparent red on cells above threshold (all views)
         if self._hotspot_enabled and not math.isnan(self._hotspot_threshold_k):
             self._draw_hotspot(painter, g, cp, r0, r1, c0, c1)
 
-        # Isotherm lines — heatmap mode only
-        if self._view_mode == "heatmap" and self._isotherm_enabled:
+        # Isotherm lines -- heatmap and flux modes
+        if self._view_mode in ("heatmap", "flow") and self._isotherm_enabled:
             self._draw_isotherms(painter, g, cp, r0, r1, c0, c1)
 
-        # Color scale legend — bottom-right corner, heatmap mode only
-        if self._view_mode == "heatmap" and self._show_legend:
+        # Color scale legend -- bottom-right corner, heatmap mode only
+        if self._view_mode in ("heatmap", "flow") and self._show_legend:
             self._draw_color_legend(painter)
 
     # --- Heatmap helpers ---
 
     # Background color used outside the grid and for vacuum cells in heatmap mode.
     _BG_COLOR = QColor(25, 25, 25)
+    _BG_COLOR_DARK = QColor(25, 25, 25)
+    _BG_COLOR_LIGHT = QColor(240, 240, 240)
+
+    def set_theme(self, theme: str) -> None:
+        """Update colors for the current theme."""
+        if theme == "light":
+            self._BG_COLOR = self._BG_COLOR_LIGHT
+        else:
+            self._BG_COLOR = self._BG_COLOR_DARK
+        self._mat_image = None  # force rebuild
+        self.invalidate()
 
     @staticmethod
     def _display_temp(cell) -> float:
-        """Temperature to use for heatmap rendering — honours fixed-source cells."""
+        """Temperature to use for heatmap rendering -- honours fixed-source cells."""
         return cell.fixed_temp if cell.is_fixed else cell.temperature
 
     def _heatmap_bounds(self) -> tuple[float, float]:
+        # Determine starting bounds: auto-init from grid, or manual spinbox values.
         if self._heatmap_auto:
             if self._nv_cells is None:
                 self._nv_cells = [
@@ -407,22 +445,56 @@ class GridScene(QGraphicsScene):
             if not temps:
                 return 273.15, 373.15
             t_min_now, t_max_now = min(temps), max(temps)
+        else:
+            # Manual: starting bounds from spinbox values
+            if self._nv_cells is None:
+                self._nv_cells = [
+                    (r, c)
+                    for r in range(self._grid.rows)
+                    for c in range(self._grid.cols)
+                    if not self._grid.cell(r, c).material.is_vacuum
+                ]
+            temps = [self._display_temp(self._grid.cell(r, c)) for r, c in self._nv_cells]
+            t_min_now = min(temps) if temps else self._heatmap_t_min
+            t_max_now = max(temps) if temps else self._heatmap_t_max
 
+        mode = self._scale_mode
+
+        if mode == "static":
+            # Bounds stay at starting values (auto-init or manual).
             if self._auto_t_min is None:
-                self._auto_t_min = t_min_now
-                self._auto_t_max = t_max_now
-            else:
-                self._auto_t_min = min(self._auto_t_min, t_min_now)
-                self._auto_t_max = max(self._auto_t_max, t_max_now)
+                if self._heatmap_auto:
+                    self._auto_t_min = t_min_now
+                    self._auto_t_max = t_max_now
+                else:
+                    self._auto_t_min = self._heatmap_t_min
+                    self._auto_t_max = self._heatmap_t_max
+            return self._apply_min_range(self._auto_t_min, self._auto_t_max)
 
-            t_min, t_max = self._auto_t_min, self._auto_t_max
-            min_rng = max(0.1, self._min_auto_range_k)
-            if t_max - t_min < min_rng:
-                mid = (t_min + t_max) / 2.0
-                t_min = mid - min_rng / 2.0
-                t_max = mid + min_rng / 2.0
-            return t_min, t_max
-        return self._heatmap_t_min, self._heatmap_t_max
+        elif mode == "live":
+            # Bounds track current grid min/max every frame.
+            return self._apply_min_range(t_min_now, t_max_now)
+
+        else:  # "smart"
+            # Bounds only expand: min can decrease, max can increase.
+            if self._auto_t_min is None:
+                if self._heatmap_auto:
+                    self._auto_t_min = t_min_now
+                    self._auto_t_max = t_max_now
+                else:
+                    self._auto_t_min = self._heatmap_t_min
+                    self._auto_t_max = self._heatmap_t_max
+            self._auto_t_min = min(self._auto_t_min, t_min_now)
+            self._auto_t_max = max(self._auto_t_max, t_max_now)
+            return self._apply_min_range(self._auto_t_min, self._auto_t_max)
+
+    def _apply_min_range(self, t_min: float, t_max: float) -> tuple[float, float]:
+        min_rng = max(0.1, self._min_auto_range_k)
+        if t_max - t_min < min_rng:
+            mid = (t_min + t_max) / 2.0
+            t_min = mid - min_rng / 2.0
+            t_max = mid + min_rng / 2.0
+        return t_min, t_max
 
     def _draw_cell_text(self, painter: QPainter, g: Grid, cp: int, zoom: float,
                         r0: int, r1: int, c0: int, c1: int) -> None:
@@ -461,7 +533,7 @@ class GridScene(QGraphicsScene):
         g = self._grid
         cp = CELL_PX
         img = QImage(g.cols * cp, g.rows * cp, QImage.Format.Format_RGB32)
-        img.fill(QColor(25, 25, 25))
+        img.fill(self._BG_COLOR)
         p = QPainter(img)
         for r in range(g.rows):
             for c in range(g.cols):
@@ -542,6 +614,96 @@ class GridScene(QGraphicsScene):
                     painter.setPen(pen)
                     painter.drawRect(c * cp, r * cp, cp - 1, cp - 1)
 
+    def _draw_flux_view(self, painter: QPainter, g: Grid, cp: int,
+                       r0: int, r1: int, c0: int, c1: int) -> None:
+        """Draw cells colored by total heat flow rate (W) using the active heatmap palette.
+
+        Heat flow through each cell: Q = sum of |k_eff * dT| across all
+        interfaces (W for 2D with unit depth). Stores flow bounds in
+        _flow_bounds for the legend.
+        """
+        rows, cols = g.rows, g.cols
+        bg = self._BG_COLOR
+
+        # Compute total heat flow (W) for all visible cells.
+        flow_map: dict[tuple[int, int], float] = {}
+        min_flow = float("inf")
+        max_flow = 0.0
+
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                cell = g.cell(r, c)
+                if cell.material.is_vacuum:
+                    continue
+                k_c = cell.material.k
+                if k_c == 0:
+                    continue
+                T_c = cell.temperature
+                total_q = 0.0
+
+                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols:
+                        nb = g.cell(nr, nc)
+                        if not nb.material.is_vacuum and nb.material.k > 0:
+                            k_eff = 2.0 * k_c * nb.material.k / (k_c + nb.material.k)
+                            total_q += abs(k_eff * (nb.temperature - T_c))
+
+                mag = total_q * 0.5
+                flow_map[(r, c)] = mag
+                if mag > max_flow:
+                    max_flow = mag
+                if mag < min_flow:
+                    min_flow = mag
+
+        if min_flow == float("inf"):
+            min_flow = 0.0
+        if max_flow <= min_flow:
+            max_flow = min_flow + 1.0
+
+        # Store for legend
+        self._flow_bounds = (min_flow, max_flow)
+
+        # Draw cell backgrounds using heatmap palette
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                cell = g.cell(r, c)
+                if cell.material.is_vacuum:
+                    painter.fillRect(c * cp, r * cp, cp, cp, bg)
+                    continue
+                mag = flow_map.get((r, c), 0.0)
+                color = heatmap_color(mag, min_flow, max_flow)
+                painter.fillRect(c * cp, r * cp, cp, cp, color)
+
+        # Draw heat flow values as text in each cell
+        font = QFont()
+        font.setPixelSize(max(7, int(cp * 0.28)))
+        painter.setFont(font)
+
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                cell = g.cell(r, c)
+                if cell.material.is_vacuum:
+                    continue
+                mag = flow_map.get((r, c), 0.0)
+                color = heatmap_color(mag, min_flow, max_flow)
+                painter.setPen(text_color_for_bg(color))
+                if mag < 1e-9:
+                    label = "0 W"
+                elif mag >= 1000:
+                    label = f"{mag / 1000:.1f}kW"
+                elif mag >= 1:
+                    label = f"{mag:.1f}W"
+                elif mag >= 0.001:
+                    label = f"{mag * 1000:.0f}mW"
+                else:
+                    label = f"{mag * 1e6:.0f}\u00b5W"
+                painter.drawText(
+                    QRectF(c * cp, r * cp, cp, cp),
+                    Qt.AlignmentFlag.AlignCenter,
+                    label,
+                )
+
     def _draw_isotherms(self, painter: QPainter, g: Grid, cp: int,
                         r0: int, r1: int, c0: int, c1: int) -> None:
         """Draw isotherm contour lines using marching squares.
@@ -556,7 +718,7 @@ class GridScene(QGraphicsScene):
         interval = self._isotherm_interval_k
         pen = QPen(self._isotherm_color)
         pen.setCosmetic(True)
-        pen.setWidth(2)
+        pen.setWidth(self._isotherm_line_width)
         painter.setPen(pen)
 
         half = cp / 2.0
@@ -663,8 +825,16 @@ class GridScene(QGraphicsScene):
             _max_passes -= 1
 
     def _draw_color_legend(self, painter: QPainter) -> None:
-        """Draw a vertical color scale bar (hot=top, cold=bottom) in the viewport corner."""
-        t_min, t_max = self._frame_bounds
+        """Draw a vertical color scale bar in the viewport corner.
+
+        In heatmap mode: shows temperature range.
+        In flux mode: shows flux magnitude range (W/m2).
+        """
+        is_flux = self._view_mode == "flow"
+        if is_flux:
+            v_min, v_max = self._flow_bounds
+        else:
+            v_min, v_max = self._frame_bounds
 
         painter.save()
         painter.resetTransform()
@@ -684,8 +854,8 @@ class GridScene(QGraphicsScene):
 
         grad = QLinearGradient(x, y, x, y + bar_h)
         for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
-            t = t_max - frac * (t_max - t_min)
-            grad.setColorAt(frac, heatmap_color(t, t_min, t_max))
+            v = v_max - frac * (v_max - v_min)
+            grad.setColorAt(frac, heatmap_color(v, v_min, v_max))
 
         painter.fillRect(x, y, BAR_W, bar_h, QBrush(grad))
 
@@ -699,10 +869,18 @@ class GridScene(QGraphicsScene):
         painter.setFont(font)
         painter.setPen(QColor(200, 200, 200))
 
-        suf = _units.suffix()
-        painter.drawText(x + BAR_W + 4, y + 11,
-                         f"{_units.to_display(t_max):.0f} {suf}")
-        painter.drawText(x + BAR_W + 4, y + bar_h,
-                         f"{_units.to_display(t_min):.0f} {suf}")
+        if is_flux:
+            def _fmt_flux(v: float) -> str:
+                if v >= 1000:
+                    return f"{v / 1000:.1f} kW"
+                return f"{v:.0f} W"
+            painter.drawText(x + BAR_W + 4, y + 11, _fmt_flux(v_max))
+            painter.drawText(x + BAR_W + 4, y + bar_h, _fmt_flux(v_min))
+        else:
+            suf = _units.suffix()
+            painter.drawText(x + BAR_W + 4, y + 11,
+                             f"{_units.to_display(v_max):.0f} {suf}")
+            painter.drawText(x + BAR_W + 4, y + bar_h,
+                             f"{_units.to_display(v_min):.0f} {suf}")
 
         painter.restore()

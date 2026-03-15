@@ -33,6 +33,8 @@ def save_pytherm(
                 "is_flux": cell.is_flux,
                 "flux_q": cell.flux_q,
             }
+            if not cell.is_volumetric_flux:
+                entry["is_volumetric_flux"] = False
             if cell.label:
                 entry["label"] = cell.label
             if cell.protected:
@@ -70,9 +72,10 @@ def save_pytherm(
     os.replace(tmp, path)
 
 
-def _validate_pytherm(data: dict) -> None:
+def _validate_pytherm(data: dict, require_version: bool = True) -> None:
     """Raise ValueError with a descriptive message if the file structure is invalid."""
-    for key in ("version", "grid", "cells"):
+    required = ("version", "grid", "cells") if require_version else ("grid", "cells")
+    for key in required:
         if key not in data:
             raise ValueError(f"Missing required field: '{key}'")
     if not isinstance(data["grid"], dict):
@@ -84,14 +87,15 @@ def _validate_pytherm(data: dict) -> None:
         raise ValueError("Field 'cells' must be an array")
 
 
-def load_pytherm(path: Path) -> dict:
+def load_pytherm(path: Path, require_version: bool = True) -> dict:
     """Load and return the raw data from a .pytherm file.
 
     Raises ValueError if the file format version is unrecognised or structure is invalid.
+    When require_version=False (templates), missing version field is allowed.
     """
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
-    _validate_pytherm(data)
+    _validate_pytherm(data, require_version=require_version)
     file_ver = data.get("version", 0)
     if file_ver > PYTHERM_VERSION:
         raise ValueError(

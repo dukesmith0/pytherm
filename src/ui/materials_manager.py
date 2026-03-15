@@ -311,12 +311,12 @@ class MaterialEditDialog(QDialog):
 
         self._abbr_edit = QLineEdit(mat.abbr if mat else "")
         self._abbr_edit.setMaxLength(8)
-        self._abbr_edit.setPlaceholderText("Optional — up to 8 chars")
+        self._abbr_edit.setPlaceholderText("Optional -- up to 8 chars")
         form.addRow(QLabel("Abbr."), self._abbr_edit)
 
         self._note_edit = QLineEdit(mat.note if mat else "")
         self._note_edit.setMaxLength(100)
-        self._note_edit.setPlaceholderText("Optional — max 100 characters")
+        self._note_edit.setPlaceholderText("Optional -- max 100 characters")
         form.addRow(QLabel("Note"), self._note_edit)
 
         btn_box = QDialogButtonBox(

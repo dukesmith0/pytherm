@@ -25,7 +25,10 @@ def get_user_data_dir() -> Path:
     """
     if hasattr(sys, "_MEIPASS"):
         d = Path(sys.executable).parent / "data"
-        d.mkdir(parents=True, exist_ok=True)
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            print(f"Warning: cannot create user data directory: {d}")
         return d
     return _root() / "data"
 

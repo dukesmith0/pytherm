@@ -27,6 +27,7 @@ class Grid:
                  fixed_temp: float | None = None,
                  is_flux: bool | None = None,
                  flux_q: float | None = None,
+                 is_volumetric_flux: bool | None = None,
                  label: str | None = None,
                  protected: bool | None = None) -> None:
         c = self._cells[row][col]
@@ -42,6 +43,8 @@ class Grid:
             c.is_flux = is_flux
         if flux_q is not None:
             c.flux_q = flux_q
+        if is_volumetric_flux is not None:
+            c.is_volumetric_flux = is_volumetric_flux
         if label is not None:
             c.label = label
         if protected is not None:
@@ -64,7 +67,7 @@ class Grid:
 
     def alpha_array(self) -> np.ndarray:
         """Export thermal diffusivities as a (rows, cols) float64 array.
-        α = k / (ρ × Cₚ) — governs how fast temperature changes propagate."""
+        α = k / (ρ × Cₚ) -- governs how fast temperature changes propagate."""
         return np.array(
             [[c.material.alpha for c in row] for row in self._cells],
             dtype=np.float64,
@@ -106,10 +109,17 @@ class Grid:
         )
 
     def flux_q_array(self) -> np.ndarray:
-        """Heat flux values in W/m². Only meaningful where flux_mask is True."""
+        """Heat source values. Units depend on is_volumetric_flux: W/m^2 (surface) or W/m^3 (volumetric)."""
         return np.array(
             [[c.flux_q for c in row] for row in self._cells],
             dtype=np.float64,
+        )
+
+    def volumetric_flux_mask(self) -> np.ndarray:
+        """Boolean array: True where flux cells use volumetric (W/m^3) mode."""
+        return np.array(
+            [[c.is_volumetric_flux for c in row] for row in self._cells],
+            dtype=bool,
         )
 
     def replace_material(self, old_id: str, new_material: Material) -> None:
@@ -122,7 +132,8 @@ class Grid:
     def snapshot(self) -> list[list[tuple]]:
         """Return a deep-copyable snapshot of all cell state."""
         return [
-            [(c.material, c.temperature, c.is_fixed, c.fixed_temp, c.is_flux, c.flux_q, c.label, c.protected)
+            [(c.material, c.temperature, c.is_fixed, c.fixed_temp, c.is_flux, c.flux_q,
+              c.label, c.protected, c.is_volumetric_flux)
              for c in row]
             for row in self._cells
         ]
@@ -134,6 +145,7 @@ class Grid:
                 mat, temp, is_fixed, fixed_temp, is_flux, flux_q = tup[:6]
                 lbl = tup[6] if len(tup) > 6 else ""
                 prot = tup[7] if len(tup) > 7 else False
+                vol = tup[8] if len(tup) > 8 else False
                 self.set_cell(r, col,
                               material=mat,
                               temperature=temp,
@@ -142,7 +154,8 @@ class Grid:
                               is_flux=is_flux,
                               flux_q=flux_q,
                               label=lbl,
-                              protected=prot)
+                              protected=prot,
+                              is_volumetric_flux=vol)
 
     def resize(self, top: int, right: int, bottom: int, left: int,
                vacuum_material: Material) -> None:

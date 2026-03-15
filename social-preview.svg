@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <!-- Background -->
+  <rect width="1280" height="640" fill="#16162a"/>
+
+  <!-- Subtle grid pattern -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="none"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e1e36" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+
+  <!-- Icon grid (5x5 heatmap from icon.svg, scaled 4x, vertically centered) -->
+  <!-- 320x320 centered: y = (640-320)/2 = 160, x = 100 -->
+  <g transform="translate(100, 160) scale(4)">
+    <rect width="80" height="80" fill="#1c1c28" rx="4"/>
+    <!-- Row 0 -->
+    <rect x="2"    y="2"    width="13" height="13" rx="2" fill="#ff0000"/>
+    <rect x="17.6" y="2"    width="13" height="13" rx="2" fill="#ffb400"/>
+    <rect x="33.2" y="2"    width="13" height="13" rx="2" fill="#95ff00"/>
+    <rect x="48.8" y="2"    width="13" height="13" rx="2" fill="#00ff1f"/>
+    <rect x="64.4" y="2"    width="13" height="13" rx="2" fill="#00ffd3"/>
+    <!-- Row 1 -->
+    <rect x="2"    y="17.6" width="13" height="13" rx="2" fill="#ffb400"/>
+    <rect x="17.6" y="17.6" width="13" height="13" rx="2" fill="#ffff00"/>
+    <rect x="33.2" y="17.6" width="13" height="13" rx="2" fill="#6bff00"/>
+    <rect x="48.8" y="17.6" width="13" height="13" rx="2" fill="#00ff3c"/>
+    <rect x="64.4" y="17.6" width="13" height="13" rx="2" fill="#00ffe9"/>
+    <!-- Row 2 -->
+    <rect x="2"    y="33.2" width="13" height="13" rx="2" fill="#95ff00"/>
+    <rect x="17.6" y="33.2" width="13" height="13" rx="2" fill="#6bff00"/>
+    <rect x="33.2" y="33.2" width="13" height="13" rx="2" fill="#00ff00"/>
+    <rect x="48.8" y="33.2" width="13" height="13" rx="2" fill="#00ff8c"/>
+    <rect x="64.4" y="33.2" width="13" height="13" rx="2" fill="#00d6ff"/>
+    <!-- Row 3 -->
+    <rect x="2"    y="48.8" width="13" height="13" rx="2" fill="#00ff1f"/>
+    <rect x="17.6" y="48.8" width="13" height="13" rx="2" fill="#00ff3c"/>
+    <rect x="33.2" y="48.8" width="13" height="13" rx="2" fill="#00ff8c"/>
+    <rect x="48.8" y="48.8" width="13" height="13" rx="2" fill="#00ffff"/>
+    <rect x="64.4" y="48.8" width="13" height="13" rx="2" fill="#0076ff"/>
+    <!-- Row 4 -->
+    <rect x="2"    y="64.4" width="13" height="13" rx="2" fill="#00ffd3"/>
+    <rect x="17.6" y="64.4" width="13" height="13" rx="2" fill="#00ffe9"/>
+    <rect x="33.2" y="64.4" width="13" height="13" rx="2" fill="#00d6ff"/>
+    <rect x="48.8" y="64.4" width="13" height="13" rx="2" fill="#0076ff"/>
+    <rect x="64.4" y="64.4" width="13" height="13" rx="2" fill="#0000ff"/>
+  </g>
+
+  <!-- Text block vertically centered: total height ~268px, top = (640-268)/2 = 186 -->
+
+  <!-- Title: baseline at 186 + 70 (cap height) = 256 -->
+  <text x="500" y="256"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="96" font-weight="700" fill="#ffffff">PyTherm</text>
+
+  <!-- Subtitle: baseline at 256 + 20 + 32 = 308 -->
+  <text x="500" y="308"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="32" fill="#9999cc">2D Interactive Heat Conduction Simulator</text>
+
+  <!-- Feature tags: top at 308 + 30 = 338 -->
+  <rect x="500" y="338" width="170" height="40" rx="6" fill="#2a2a44"/>
+  <text x="585" y="365" font-family="'Segoe UI',sans-serif" font-size="17" fill="#7799cc" text-anchor="middle">196 Materials</text>
+
+  <rect x="680" y="338" width="140" height="40" rx="6" fill="#2a2a44"/>
+  <text x="750" y="365" font-family="'Segoe UI',sans-serif" font-size="17" fill="#7799cc" text-anchor="middle">Real-Time</text>
+
+  <rect x="830" y="338" width="140" height="40" rx="6" fill="#2a2a44"/>
+  <text x="900" y="365" font-family="'Segoe UI',sans-serif" font-size="17" fill="#7799cc" text-anchor="middle">FDM Solver</text>
+
+  <rect x="980" y="338" width="160" height="40" rx="6" fill="#2a2a44"/>
+  <text x="1060" y="365" font-family="'Segoe UI',sans-serif" font-size="17" fill="#7799cc" text-anchor="middle">Open Source</text>
+
+  <!-- Tech stack: baseline at 338 + 40 + 20 + 22 = 420 -->
+  <text x="500" y="420"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="22" fill="#8888aa">Python + PyQt6 + NumPy</text>
+
+  <!-- GitHub: baseline at 420 + 12 + 22 = 454 -->
+  <text x="500" y="454"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="22" fill="#4488bb">github.com/dukesmith0/pytherm</text>
+</svg>

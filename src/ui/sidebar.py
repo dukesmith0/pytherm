@@ -23,6 +23,24 @@ from src.rendering import units as _units
 from src.rendering.units import TempSpinBox
 from src.simulation.grid import Grid
 
+# Theme-aware color helpers
+_theme = "dark"
+
+def _colors():
+    if _theme == "light":
+        return {
+            "text": "#1e1e1e", "text_dim": "#555", "text_mid": "#777",
+            "bg_input": "#fff", "border": "#bbb", "sep": "#ccc",
+            "header_hover": "#ddd", "header_text": "#333",
+            "group_bg": "#e8e8e8", "selected_bg": "#d0e8ff",
+        }
+    return {
+        "text": "#dcdcdc", "text_dim": "#999", "text_mid": "#aaa",
+        "bg_input": "#1e1e1e", "border": "#444", "sep": "#333",
+        "header_hover": "#2e2e2e", "header_text": "#ccc",
+        "group_bg": "#2a2a2a", "selected_bg": "#1a3a4a",
+    }
+
 
 class MaterialPicker(QWidget):
     """Clickable material list with collapsible category groups and a scroll area.
@@ -58,16 +76,17 @@ class MaterialPicker(QWidget):
 
         header = QLabel("MATERIAL")
         header.setStyleSheet(
-            "color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;"
+            "font-size: 10px; font-weight: bold; padding-top: 4px;"
         )
         outer.addWidget(header)
 
         self._search = QLineEdit()
         self._search.setPlaceholderText("Filter materials...")
         self._search.setClearButtonEnabled(True)
+        c = _colors()
         self._search.setStyleSheet(
-            "QLineEdit { background: #1e1e1e; border: 1px solid #444; "
-            "border-radius: 3px; padding: 3px 6px; color: #ccc; font-size: 11px; }"
+            f"QLineEdit {{ background: {c['bg_input']}; border: 1px solid {c['border']}; "
+            f"border-radius: 3px; padding: 3px 6px; color: {c['text']}; font-size: 11px; }}"
         )
         outer.addWidget(self._search)
         self._search.textChanged.connect(self._apply_filter)
@@ -104,6 +123,20 @@ class MaterialPicker(QWidget):
         )
         if target:
             self._set_active(target, emit=True)
+
+    def _apply_theme(self) -> None:
+        """Re-style group headers and search for the active theme."""
+        c = _colors()
+        self._search.setStyleSheet(
+            f"QLineEdit {{ background: {c['bg_input']}; border: 1px solid {c['border']}; "
+            f"border-radius: 3px; padding: 3px 6px; color: {c['text']}; font-size: 11px; }}"
+        )
+        for header_btn, _content, _name, _depth in self._group_info.values():
+            header_btn.setStyleSheet(
+                f"QPushButton {{ border: none; border-radius: 2px; padding: 3px 4px; "
+                f"text-align: left; color: {c['header_text']}; font-weight: bold; }}"
+                f"QPushButton:hover {{ background-color: {c['header_hover']}; }}"
+            )
 
     # --- Internal ---
 
@@ -225,16 +258,14 @@ class MaterialPicker(QWidget):
         collapsed = self._group_collapsed.get(full_key, True)
         indent = "  " * (depth + 1)
 
-        if depth == 0:
-            bg, color, font_size = "#252525", "#999", "10px"
-        else:
-            bg, color, font_size = "#222222", "#777", "9px"
+        c = _colors()
+        font_size = "10px" if depth == 0 else "9px"
 
         header_btn = QPushButton(f"{indent}{'▶' if collapsed else '▼'}  {display_name}")
         header_btn.setStyleSheet(f"""
             QPushButton {{
-                background-color: {bg};
-                color: {color};
+                background-color: {c["group_bg"]};
+                color: {c["header_text"]};
                 border: none;
                 border-radius: 2px;
                 padding: 3px 4px;
@@ -242,7 +273,7 @@ class MaterialPicker(QWidget):
                 font-size: {font_size};
                 font-weight: bold;
             }}
-            QPushButton:hover {{ background-color: #2e2e2e; }}
+            QPushButton:hover {{ background-color: {c["header_hover"]}; }}
         """)
         layout.addWidget(header_btn)
 
@@ -353,7 +384,7 @@ class CellPropertiesPanel(QWidget):
         layout.setSpacing(4)
 
         header = QLabel("CELL PROPERTIES")
-        header.setStyleSheet("color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;")
+        header.setStyleSheet("font-size: 10px; font-weight: bold; padding-top: 4px;")
         layout.addWidget(header)
 
         layout.addWidget(_small_label("Material"))
@@ -385,7 +416,7 @@ class CellPropertiesPanel(QWidget):
         ts_layout.addWidget(self._temp_spin)
 
         self._heat_check = QCheckBox("Heat source")
-        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._heat_check.setStyleSheet("font-size: 11px;")
         ts_layout.addWidget(self._heat_check)
 
         self._heat_row = QWidget()
@@ -399,8 +430,8 @@ class CellPropertiesPanel(QWidget):
         radio_layout.setSpacing(8)
         self._fixed_radio = QRadioButton("Fixed T")
         self._flux_radio  = QRadioButton("Heat flux")
-        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
-        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._fixed_radio.setStyleSheet("font-size: 11px;")
+        self._flux_radio.setStyleSheet("font-size: 11px;")
         self._radio_group = QButtonGroup(self)
         self._radio_group.addButton(self._fixed_radio)
         self._radio_group.addButton(self._flux_radio)
@@ -428,17 +459,22 @@ class CellPropertiesPanel(QWidget):
         fla_layout.setSpacing(2)
         fla_layout.addWidget(_small_label("Heat flux"))
         self._flux_m2_spin = QDoubleSpinBox()
-        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setRange(-1e8, 1e8)
         self._flux_m2_spin.setDecimals(2)
-        self._flux_m2_spin.setSuffix(" W/m²")
-        self._flux_m2_spin.setFixedWidth(110)
+        self._flux_m2_spin.setSuffix(" W/m\u00b2")
+        self._flux_m2_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_m2_spin)
         self._flux_cell_spin = QDoubleSpinBox()
-        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setRange(-1e6, 1e6)
         self._flux_cell_spin.setDecimals(4)
         self._flux_cell_spin.setSuffix(" W/cell")
-        self._flux_cell_spin.setFixedWidth(110)
+        self._flux_cell_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_cell_spin)
+        self._volumetric_check = QCheckBox("Volumetric (W/m\u00b3)")
+        self._volumetric_check.setChecked(True)
+        self._volumetric_check.setStyleSheet("font-size: 10px;")
+        self._volumetric_check.setToolTip("Volumetric heat generation (W/m\u00b3) or surface flux (W/m\u00b2)")
+        fla_layout.addWidget(self._volumetric_check)
         self._flux_area.setVisible(False)
         heat_inner.addWidget(self._flux_area)
 
@@ -458,6 +494,7 @@ class CellPropertiesPanel(QWidget):
         self._fixed_temp_spin.valueChanged.connect(self._on_fixed_temp_changed)
         self._flux_m2_spin.valueChanged.connect(self._on_flux_m2_changed)
         self._flux_cell_spin.valueChanged.connect(self._on_flux_cell_changed)
+        self._volumetric_check.toggled.connect(self._on_volumetric_toggled)
 
         self.setEnabled(False)
 
@@ -490,6 +527,7 @@ class CellPropertiesPanel(QWidget):
             self._flux_m2_spin.setValue(cell.flux_q)
             dx2 = self._dx_m ** 2
             self._flux_cell_spin.setValue(cell.flux_q * dx2)
+            self._volumetric_check.setChecked(cell.is_volumetric_flux)
             self._fixed_area.setVisible(False)
             self._flux_area.setVisible(True)
         else:
@@ -637,7 +675,8 @@ class CellPropertiesPanel(QWidget):
             self._flux_area.setVisible(False)
         else:
             self._grid.set_cell(r, c, is_flux=True, is_fixed=False,
-                                flux_q=self._flux_m2_spin.value())
+                                flux_q=self._flux_m2_spin.value(),
+                                is_volumetric_flux=self._volumetric_check.isChecked())
             self._fixed_area.setVisible(False)
             self._flux_area.setVisible(True)
 
@@ -669,9 +708,16 @@ class CellPropertiesPanel(QWidget):
         self._grid.set_cell(r, c, flux_q=q)
         self.cell_modified.emit()
 
+    def _on_volumetric_toggled(self, checked: bool) -> None:
+        if self._current is None:
+            return
+        r, c = self._current
+        self._grid.set_cell(r, c, is_volumetric_flux=checked)
+        self.cell_modified.emit()
+
 
 class GroupEditPanel(QWidget):
-    """Edit panel for a multi-cell selection — applies changes to all selected cells."""
+    """Edit panel for a multi-cell selection -- applies changes to all selected cells."""
 
     pre_group_modified = pyqtSignal()  # emitted BEFORE Apply writes to the grid
     group_modified = pyqtSignal()
@@ -690,11 +736,11 @@ class GroupEditPanel(QWidget):
         layout.setSpacing(4)
 
         header = QLabel("GROUP EDIT")
-        header.setStyleSheet("color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;")
+        header.setStyleSheet("font-size: 10px; font-weight: bold; padding-top: 4px;")
         layout.addWidget(header)
 
         self._count_label = QLabel("0 cells selected")
-        self._count_label.setStyleSheet("color: #aaa; font-size: 11px;")
+        self._count_label.setStyleSheet("font-size: 11px;")
         layout.addWidget(self._count_label)
 
         layout.addWidget(_small_label("Material"))
@@ -714,7 +760,7 @@ class GroupEditPanel(QWidget):
 
         self._heat_check = QCheckBox("Heat source")
         self._heat_check.setTristate(True)
-        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._heat_check.setStyleSheet("font-size: 11px;")
         layout.addWidget(self._heat_check)
 
         # Heat source detail row
@@ -729,8 +775,8 @@ class GroupEditPanel(QWidget):
         radio_layout.setSpacing(8)
         self._fixed_radio = QRadioButton("Fixed T")
         self._flux_radio  = QRadioButton("Heat flux")
-        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
-        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._fixed_radio.setStyleSheet("font-size: 11px;")
+        self._flux_radio.setStyleSheet("font-size: 11px;")
         self._radio_group = QButtonGroup(self)
         self._radio_group.addButton(self._fixed_radio)
         self._radio_group.addButton(self._flux_radio)
@@ -758,17 +804,22 @@ class GroupEditPanel(QWidget):
         fla_layout.setSpacing(2)
         fla_layout.addWidget(_small_label("Heat flux"))
         self._flux_m2_spin = QDoubleSpinBox()
-        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setRange(-1e8, 1e8)
         self._flux_m2_spin.setDecimals(2)
-        self._flux_m2_spin.setSuffix(" W/m²")
-        self._flux_m2_spin.setFixedWidth(110)
+        self._flux_m2_spin.setSuffix(" W/m\u00b2")
+        self._flux_m2_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_m2_spin)
         self._flux_cell_spin = QDoubleSpinBox()
-        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setRange(-1e6, 1e6)
         self._flux_cell_spin.setDecimals(4)
         self._flux_cell_spin.setSuffix(" W/cell")
-        self._flux_cell_spin.setFixedWidth(110)
+        self._flux_cell_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_cell_spin)
+        self._volumetric_check = QCheckBox("Volumetric (W/m\u00b3)")
+        self._volumetric_check.setChecked(True)
+        self._volumetric_check.setStyleSheet("font-size: 10px;")
+        self._volumetric_check.setToolTip("Volumetric heat generation (W/m\u00b3) or surface flux (W/m\u00b2)")
+        fla_layout.addWidget(self._volumetric_check)
         self._flux_area.setVisible(False)
         heat_inner.addWidget(self._flux_area)
 
@@ -872,6 +923,9 @@ class GroupEditPanel(QWidget):
         self._flux_cell_spin.blockSignals(True)
         self._flux_cell_spin.setValue(first.flux_q * self._dx_m ** 2)
         self._flux_cell_spin.blockSignals(False)
+        self._volumetric_check.blockSignals(True)
+        self._volumetric_check.setChecked(first.is_volumetric_flux)
+        self._volumetric_check.blockSignals(False)
 
         is_heat = first.is_fixed or first.is_flux
         temp_display = (first.fixed_temp if first.is_fixed else first.temperature) if not is_partial else first.temperature
@@ -1003,7 +1057,8 @@ class GroupEditPanel(QWidget):
                                     fixed_temp=_units.from_display(self._fixed_temp_spin.value()))
             else:
                 self._grid.set_cell(r, c, is_flux=True, is_fixed=False,
-                                    flux_q=self._flux_m2_spin.value())
+                                    flux_q=self._flux_m2_spin.value(),
+                                    is_volumetric_flux=self._volumetric_check.isChecked())
 
         self.group_modified.emit()
 
@@ -1025,7 +1080,7 @@ class DrawPropertiesPanel(QWidget):
         layout.setSpacing(4)
 
         header = QLabel("DRAW PROPERTIES")
-        header.setStyleSheet("color: #777; font-size: 10px; font-weight: bold; padding-top: 4px;")
+        header.setStyleSheet("font-size: 10px; font-weight: bold; padding-top: 4px;")
         layout.addWidget(header)
 
         layout.addWidget(_small_label("Material"))
@@ -1048,7 +1103,7 @@ class DrawPropertiesPanel(QWidget):
         ts.addWidget(self._temp_spin)
 
         self._heat_check = QCheckBox("Heat source")
-        self._heat_check.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._heat_check.setStyleSheet("font-size: 11px;")
         ts.addWidget(self._heat_check)
 
         self._heat_row = QWidget()
@@ -1062,8 +1117,8 @@ class DrawPropertiesPanel(QWidget):
         radio_layout.setSpacing(8)
         self._fixed_radio = QRadioButton("Fixed T")
         self._flux_radio  = QRadioButton("Heat flux")
-        self._fixed_radio.setStyleSheet("color: #ccc; font-size: 11px;")
-        self._flux_radio.setStyleSheet("color: #ccc; font-size: 11px;")
+        self._fixed_radio.setStyleSheet("font-size: 11px;")
+        self._flux_radio.setStyleSheet("font-size: 11px;")
         self._radio_group = QButtonGroup(self)
         self._radio_group.addButton(self._fixed_radio)
         self._radio_group.addButton(self._flux_radio)
@@ -1091,17 +1146,22 @@ class DrawPropertiesPanel(QWidget):
         fla_layout.setSpacing(2)
         fla_layout.addWidget(_small_label("Heat flux"))
         self._flux_m2_spin = QDoubleSpinBox()
-        self._flux_m2_spin.setRange(0.0, 1e8)
+        self._flux_m2_spin.setRange(-1e8, 1e8)
         self._flux_m2_spin.setDecimals(2)
-        self._flux_m2_spin.setSuffix(" W/m²")
-        self._flux_m2_spin.setFixedWidth(110)
+        self._flux_m2_spin.setSuffix(" W/m\u00b2")
+        self._flux_m2_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_m2_spin)
         self._flux_cell_spin = QDoubleSpinBox()
-        self._flux_cell_spin.setRange(0.0, 1e6)
+        self._flux_cell_spin.setRange(-1e6, 1e6)
         self._flux_cell_spin.setDecimals(4)
         self._flux_cell_spin.setSuffix(" W/cell")
-        self._flux_cell_spin.setFixedWidth(110)
+        self._flux_cell_spin.setFixedWidth(130)
         fla_layout.addWidget(self._flux_cell_spin)
+        self._volumetric_check = QCheckBox("Volumetric (W/m\u00b3)")
+        self._volumetric_check.setChecked(True)
+        self._volumetric_check.setStyleSheet("font-size: 10px;")
+        self._volumetric_check.setToolTip("Volumetric heat generation (W/m\u00b3) or surface flux (W/m\u00b2)")
+        fla_layout.addWidget(self._volumetric_check)
         self._flux_area.setVisible(False)
         heat_inner.addWidget(self._flux_area)
 
@@ -1153,6 +1213,10 @@ class DrawPropertiesPanel(QWidget):
     @property
     def flux_q(self) -> float:
         return self._flux_m2_spin.value()
+
+    @property
+    def is_volumetric_flux(self) -> bool:
+        return self._volumetric_check.isChecked()
 
     # -- Public API --
 
@@ -1255,7 +1319,7 @@ class Sidebar(QWidget):
 
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet("background-color: #333; max-height: 1px;")
+        sep.setStyleSheet("background-color: palette(mid); max-height: 1px;")
         layout.addWidget(sep)
 
         # Stacked widget:
@@ -1296,7 +1360,7 @@ class Sidebar(QWidget):
             self.group_panel.show_cells(cells)
 
     def show_cell(self, row: int, col: int) -> None:
-        """Convenience wrapper — kept for backwards compatibility."""
+        """Convenience wrapper -- kept for backwards compatibility."""
         self.show_cells([(row, col)])
 
     def set_grid(self, grid: Grid) -> None:
@@ -1317,10 +1381,24 @@ class Sidebar(QWidget):
         self.props_panel.refresh_units()
         self.group_panel.refresh_units()
 
+    def set_theme(self, theme: str) -> None:
+        global _theme
+        _theme = theme
+        c = _colors()
+        self.setStyleSheet(f"""
+            QLabel {{ color: {c["text"]}; }}
+            QCheckBox {{ color: {c["text"]}; }}
+            QRadioButton {{ color: {c["text"]}; }}
+            QLineEdit {{ background: {c["bg_input"]}; color: {c["text"]}; border: 1px solid {c["border"]}; border-radius: 3px; padding: 2px 4px; }}
+            QComboBox {{ background: {c["bg_input"]}; color: {c["text"]}; border: 1px solid {c["border"]}; }}
+            QSpinBox, QDoubleSpinBox {{ background: {c["bg_input"]}; color: {c["text"]}; border: 1px solid {c["border"]}; }}
+        """)
+        self.picker._apply_theme()
+
 
 def _small_label(text: str) -> QLabel:
     lbl = QLabel(text)
-    lbl.setStyleSheet("color: #aaa; font-size: 11px;")
+    lbl.setStyleSheet("font-size: 11px;")
     return lbl
 
 

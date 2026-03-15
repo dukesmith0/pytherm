@@ -5,6 +5,9 @@ from collections import deque
 
 from PyQt6.QtCore import Qt, QPoint, QRectF, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QPainter, QPen
+
+# Reuse the same theme variable from temp_plot_panel
+from src.ui.temp_plot_panel import _pc
 from PyQt6.QtWidgets import (
     QDockWidget, QHBoxLayout, QLabel, QPushButton, QToolTip, QVBoxLayout, QWidget,
 )
@@ -155,11 +158,12 @@ class _ConvergenceCanvas(QWidget):
     def _draw(self, painter: QPainter) -> None:
         w, h = self.width(), self.height()
         pad_l, pad_r, pad_t, pad_b = self._PAD_L, self._PAD_R, self._PAD_T, self._PAD_B
-        painter.fillRect(0, 0, w, h, QColor(28, 28, 38))
+        pc = _pc()
+        painter.fillRect(0, 0, w, h, pc["bg"])
 
         pts = list(self._data)
         if not pts:
-            painter.setPen(QColor(80, 80, 80))
+            painter.setPen(pc["placeholder"])
             font = QFont()
             font.setPixelSize(11)
             painter.setFont(font)
@@ -194,7 +198,7 @@ class _ConvergenceCanvas(QWidget):
         font = QFont()
         font.setPixelSize(9)
         painter.setFont(font)
-        grid_pen = QPen(QColor(45, 45, 60))
+        grid_pen = QPen(pc["grid"])
         grid_pen.setCosmetic(True)
 
         # Y grid: powers of 10
@@ -206,7 +210,7 @@ class _ConvergenceCanvas(QWidget):
             if pad_t <= gy <= pad_t + plot_h:
                 painter.setPen(grid_pen)
                 painter.drawLine(pad_l, gy, pad_l + plot_w, gy)
-                painter.setPen(QColor(75, 75, 95))
+                painter.setPen(pc["label"])
                 if exp >= 0:
                     label = f"{val:.0f}"
                 else:
@@ -226,14 +230,14 @@ class _ConvergenceCanvas(QWidget):
             tick_count += 1
 
         # Axes
-        axis_pen = QPen(QColor(70, 70, 70))
+        axis_pen = QPen(pc["axis"])
         axis_pen.setCosmetic(True)
         painter.setPen(axis_pen)
         painter.drawLine(pad_l, pad_t, pad_l, pad_t + plot_h)
         painter.drawLine(pad_l, pad_t + plot_h, pad_l + plot_w, pad_t + plot_h)
 
         # Axis labels
-        painter.setPen(QColor(120, 120, 120))
+        painter.setPen(pc["label"])
         t_min_lbl = f"{t_min:.1f}s" if abs(t_min) < 1000 else f"{t_min:.0f}s"
         t_max_lbl = f"{t_max:.1f}s" if abs(t_max) < 1000 else f"{t_max:.0f}s"
         painter.drawText(pad_l, h - 4, t_min_lbl)
@@ -241,7 +245,7 @@ class _ConvergenceCanvas(QWidget):
         painter.drawText(t_label_x, h - 4, t_max_lbl)
 
         # Y axis title
-        painter.setPen(QColor(100, 100, 120))
+        painter.setPen(pc["label"])
         painter.drawText(2, pad_t + 9, "K/s")
 
         painter.setClipRect(pad_l, pad_t, plot_w, plot_h)
@@ -304,7 +308,7 @@ class ConvergencePanel(QDockWidget):
 
         bar = QHBoxLayout()
         self._info_label = QLabel("max dT/dt vs time (log scale)")
-        self._info_label.setStyleSheet("color: #888; font-size: 10px;")
+        self._info_label.setStyleSheet("color: #aaa; font-size: 10px;")
         bar.addWidget(self._info_label)
         bar.addStretch()
 
