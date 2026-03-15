@@ -18,6 +18,10 @@ class Preferences:
     max_plot_points: int = 500
     ss_threshold_k_per_s: float = 0.01
     min_auto_heatmap_range_k: float = 10.0
+    smooth_step: bool = False
+    step_history_size: int = 20
+    isotherm_color: str = "#E6E6E6"
+    plot_every_n_ticks: int = 1
 
     _VALID_UNITS = {"\u00b0C", "K", "\u00b0F", "R"}
 

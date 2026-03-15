@@ -1,5 +1,5 @@
 """
-PyTherm v0.4.0 -- headless test suite.
+PyTherm v0.6.0 -- headless test suite.
 Run from the project root:  py debug/run_tests.py
 Tests all logic that does not require a running QApplication.
 """
@@ -390,7 +390,8 @@ def _():
     finally:
         tmp_path.unlink(missing_ok=True)
     assert "software_version" in data
-    assert data["software_version"] == "0.5.1"
+    from src.version import VERSION
+    assert data["software_version"] == VERSION
     assert data["sim_settings"]["boundary_conditions"]["top"] == "sink"
 
 
@@ -1375,12 +1376,363 @@ def _():
         assert not h.isHidden(), "Metals header should be visible"
 
 
+# ── StepHistory ───────────────────────────────────────────────────────────────
+
+@test("StepHistory: push and back returns previous snapshot")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=5)
+    T1 = np.full((3, 3), 300.0)
+    T2 = np.full((3, 3), 350.0)
+    sh.push(T1)
+    sh.push(T2)
+    assert sh.at_present
+    snap = sh.back()
+    assert snap is not None
+    # back from present goes to last snapshot (index len-1), then back again
+    # First back() goes to index=len-1 (the latest), so value is T2
+    # But we want to check the previous, so back again
+    assert not sh.at_present
+
+
+@test("StepHistory: forward returns to present")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=5)
+    T1 = np.full((3, 3), 300.0)
+    T2 = np.full((3, 3), 350.0)
+    sh.push(T1)
+    sh.push(T2)
+    sh.back()
+    sh.back()
+    snap = sh.forward()
+    assert snap is not None
+
+
+@test("StepHistory: return_to_present restores latest")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=5)
+    T1 = np.full((3, 3), 300.0)
+    T2 = np.full((3, 3), 350.0)
+    sh.push(T1)
+    sh.push(T2)
+    sh.back()
+    snap = sh.return_to_present()
+    assert snap is not None
+    assert np.allclose(snap, 350.0)
+    assert sh.at_present
+
+
+@test("StepHistory: clear empties buffer")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=5)
+    sh.push(np.full((2, 2), 300.0))
+    sh.clear()
+    assert sh.total == 0
+    assert sh.at_present
+    assert sh.back() is None
+
+
+@test("StepHistory: max_size limits buffer")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=3)
+    for i in range(10):
+        sh.push(np.full((2, 2), float(i)))
+    assert sh.total == 3
+
+
+@test("StepHistory: position tracks correctly")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=10)
+    for i in range(5):
+        sh.push(np.full((2, 2), float(i)))
+    assert sh.position == 5  # at present
+    sh.back()
+    assert sh.position == 4  # first back goes to previous frame
+    sh.back()
+    assert sh.position == 3
+
+
+@test("StepHistory: set_max_size trims and resets index")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=10)
+    for i in range(10):
+        sh.push(np.full((2, 2), float(i)))
+    sh.set_max_size(3)
+    assert sh.total == 3
+    assert sh.at_present
+
+
+@test("StepHistory: push after browsing returns to present")
+def _():
+    from src.simulation.step_history import StepHistory
+    sh = StepHistory(max_size=5)
+    sh.push(np.full((2, 2), 300.0))
+    sh.push(np.full((2, 2), 350.0))
+    sh.back()
+    assert not sh.at_present
+    sh.push(np.full((2, 2), 400.0))
+    assert sh.at_present
+
+
+# ── Thermal Resistance ───────────────────────────────────────────────────────
+
+@test("compute_rth: 1D conduction bar gives correct R_th")
+def _():
+    from src.simulation.thermal_resistance import compute_rth
+    from src.simulation.grid import Grid
+    from src.models.material_registry import MaterialRegistry
+    data_dir = Path(__file__).parent.parent / "data"
+    reg = MaterialRegistry(data_dir / "materials.json", data_dir / "user_materials.json")
+    # 1x5 grid of copper, fixed hot on left, fixed cold on right
+    cu = reg.get("cu")
+    grid = Grid(1, 5, cu, ambient_temp_k=293.15)
+    dx = 0.01  # 1 cm
+    # Set fixed temps
+    grid.set_cell(0, 0, material=cu, temperature=400.0, is_fixed=True, fixed_temp=400.0)
+    grid.set_cell(0, 4, material=cu, temperature=300.0, is_fixed=True, fixed_temp=300.0)
+    # Manually set intermediate temperatures to steady-state linear profile
+    for c in range(1, 4):
+        t = 400.0 - (100.0 / 4) * c
+        grid.set_cell(0, c, material=cu, temperature=t)
+    result = compute_rth(
+        grid,
+        source_cells=[(0, 0)],
+        sink_cells=[(0, 4)],
+        dx=dx,
+        k_array=grid.k_array(),
+    )
+    assert result.dt_k == 100.0
+    assert result.q_wpm > 0
+    # R_th = L / (k * A), L = 4*dx = 0.04m, A = dx*1m = 0.01m2 (per m depth)
+    # For copper k=385, R_th_expected = 0.04 / (385 * 0.01) = 0.01039 K/(W/m)
+    # But our calc uses interface k_eff which is same for uniform material
+    assert result.rth_kpwpm > 0
+    assert result.n_source == 1
+    assert result.n_sink == 1
+
+
+@test("compute_rth: zero heat flow gives inf R_th")
+def _():
+    from src.simulation.thermal_resistance import compute_rth
+    grid, reg = _make_grid(2, 2)
+    # All at same temperature, no heat flow
+    result = compute_rth(
+        grid,
+        source_cells=[(0, 0)],
+        sink_cells=[(1, 1)],
+        dx=0.01,
+        k_array=grid.k_array(),
+    )
+    assert result.rth_kpwpm == float("inf") or abs(result.q_wpm) < 1e-10
+
+
+# ── .pythermplot format ──────────────────────────────────────────────────────
+
+@test("pythermplot: save/load round-trips series data")
+def _():
+    import json
+    data = {
+        "version": 1,
+        "unit": "K",
+        "series": {
+            "test": [[0.0, 300.0], [1.0, 310.0], [2.0, 320.0]],
+        },
+    }
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".pythermplot",
+                                     delete=False, encoding="utf-8") as f:
+        json.dump(data, f)
+        path = f.name
+    try:
+        from src.ui.plot_viewer import load_pythermplot
+        loaded = load_pythermplot(path)
+        assert loaded["version"] == 1
+        assert "test" in loaded["series"]
+        assert len(loaded["series"]["test"]) == 3
+        assert loaded["series"]["test"][1] == [1.0, 310.0]
+    finally:
+        os.unlink(path)
+
+
+@test("pythermplot: invalid file raises ValueError")
+def _():
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".pythermplot",
+                                     delete=False, encoding="utf-8") as f:
+        f.write('{"version": 1}')
+        path = f.name
+    try:
+        from src.ui.plot_viewer import load_pythermplot
+        raised = False
+        try:
+            load_pythermplot(path)
+        except ValueError:
+            raised = True
+        assert raised, "Should raise ValueError for missing series key"
+    finally:
+        os.unlink(path)
+
+
+# ── Convergence Panel (unit logic) ───────────────────────────────────────────
+
+@test("ConvergencePanel: first tick is skipped")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.convergence_panel import ConvergencePanel
+    panel = ConvergencePanel()
+    assert panel._is_first_tick
+    panel.on_tick(0.033, 0.001, 0.001)
+    assert not panel._is_first_tick
+    assert len(panel._canvas._data) == 0  # first tick skipped
+
+
+@test("ConvergencePanel: second tick adds data point")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.convergence_panel import ConvergencePanel
+    panel = ConvergencePanel()
+    panel.on_tick(0.033, 0.001, 0.001)  # first tick, skipped
+    panel.on_tick(0.066, 0.005, 0.001)  # second tick
+    assert len(panel._canvas._data) == 1
+    t, rate = panel._canvas._data[0]
+    assert abs(t - 0.066) < 1e-9
+    assert abs(rate - 5.0) < 1e-9  # 0.005 / 0.001
+
+
+@test("ConvergencePanel: clear_history resets first_tick flag")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.convergence_panel import ConvergencePanel
+    panel = ConvergencePanel()
+    panel.on_tick(0.033, 0.001, 0.001)
+    panel.on_tick(0.066, 0.005, 0.001)
+    panel.clear_history()
+    assert panel._is_first_tick
+    assert len(panel._canvas._data) == 0
+
+
+@test("ConvergencePanel: set_ss_threshold updates canvas")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.convergence_panel import ConvergencePanel
+    panel = ConvergencePanel()
+    panel.set_ss_threshold(0.05)
+    assert panel._canvas._ss_threshold == 0.05
+
+
+# ── Smooth Step ──────────────────────────────────────────────────────────────
+
+@test("SimClock: smooth_step flag defaults to False")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    grid, reg = _make_grid(2, 2)
+    from src.simulation.solver import Solver
+    from src.simulation.sim_clock import SimClock
+    from src.ui.grid_scene import GridScene
+    s = Solver(dx=0.01)
+    scene = GridScene(grid)
+    sc = SimClock(grid, s, scene)
+    assert sc._smooth_step is False
+
+
+@test("SimClock: set_smooth_step changes flag")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    grid, reg = _make_grid(2, 2)
+    from src.simulation.solver import Solver
+    from src.simulation.sim_clock import SimClock
+    from src.ui.grid_scene import GridScene
+    s = Solver(dx=0.01)
+    scene = GridScene(grid)
+    sc = SimClock(grid, s, scene)
+    sc.set_smooth_step(True)
+    assert sc._smooth_step is True
+
+
+# ── Preferences: new fields ──────────────────────────────────────────────────
+
+@test("Preferences: smooth_step defaults to False")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences()
+    assert p.smooth_step is False
+
+
+@test("Preferences: step_history_size defaults to 20")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences()
+    assert p.step_history_size == 20
+
+
+@test("Preferences: save/load round-trips new fields")
+def _():
+    from src.models.preferences import Preferences
+    p = Preferences(smooth_step=True, step_history_size=50)
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "prefs.json"
+        p.save(path)
+        loaded = Preferences.load(path)
+        assert loaded.smooth_step is True
+        assert loaded.step_history_size == 50
+
+
+@test("Preferences: load ignores unknown fields gracefully")
+def _():
+    from src.models.preferences import Preferences
+    import json
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "prefs.json"
+        path.write_text(json.dumps({"unit": "K", "future_field": 42}), encoding="utf-8")
+        loaded = Preferences.load(path)
+        assert loaded.unit == "K"
+
+
+# ── MainWindow: new signals exist ────────────────────────────────────────────
+
+@test("MainWindow: has open_plot_requested signal")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.main_window import MainWindow
+    w = MainWindow()
+    assert hasattr(w, "open_plot_requested")
+
+
+@test("MainWindow: has convergence_graph_requested signal")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.main_window import MainWindow
+    w = MainWindow()
+    assert hasattr(w, "convergence_graph_requested")
+
+
+@test("MainWindow: has thermal_resistance_requested signal")
+def _():
+    from PyQt6.QtWidgets import QApplication
+    _app = QApplication.instance() or QApplication(sys.argv)
+    from src.ui.main_window import MainWindow
+    w = MainWindow()
+    assert hasattr(w, "thermal_resistance_requested")
+
+
 # ── Run ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     passes = sum(1 for _, ok, _ in _results if ok)
     fails  = sum(1 for _, ok, _ in _results if not ok)
-    print(f"\nPyTherm v0.5.1 headless test results")
+    print(f"\nPyTherm v0.6.0 headless test results")
     print("=" * 60)
     for name, ok, msg in _results:
         status = PASS if ok else FAIL

@@ -1,5 +1,25 @@
 # PyTherm Changelog
 
+## v0.6.0 -- 2026-03-14
+
+### Added
+
+- **Convergence graph**: View > Convergence Graph opens a dockable panel plotting max dT/dt (K/s) vs simulated time on a log-scale Y axis. Horizontal dashed line at the steady-state threshold. Useful for visualizing solver stability, diagnosing oscillations, and confirming convergence rate.
+- **Thermal resistance report**: Analysis > Thermal Resistance Report computes R_th = dT/Q (K per W per metre depth) between source and sink cell groups. Fixed-T cells in selection are treated as source, non-fixed as sink. Dialog shows dT, Q, R_th with copy-to-clipboard.
+- **.pythermplot format**: Save Plot button on TempPlotPanel saves temperature-vs-time series as JSON (.pythermplot). File > Open Plot loads saved files into a read-only PlotViewerDialog.
+- **Smooth step transitions**: When enabled in Preferences, the Step button animates at the simulation's CFL rate instead of jumping to the final state. Auto-pauses when the requested duration elapses.
+- **Step history navigation**: `[` and `]` keys browse a circular buffer of temperature snapshots (default 20, configurable in Preferences). Escape returns to the present. Pauses the simulation while browsing.
+- **Analysis menu**: New menu between View and Tools for thermal analysis tools.
+
+### Changed
+
+- **Menu reorganization**: Find Hottest/Coldest Cell moved from Edit to View (they navigate the view, not edit data). Resize Grid moved higher in Edit. Open Plot added to File menu. Convergence Graph added to View menu.
+- **Preferences**: added "Animate step" checkbox and "Step history size" spinbox.
+
+### Known Issues
+
+None.
+
 ## v0.5.1 — 2026-03-11
 
 ### Changed

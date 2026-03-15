@@ -44,6 +44,9 @@ class SimClock(QObject):
         self._arr_cache: dict | None = None  # cached material arrays (valid while running)
         self.ss_threshold: float = 0.01  # K/s convergence threshold for steady-state check
 
+        self._smooth_step = False
+        self._step_remaining: float = 0.0  # remaining duration for animated step
+
         self._timer = QTimer(self)
         self._timer.setInterval(self.INTERVAL_MS)
         self._timer.timeout.connect(self._on_tick)
@@ -81,6 +84,9 @@ class SimClock(QObject):
 
     def set_steady_mode(self, enabled: bool) -> None:
         self._steady_mode = enabled
+
+    def set_smooth_step(self, enabled: bool) -> None:
+        self._smooth_step = enabled
 
     def play(self) -> None:
         if not self._running:
@@ -138,18 +144,35 @@ class SimClock(QObject):
         self.tick.emit(0.0)
 
     def step(self, duration: float) -> None:
-        """Advance the simulation by a fixed duration while paused."""
+        """Advance the simulation by a fixed duration while paused.
+
+        If smooth_step is enabled, starts an animated playback that auto-pauses
+        after the requested duration elapses.
+        """
         if self._running:
             return
-        self._advance(duration)
-        self.tick.emit(self._sim_time)
+        if self._smooth_step:
+            self._step_remaining = duration
+            self._running = True
+            self._timer.start()
+            self.state_changed.emit(True)
+        else:
+            self._advance(duration)
+            self.tick.emit(self._sim_time)
 
     # --- Internal ---
 
     def _on_tick(self) -> None:
         dt_sim = (self.INTERVAL_MS / 1000.0) * self._speed
+        stepping = self._step_remaining > 0
+        if stepping:
+            dt_sim = min(dt_sim, self._step_remaining)
+            self._step_remaining -= dt_sim
         self._advance(dt_sim)
         self.tick.emit(self._sim_time)
+        if stepping and self._step_remaining <= 0:
+            self._step_remaining = 0.0
+            self.pause()
 
     def _advance(self, dt_sim: float) -> None:
         is_first_tick = (self._sim_time == 0.0)  # skip SS check on tick 1 (all-ambient start)

@@ -31,6 +31,7 @@ desktop.ini
 # User data (not committed -- each user has their own)
 data/user_materials.json
 data/recent_files.json
+data/preferences.json
 
 # Atomic write temporaries (should never persist, but guard against crashes)
 *.tmp

@@ -66,6 +66,7 @@ class GridScene(QGraphicsScene):
         # Isotherm overlay
         self._isotherm_enabled: bool = False
         self._isotherm_interval_k: float = 50.0
+        self._isotherm_color: QColor = QColor(230, 230, 230, 220)
 
         # Hotspot overlay
         self._hotspot_enabled: bool = False
@@ -190,6 +191,10 @@ class GridScene(QGraphicsScene):
     def set_isotherm(self, enabled: bool, interval_k: float) -> None:
         self._isotherm_enabled = enabled
         self._isotherm_interval_k = max(0.01, interval_k)
+        self.update()
+
+    def set_isotherm_color(self, color: QColor) -> None:
+        self._isotherm_color = color
         self.update()
 
     def set_hotspot_threshold(self, threshold_k: float) -> None:
@@ -539,43 +544,123 @@ class GridScene(QGraphicsScene):
 
     def _draw_isotherms(self, painter: QPainter, g: Grid, cp: int,
                         r0: int, r1: int, c0: int, c1: int) -> None:
-        """Draw isotherm contour lines at regular temperature intervals."""
+        """Draw isotherm contour lines using marching squares.
+
+        For each 2x2 quad of cell centers, classify corners as above/below
+        the threshold and draw interpolated line segments. This produces
+        smooth, connected contours without staircase artifacts.
+        """
         t_min, t_max = self._frame_bounds
         if t_max <= t_min:
             return
         interval = self._isotherm_interval_k
-        pen = QPen(QColor(230, 230, 230, 180))
+        pen = QPen(self._isotherm_color)
         pen.setCosmetic(True)
-        pen.setWidth(1)
+        pen.setWidth(2)
         painter.setPen(pen)
 
-        first_thresh = math.ceil(t_min / interval) * interval
+        half = cp / 2.0
 
+        # Build temperature grid at cell centers (using internal K for comparison)
+        rows, cols = g.rows, g.cols
+        # Cache cell temps for the visible region (+ 1 margin for quads)
+        r_lo = max(r0, 0)
+        r_hi = min(r1 + 1, rows)
+        c_lo = max(c0, 0)
+        c_hi = min(c1 + 1, cols)
+
+        # Get display temps for visible cells
+        temps: dict[tuple[int, int], float | None] = {}
+        for r in range(r_lo, r_hi):
+            for c in range(c_lo, c_hi):
+                cell = g.cell(r, c)
+                if cell.material.is_vacuum:
+                    temps[(r, c)] = None
+                else:
+                    temps[(r, c)] = self._display_temp(cell)
+
+        def _interp(va: float, vb: float, thresh: float,
+                    ax: float, ay: float, bx: float, by: float) -> tuple[float, float]:
+            dt = vb - va
+            frac = (thresh - va) / dt if abs(dt) > 1e-12 else 0.5
+            return ax + frac * (bx - ax), ay + frac * (by - ay)
+
+        first_thresh = math.ceil(t_min / interval) * interval
         thresh = first_thresh
-        _max_lines = 500  # safety cap: never more than 500 isotherm passes
-        while thresh <= t_max and _max_lines > 0:
-            # Horizontal edges: between row r and row r+1
-            for r in range(max(r0, 1), min(r1 + 1, g.rows)):
-                for c in range(c0, c1):
-                    ca = g.cell(r - 1, c)
-                    cb = g.cell(r, c)
-                    ta = self._display_temp(ca) if not ca.material.is_vacuum else None
-                    tb = self._display_temp(cb) if not cb.material.is_vacuum else None
-                    if ta is not None and tb is not None:
-                        if (ta <= thresh < tb) or (tb <= thresh < ta):
-                            painter.drawLine(c * cp, r * cp, (c + 1) * cp, r * cp)
-            # Vertical edges: between col c and col c+1
-            for r in range(r0, r1):
-                for c in range(max(c0, 1), min(c1 + 1, g.cols)):
-                    ca = g.cell(r, c - 1)
-                    cb = g.cell(r, c)
-                    ta = self._display_temp(ca) if not ca.material.is_vacuum else None
-                    tb = self._display_temp(cb) if not cb.material.is_vacuum else None
-                    if ta is not None and tb is not None:
-                        if (ta <= thresh < tb) or (tb <= thresh < ta):
-                            painter.drawLine(c * cp, r * cp, c * cp, (r + 1) * cp)
+        _max_passes = 500
+
+        while thresh <= t_max and _max_passes > 0:
+            # Marching squares over quads: corners are cell centers (r,c), (r,c+1), (r+1,c+1), (r+1,c)
+            for r in range(r_lo, r_hi - 1):
+                for c in range(c_lo, c_hi - 1):
+                    v_tl = temps.get((r, c))
+                    v_tr = temps.get((r, c + 1))
+                    v_bl = temps.get((r + 1, c))
+                    v_br = temps.get((r + 1, c + 1))
+                    if v_tl is None or v_tr is None or v_bl is None or v_br is None:
+                        continue
+
+                    # Classify corners: 1 = above threshold
+                    case = ((1 if v_tl >= thresh else 0) |
+                            (2 if v_tr >= thresh else 0) |
+                            (4 if v_br >= thresh else 0) |
+                            (8 if v_bl >= thresh else 0))
+                    if case == 0 or case == 15:
+                        continue
+
+                    # Corner pixel positions (cell centers)
+                    tl_x, tl_y = c * cp + half, r * cp + half
+                    tr_x, tr_y = (c + 1) * cp + half, r * cp + half
+                    br_x, br_y = (c + 1) * cp + half, (r + 1) * cp + half
+                    bl_x, bl_y = c * cp + half, (r + 1) * cp + half
+
+                    # Edge interpolation points
+                    def top():
+                        return _interp(v_tl, v_tr, thresh, tl_x, tl_y, tr_x, tr_y)
+                    def right():
+                        return _interp(v_tr, v_br, thresh, tr_x, tr_y, br_x, br_y)
+                    def bottom():
+                        return _interp(v_bl, v_br, thresh, bl_x, bl_y, br_x, br_y)
+                    def left():
+                        return _interp(v_tl, v_bl, thresh, tl_x, tl_y, bl_x, bl_y)
+
+                    # Marching squares lookup: each case produces 1-2 line segments
+                    segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
+                    if case in (1, 14):
+                        segments.append((top(), left()))
+                    elif case in (2, 13):
+                        segments.append((top(), right()))
+                    elif case in (3, 12):
+                        segments.append((left(), right()))
+                    elif case in (4, 11):
+                        segments.append((right(), bottom()))
+                    elif case == 5:
+                        # Saddle: use center value to disambiguate
+                        center = (v_tl + v_tr + v_bl + v_br) / 4.0
+                        if center >= thresh:
+                            segments.append((top(), right()))
+                            segments.append((left(), bottom()))
+                        else:
+                            segments.append((top(), left()))
+                            segments.append((right(), bottom()))
+                    elif case in (6, 9):
+                        segments.append((top(), bottom()))
+                    elif case in (7, 8):
+                        segments.append((left(), bottom()))
+                    elif case == 10:
+                        center = (v_tl + v_tr + v_bl + v_br) / 4.0
+                        if center >= thresh:
+                            segments.append((top(), left()))
+                            segments.append((right(), bottom()))
+                        else:
+                            segments.append((top(), right()))
+                            segments.append((left(), bottom()))
+
+                    for (x0, y0), (x1, y1) in segments:
+                        painter.drawLine(int(x0), int(y0), int(x1), int(y1))
+
             thresh += interval
-            _max_lines -= 1
+            _max_passes -= 1
 
     def _draw_color_legend(self, painter: QPainter) -> None:
         """Draw a vertical color scale bar (hot=top, cold=bottom) in the viewport corner."""

@@ -25,6 +25,7 @@ from src.simulation.grid import Grid
 from src.simulation.history import GridHistory
 from src.simulation.sim_clock import SimClock
 from src.simulation.solver import Solver
+from src.simulation.step_history import StepHistory
 from src.ui.bottom_bar import BottomBar
 from src.ui.grid_scene import GridScene
 from src.ui.grid_view import GridView
@@ -34,11 +35,14 @@ from src.ui.materials_manager import MaterialsManagerDialog
 from src.ui.new_grid_dialog import NewGridDialog
 from src.ui.resize_grid_dialog import ResizeGridDialog
 from src.ui.save_dialogs import CustomMaterialsBundleDialog
+from src.ui.thermal_resistance_dialog import ThermalResistanceDialog
 from src.ui.sidebar import Sidebar
 from src.ui.toolbar import Toolbar
 from src.ui.command_palette import CommandPalette
 from src.ui.legend_widget import LegendOverlay
 from src.ui.preferences_dialog import PreferencesDialog
+from src.ui.convergence_panel import ConvergencePanel
+from src.ui.plot_viewer import PlotViewerDialog, load_pythermplot
 from src.ui.temp_plot_panel import TempPlotPanel
 from src.ui.welcome_dialog import WelcomeDialog, make_app_icon
 from src.utils.paths import get_bundle_data_dir, get_user_data_dir, get_templates_dir
@@ -91,6 +95,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     )
     scene      = GridScene(grid)
     scene.set_min_auto_range(prefs.min_auto_heatmap_range_k)
+    scene.set_isotherm_color(QColor(prefs.isotherm_color))
     view       = GridView(scene)
 
     # dx = physical cell size in metres; default from prefs
@@ -101,9 +106,13 @@ def create_app() -> tuple[QApplication, MainWindow]:
     _units.set_unit(_units.Unit(prefs.unit))
     sim_clock.set_speed(prefs.sim_speed)
     sim_clock.ss_threshold = prefs.ss_threshold_k_per_s
+    sim_clock.set_smooth_step(prefs.smooth_step)
+    _plot_tick_counter = [0]  # mutable container for closure
+    _plot_every_n = [prefs.plot_every_n_ticks]
 
     history = GridHistory()
     history.set_max_steps(prefs.max_undo_steps)
+    _step_history = StepHistory(prefs.step_history_size)
 
     toolbar     = Toolbar()
     toolbar.set_dx(solver.dx)
@@ -323,6 +332,15 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
     _plot_panels: list[TempPlotPanel] = []
 
+    def _on_plot_tick(sim_time: float) -> None:
+        _plot_tick_counter[0] += 1
+        if _plot_tick_counter[0] % _plot_every_n[0] != 0:
+            return
+        for _p in _plot_panels:
+            _p.on_tick(sim_time)
+
+    sim_clock.tick.connect(_on_plot_tick)
+
     def _make_plot_panel() -> TempPlotPanel:
         n = len(_plot_panels) + 1
         title = "Temperature Plot" if n == 1 else f"Temperature Plot {n}"
@@ -330,7 +348,6 @@ def create_app() -> tuple[QApplication, MainWindow]:
         panel.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         panel.set_max_points(prefs.max_plot_points)
         window.add_dock_widget(Qt.DockWidgetArea.RightDockWidgetArea, panel)
-        sim_clock.tick.connect(panel.on_tick)
         bottom_bar.reset_requested.connect(panel.clear_history)
         sidebar.props_panel.cell_modified.connect(panel.refresh_labels)
         sidebar.group_panel.group_modified.connect(panel.refresh_labels)
@@ -352,6 +369,39 @@ def create_app() -> tuple[QApplication, MainWindow]:
 
     window.new_plot_requested.connect(_make_plot_panel)
 
+    # ── Convergence Graph ─────────────────────────────────────────────────────
+    _convergence_panel: ConvergencePanel | None = None
+
+    def _conv_on_tick(_t: float) -> None:
+        if _convergence_panel is not None:
+            _convergence_panel.on_tick(
+                sim_clock.sim_time, solver.last_substep_delta, solver.last_substep_dt
+            )
+
+    def _conv_on_reset(_checked: bool = False) -> None:
+        if _convergence_panel is not None:
+            _convergence_panel.clear_history()
+
+    def _show_convergence_graph(_checked: bool = False) -> None:
+        nonlocal _convergence_panel
+        if _convergence_panel is not None and _convergence_panel.isVisible():
+            _convergence_panel.raise_()
+            return
+        panel = ConvergencePanel()
+        panel.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        panel.set_ss_threshold(sim_clock.ss_threshold)
+        panel.closing.connect(lambda: _clear_convergence_ref())
+        _convergence_panel = panel
+        window.add_dock_widget(Qt.DockWidgetArea.RightDockWidgetArea, panel)
+
+    def _clear_convergence_ref() -> None:
+        nonlocal _convergence_panel
+        _convergence_panel = None
+
+    sim_clock.tick.connect(_conv_on_tick)
+    bottom_bar.reset_requested.connect(_conv_on_reset)
+    window.convergence_graph_requested.connect(_show_convergence_graph)
+
     # ── Grid rebind helper ─────────────────────────────────────────────────
     _DEFAULT_BC = {"top": "insulator", "bottom": "insulator",
                    "left": "insulator", "right": "insulator"}
@@ -364,6 +414,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         _current_selection.clear()
         solver.dx = dx_m
         history.clear()
+        _step_history.clear()
         sim_clock.reset()
         sim_clock.set_grid(grid)
         scene.set_grid(grid)
@@ -416,8 +467,18 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 _p.set_max_points(new_prefs.max_plot_points)
         if new_prefs.ss_threshold_k_per_s != prefs.ss_threshold_k_per_s:
             sim_clock.ss_threshold = new_prefs.ss_threshold_k_per_s
+            if _convergence_panel is not None:
+                _convergence_panel.set_ss_threshold(new_prefs.ss_threshold_k_per_s)
         if new_prefs.min_auto_heatmap_range_k != prefs.min_auto_heatmap_range_k:
             scene.set_min_auto_range(new_prefs.min_auto_heatmap_range_k)
+        if new_prefs.smooth_step != prefs.smooth_step:
+            sim_clock.set_smooth_step(new_prefs.smooth_step)
+        if new_prefs.step_history_size != prefs.step_history_size:
+            _step_history.set_max_size(new_prefs.step_history_size)
+        if new_prefs.isotherm_color != prefs.isotherm_color:
+            scene.set_isotherm_color(QColor(new_prefs.isotherm_color))
+        if new_prefs.plot_every_n_ticks != prefs.plot_every_n_ticks:
+            _plot_every_n[0] = new_prefs.plot_every_n_ticks
         prefs = new_prefs
         prefs.save(_prefs_path)
 
@@ -600,10 +661,26 @@ def create_app() -> tuple[QApplication, MainWindow]:
         except OSError as e:
             QMessageBox.warning(window, "Export Failed", f"Could not write:\n{e}")
 
+    def _do_open_plot(_checked: bool = False) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            window, "Open Plot", "", "PyTherm Plot Files (*.pythermplot)"
+        )
+        if not path:
+            return
+        try:
+            data = load_pythermplot(path)
+        except Exception as e:
+            QMessageBox.critical(window, "Load Error", f"Failed to load plot:\n{e}")
+            return
+        from pathlib import Path as _Path
+        dlg = PlotViewerDialog(data, title=_Path(path).name, parent=window)
+        dlg.show()
+
     window.save_requested.connect(_do_save)
     window.save_as_requested.connect(_do_save_as)
     window.export_requested.connect(_do_export)
     window.export_csv_requested.connect(_do_export_csv)
+    window.open_plot_requested.connect(_do_open_plot)
     window.set_save_fn(_do_save)
 
     # ── Open helpers ──────────────────────────────────────────────────────────
@@ -916,6 +993,56 @@ def create_app() -> tuple[QApplication, MainWindow]:
     QShortcut(QKeySequence("M"),               window).activated.connect(toolbar.activate_material_mode)
     QShortcut(QKeySequence("Ctrl+U"),          window).activated.connect(bottom_bar.cycle_unit)
 
+    # ── Step History ────────────────────────────────────────────────────────────
+    _browsing_history = False
+
+    def _push_step_snapshot(_t: float) -> None:
+        T = grid.temperature_array()
+        _step_history.push(T, sim_clock.sim_time)
+
+    sim_clock.tick.connect(_push_step_snapshot)
+
+    def _apply_history_snapshot(T: np.ndarray | None) -> None:
+        nonlocal _browsing_history
+        if T is None:
+            return
+        grid.import_temperatures(T)
+        scene.refresh()
+        _browsing_history = not _step_history.at_present
+        pos = _step_history.position
+        total = _step_history.total
+        if _browsing_history:
+            t = _step_history.current_time
+            t_str = f" -- t={t:.3f}s" if t is not None else ""
+            window.statusBar().showMessage(f"History: {pos}/{total}{t_str}  (Escape to return)")
+        else:
+            window.statusBar().showMessage("Returned to present")
+
+    def _step_back() -> None:
+        if sim_clock.is_running:
+            sim_clock.pause()
+        _apply_history_snapshot(_step_history.back())
+
+    def _step_forward() -> None:
+        snap = _step_history.forward()
+        if snap is not None:
+            _apply_history_snapshot(snap)
+        elif _browsing_history:
+            _apply_history_snapshot(_step_history.return_to_present())
+
+    def _return_to_present() -> None:
+        nonlocal _browsing_history
+        if not _browsing_history:
+            return
+        snap = _step_history.return_to_present()
+        if snap is not None:
+            _apply_history_snapshot(snap)
+        _browsing_history = False
+
+    QShortcut(QKeySequence("["),      window).activated.connect(_step_back)
+    QShortcut(QKeySequence("]"),      window).activated.connect(_step_forward)
+    QShortcut(QKeySequence("Escape"), window).activated.connect(_return_to_present)
+
     # ── Find Hottest / Coldest Cell ───────────────────────────────────────────
 
     def _find_extremal_cell(find_max: bool) -> None:
@@ -956,6 +1083,37 @@ def create_app() -> tuple[QApplication, MainWindow]:
         window.mark_dirty()
 
     window.reset_selection_requested.connect(_reset_selection_to_ambient)
+
+    # ── Thermal Resistance Report ─────────────────────────────────────────────
+
+    def _on_thermal_resistance(_checked: bool = False) -> None:
+        sel = _current_selection
+        if len(sel) < 2:
+            QMessageBox.information(
+                window, "Thermal Resistance",
+                "Select at least 2 cells, then use this tool.\n\n"
+                "The first half of the selection is treated as the source,\n"
+                "the second half as the sink.\n\n"
+                "Tip: select source cells first, then Shift+click sink cells."
+            )
+            return
+        # Split selection: fixed-T cells as source, rest as sink.
+        # If no fixed-T cells, split evenly.
+        source = [(r, c) for r, c in sel if grid.cell(r, c).is_fixed]
+        sink = [(r, c) for r, c in sel if not grid.cell(r, c).is_fixed
+                and not grid.cell(r, c).material.is_vacuum]
+        if not source or not sink:
+            # Fall back: first half = source, second half = sink
+            mid = len(sel) // 2
+            source = sel[:mid]
+            sink = sel[mid:]
+
+        from src.simulation.thermal_resistance import compute_rth
+        result = compute_rth(grid, source, sink, solver.dx, grid.k_array())
+        dlg = ThermalResistanceDialog(result, window)
+        dlg.exec()
+
+    window.thermal_resistance_requested.connect(_on_thermal_resistance)
 
     # ── Resize Grid ────────────────────────────────────────────────────────────
 
@@ -1008,14 +1166,19 @@ def create_app() -> tuple[QApplication, MainWindow]:
             ("Undo",   window.undo_requested.emit),
             ("Redo",   window.redo_requested.emit),
             ("Materials Manager...", window.materials_manager_requested.emit),
-            ("Find Hottest Cell",    lambda: _find_extremal_cell(True)),
-            ("Find Coldest Cell",    lambda: _find_extremal_cell(False)),
             ("Reset Selection to Ambient", _reset_selection_to_ambient),
             ("Resize Grid...",       window.resize_grid_requested.emit),
             # View
             ("Temperature Legend",           lambda: window._legend_action.toggle()),
             ("Toggle Temperature Rise (dT)", lambda: window._delta_action.toggle()),
             ("New Temperature Plot",     _make_plot_panel),
+            ("Convergence Graph",        _show_convergence_graph),
+            ("Find Hottest Cell",        lambda: _find_extremal_cell(True)),
+            ("Find Coldest Cell",        lambda: _find_extremal_cell(False)),
+            # Analysis
+            ("Thermal Resistance Report...", _on_thermal_resistance),
+            # File
+            ("Open Plot...",             _do_open_plot),
             # Tools
             ("Preferences...",   window.preferences_requested.emit),
             ("Debug Diagnostics...", window.diagnostics_requested.emit),

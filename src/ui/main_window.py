@@ -16,6 +16,7 @@ from src.version import VERSION
 class MainWindow(QMainWindow):
     new_grid_requested = pyqtSignal()
     open_requested = pyqtSignal()
+    open_plot_requested = pyqtSignal()
     welcome_requested = pyqtSignal()
     legend_toggled = pyqtSignal(bool)
     delta_toggled = pyqtSignal(bool)
@@ -29,11 +30,13 @@ class MainWindow(QMainWindow):
     undo_requested = pyqtSignal()
     redo_requested = pyqtSignal()
     new_plot_requested = pyqtSignal()
+    convergence_graph_requested = pyqtSignal()
     command_palette_requested = pyqtSignal()
     find_hottest_requested = pyqtSignal()
     find_coldest_requested = pyqtSignal()
     reset_selection_requested = pyqtSignal()
     resize_grid_requested = pyqtSignal()
+    thermal_resistance_requested = pyqtSignal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -48,6 +51,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Ready")
 
     def _build_menu(self) -> None:
+        # ── File ──
         file_menu = self.menuBar().addMenu("File")
 
         new_action = file_menu.addAction("New Grid...")
@@ -76,6 +80,12 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
+        open_plot_action = file_menu.addAction("Open Plot...")
+        open_plot_action.setToolTip("Open a saved .pythermplot file")
+        open_plot_action.triggered.connect(self.open_plot_requested)
+
+        file_menu.addSeparator()
+
         export_action = file_menu.addAction("Export View as Image...")
         export_action.setShortcut("Ctrl+E")
         export_action.triggered.connect(self.export_requested)
@@ -88,6 +98,7 @@ class MainWindow(QMainWindow):
         welcome_action = file_menu.addAction("Return to Welcome Screen")
         welcome_action.triggered.connect(self.welcome_requested)
 
+        # ── Edit ──
         edit_menu = self.menuBar().addMenu("Edit")
 
         self._undo_action = edit_menu.addAction("Undo")
@@ -103,26 +114,15 @@ class MainWindow(QMainWindow):
         mgr_action = edit_menu.addAction("Materials Manager...")
         mgr_action.triggered.connect(self.materials_manager_requested)
 
-        edit_menu.addSeparator()
-
-        hottest_action = edit_menu.addAction("Find Hottest Cell")
-        hottest_action.setShortcut("Ctrl+Shift+H")
-        hottest_action.triggered.connect(self.find_hottest_requested)
-
-        coldest_action = edit_menu.addAction("Find Coldest Cell")
-        coldest_action.setShortcut("Ctrl+Shift+L")
-        coldest_action.triggered.connect(self.find_coldest_requested)
+        resize_action = edit_menu.addAction("Resize Grid...")
+        resize_action.triggered.connect(self.resize_grid_requested)
 
         edit_menu.addSeparator()
 
         reset_sel_action = edit_menu.addAction("Reset Selection to Ambient")
         reset_sel_action.triggered.connect(self.reset_selection_requested)
 
-        edit_menu.addSeparator()
-
-        resize_action = edit_menu.addAction("Resize Grid...")
-        resize_action.triggered.connect(self.resize_grid_requested)
-
+        # ── View ──
         self._view_menu = self.menuBar().addMenu("View")
         view_menu = self._view_menu
 
@@ -144,6 +144,28 @@ class MainWindow(QMainWindow):
         new_plot_action.setToolTip("Open an additional temperature plot panel")
         new_plot_action.triggered.connect(self.new_plot_requested)
 
+        conv_action = view_menu.addAction("Convergence Graph")
+        conv_action.setToolTip("Show convergence rate (dT/dt) vs simulated time")
+        conv_action.triggered.connect(self.convergence_graph_requested)
+
+        view_menu.addSeparator()
+
+        hottest_action = view_menu.addAction("Find Hottest Cell")
+        hottest_action.setShortcut("Ctrl+Shift+H")
+        hottest_action.triggered.connect(self.find_hottest_requested)
+
+        coldest_action = view_menu.addAction("Find Coldest Cell")
+        coldest_action.setShortcut("Ctrl+Shift+L")
+        coldest_action.triggered.connect(self.find_coldest_requested)
+
+        # ── Analysis ──
+        analysis_menu = self.menuBar().addMenu("Analysis")
+
+        rth_action = analysis_menu.addAction("Thermal Resistance Report...")
+        rth_action.setToolTip("Compute R_th between source and sink cells")
+        rth_action.triggered.connect(self.thermal_resistance_requested)
+
+        # ── Tools ──
         tools_menu = self.menuBar().addMenu("Tools")
 
         palette_action = tools_menu.addAction("Command Palette...")
@@ -164,6 +186,7 @@ class MainWindow(QMainWindow):
         diag_action.setToolTip("Show simulation and grid diagnostics")
         diag_action.triggered.connect(self.diagnostics_requested)
 
+        # ── Help ──
         help_menu = self.menuBar().addMenu("Help")
 
         whats_new = help_menu.addAction("What's New...")

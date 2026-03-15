@@ -254,7 +254,7 @@
     <div class="header-text">
       <div class="header-title">PyTherm</div>
       <div class="header-subtitle">2D Heat Conduction Simulator</div>
-      <div class="header-meta">v0.5.1 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
+      <div class="header-meta">v0.6.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
       <a class="header-github" href="https://github.com/dukesmith0/pytherm">
         &#x2316;&nbsp; github.com/dukesmith0/pytherm
       </a>
@@ -396,6 +396,22 @@ cd pytherm</pre>
         <div class="feature-title">Grid resize and selection tools</div>
         <div class="feature-desc">Add or trim rows/cols from any edge. Find the hottest or coldest cell instantly. Reset selected cells to ambient temperature.</div>
       </div>
+      <div class="feature-card">
+        <div class="feature-title">Convergence graph</div>
+        <div class="feature-desc">Dockable panel plots max dT/dt vs simulated time on a log scale. Threshold line shows when steady state is reached.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Thermal resistance report</div>
+        <div class="feature-desc">Compute R_th = dT/Q between source and sink cells. Copy results to clipboard for engineering documentation.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Save and load plots</div>
+        <div class="feature-desc">Export temperature-vs-time data as .pythermplot files. Open saved plots in a read-only viewer for comparison.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Step history navigation</div>
+        <div class="feature-desc">Browse through past temperature snapshots with [ and ] keys. Escape returns to the present state.</div>
+      </div>
     </div>
 
     <hr class="sep" />
@@ -413,7 +429,7 @@ cd pytherm</pre>
 
   <!-- ── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="footer">
-    <span>PyTherm v0.5.1 &nbsp;·&nbsp; MIT License</span>
+    <span>PyTherm v0.6.0 &nbsp;·&nbsp; MIT License</span>
     <span>
       <a href="https://craigdukesmith.com">craigdukesmith.com</a>
       &nbsp;&nbsp;·&nbsp;&nbsp;

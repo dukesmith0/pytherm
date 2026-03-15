@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import csv
+import json
 import math
+import os
 import statistics
 from collections import deque
 
@@ -614,6 +616,12 @@ class TempPlotPanel(QDockWidget):
         self._label_combo.currentIndexChanged.connect(self._on_label_selected)
         bar.addWidget(self._label_combo)
 
+        save_plot_btn = QPushButton("Save Plot")
+        save_plot_btn.setFixedWidth(72)
+        save_plot_btn.setToolTip("Save plot data as .pythermplot file")
+        save_plot_btn.clicked.connect(self._save_plot)
+        bar.addWidget(save_plot_btn)
+
         export_btn = QPushButton("Export CSV")
         export_btn.setFixedWidth(82)
         export_btn.clicked.connect(self._export_csv)
@@ -775,6 +783,34 @@ class TempPlotPanel(QDockWidget):
             and not self._grid.cell(r, c).material.is_vacuum
         ]
         self.set_tracked_cells(cells)
+
+    def _save_plot(self, _checked: bool = False) -> None:
+        series = self._canvas._series
+        if not any(series.values()):
+            QMessageBox.information(self, "No Data", "No data to save yet.")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save Plot", "", "PyTherm Plot Files (*.pythermplot)"
+        )
+        if not path:
+            return
+        if not path.endswith(".pythermplot"):
+            path += ".pythermplot"
+        data = {
+            "version": 1,
+            "unit": "K",
+            "series": {
+                name: [[t, T_k] for t, T_k in pts]
+                for name, pts in series.items() if pts
+            },
+        }
+        try:
+            tmp = path + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            os.replace(tmp, path)
+        except OSError as e:
+            QMessageBox.warning(self, "Save Failed", str(e))
 
     def _export_csv(self, _checked: bool = False) -> None:
         series = self._canvas._series
