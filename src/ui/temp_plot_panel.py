@@ -627,7 +627,7 @@ class TempPlotPanel(QDockWidget):
         # Info bar
         bar = QHBoxLayout()
         self._info_label = QLabel("No selection")
-        self._info_label.setStyleSheet("color: #aaa; font-size: 10px;")
+        self._info_label.setStyleSheet("color: #b0b0b0; font-size: 10px;")
         self._info_label.setFixedWidth(110)  # wide enough for "Cell (199, 199)"
         bar.addWidget(self._info_label)
         bar.addStretch()
@@ -670,7 +670,7 @@ class TempPlotPanel(QDockWidget):
         toggle_layout.setContentsMargins(0, 0, 0, 0)
         toggle_layout.setSpacing(8)
         show_lbl = QLabel("Show:")
-        show_lbl.setStyleSheet("color: #aaa; font-size: 10px;")
+        show_lbl.setStyleSheet("color: #b0b0b0; font-size: 10px;")
         toggle_layout.addWidget(show_lbl)
         self._series_checks: dict[str, QCheckBox] = {}
         for i, name in enumerate(_GROUP_SERIES):

@@ -1430,8 +1430,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1441,8 +1442,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1452,8 +1454,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1463,8 +1466,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1474,8 +1478,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1485,8 +1490,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1496,8 +1502,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1507,8 +1514,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1518,8 +1526,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1529,8 +1538,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1540,8 +1550,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1551,8 +1562,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1562,8 +1574,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1573,8 +1586,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     },
     {
       "row": 9,
@@ -1584,8 +1598,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": -20000000.0,
-      "label": "Cool"
+      "flux_q": -500000.0,
+      "label": "Cool",
+      "is_volumetric_flux": false
     }
   ],
   "custom_materials": []

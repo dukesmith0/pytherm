@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from PyQt6.QtCore import QEvent, QPoint, Qt, pyqtSignal
 from PyQt6.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter, QPen
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QStyle, QWidget
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
 from src.rendering import units as _units
 from src.rendering.heatmap_renderer import heatmap_color
@@ -27,7 +27,7 @@ def _lc():
     }
 
 _BTN_STYLE = (
-    "QPushButton { background: transparent; color: #aaa; font-size: 11px; "
+    "QPushButton { background: transparent; color: #b0b0b0; font-size: 11px; "
     "border: none; padding: 0; }"
     "QPushButton:hover { color: #fff; background: #3a3a3a; border-radius: 2px; }"
 )

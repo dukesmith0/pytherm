@@ -3,11 +3,10 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-.Python
 *.egg-info/
 *.egg
 
-# Build / distribution
+# Build
 dist/
 build/
 __MACOSX/
@@ -22,34 +21,30 @@ env/
 .idea/
 *.suo
 *.user
-.markdownlint.json
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# User data (not committed -- each user has their own)
+# User data (per-user, not committed)
 data/user_materials.json
 data/recent_files.json
 data/preferences.json
 
-# Atomic write temporaries (should never persist, but guard against crashes)
+# Atomic write temporaries
 *.tmp
 
-# Test / coverage artifacts
+# Test artifacts
 .coverage
 htmlcov/
 .pytest_cache/
 
-# Vibe
+# Project context (machine-local)
 .vibe/
-
-# Misc (personal notes, drafts, non-project files)
-.misc/
-
-# Data gathering (scraper scripts, raw CSVs -- dev-only tools, not shipped)
-.data-gathering/
-
-# Claude Code project context (machine-local)
 CLAUDE.md
+.markdownlint.json
+
+# Dev-only tools
+.misc/
+.data-gathering/

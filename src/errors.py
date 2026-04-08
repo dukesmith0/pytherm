@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import sys
 import traceback
@@ -57,7 +58,7 @@ class CrashDialog(QDialog):
         msg_lbl.setWordWrap(True)
         layout.addWidget(msg_lbl)
 
-        exc_lbl = QLabel(f"<b>{type(exc).__name__}:</b> {exc}")
+        exc_lbl = QLabel(f"<b>{html.escape(type(exc).__name__)}:</b> {html.escape(str(exc))}")
         exc_lbl.setWordWrap(True)
         layout.addWidget(exc_lbl)
 

@@ -1,275 +1,120 @@
 ![PyTherm](docs/media/banner.svg)
 
-**PyTherm** is an interactive 2D heat conduction simulator built with Python, PyQt6, and NumPy. Draw a grid of engineering materials, configure heat sources and boundary conditions, and watch thermal conduction evolve in real time -- running up to 10,000x faster than real time via explicit FDM with per-cell CFL sub-stepping.
+[![version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/dukesmith0/pytherm/releases)
+[![build](https://img.shields.io/github/actions/workflow/status/dukesmith0/pytherm/build.yml?label=build)](https://github.com/dukesmith0/pytherm/actions)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.10+-yellow)](https://python.org)
+[![tests](https://img.shields.io/badge/tests-161%20passed-brightgreen)]()
+
+**PyTherm** is a 2D heat conduction simulator I built to explore how heat moves through different materials. Paint a grid of real engineering materials, set up heat sources and boundary conditions, and watch Fourier conduction happen in real time.
+
+Under the hood it's an explicit finite-difference solver with per-cell CFL sub-stepping, harmonic-mean conductivity at material interfaces, and a library of 196 built-in materials. The whole thing runs on Python, PyQt6, and NumPy.
 
 ![Example](docs/media/example.gif)
 
----
-
 ## Quick Start
 
-### Option A: Standalone Executable (no install)
+### Standalone executable (no install)
 
-Download the latest release for your platform from the [Releases page](https://github.com/dukesmith0/pytherm/releases):
+Grab the latest build from the [Releases page](https://github.com/dukesmith0/pytherm/releases):
 
-- **Windows:** `PyTherm-Windows.exe`
-- **macOS:** `PyTherm-macOS`
-- **Linux:** `PyTherm-Linux`
+| Platform | File |
+|----------|------|
+| Windows | `PyTherm-Windows.exe` |
+| macOS | `PyTherm-macOS` |
+| Linux | `PyTherm-Linux` |
 
-Place the executable in a folder where you have write access (e.g. Documents or Desktop). A `data/` folder will be created alongside it on first launch to store preferences and custom materials.
+> **Windows:** The exe is unsigned. SmartScreen will warn on first launch -- click "More info" then "Run anyway."
 
-> **Windows note:** The `.exe` is unsigned. Windows SmartScreen will show a warning on first launch -- click "More info" then "Run anyway".
-
-### Option B: Run from Source
-
-**Requirements:** Python 3.10+, PyQt6, NumPy
+### From source
 
 ```sh
+git clone https://github.com/dukesmith0/pytherm.git
+cd pytherm
 pip install -r requirements.txt
 python main.py
 ```
 
----
+Requires Python 3.10+ with PyQt6 and NumPy.
 
-A startup dialog lets you set grid dimensions, cell size (dx), and ambient temperature. Click **Create New Grid** to begin, or load a bundled example from **File > Open Template**.
+## What it does
 
----
+### Physics engine
 
-## Features
-
-### Physics
-
-- 2D transient heat equation: `rho*Cp * dT/dt = div(k * grad(T))`
-- Harmonic mean of k at material interfaces -- correct for materials in thermal series
-- Per-cell CFL sub-stepping: up to ~2000x faster than a global bound on mixed-material grids
-- Fixed-temperature (Dirichlet) and constant heat flux (Neumann, W/m²) interior BCs
-- Per-edge boundary conditions: insulator or ambient sink, set independently
-- Live energy conservation display (stored energy vs. reference, per-frame error)
+- Solves the 2D transient heat equation using explicit FDM
+- Harmonic mean of k at material interfaces (correct for thermal series)
+- Per-cell CFL sub-stepping -- up to 2000x more efficient than a global CFL bound on mixed grids
+- Fixed-temperature sources, constant heat flux (W/m^2 or W/m^3), and per-edge boundary conditions
+- Real-time energy conservation tracking
 
 ### Materials
 
-- 196 built-in materials across 26+ subcategories: metals, ceramics, polymers, construction, electronics, gases, liquids, minerals, earth, food, and more
-- Add, edit, and delete custom materials via Edit > Materials Manager; persisted to JSON
-- Import/export material sets as JSON
+- 196 built-in materials across 26+ subcategories (metals, ceramics, polymers, gases, liquids, electronics, etc.)
+- Custom material editor with import/export
 
-### Simulation
+### Visualization
 
-- Play/Pause/Reset; speed multiplier 1x to 10,000x real time
-- Single-step mode: advance by a set duration while paused
-- Steady-state auto-stop (configurable threshold, default 0.01 K/s)
-- Temperature units: °C, K, °F, Rankine -- switchable live
+- Material view, temperature heatmap, and heat flow rate -- three view modes
+- Heat flow vector arrows with auto-decimation
+- Isotherm contour lines and hotspot highlighting
+- 4 color palettes (Classic, Viridis, Plasma, Grayscale) with reverse option
+- Floating color legend, convergence graph, temperature-vs-time plots
+- Light and dark themes
 
-### Grid & Drawing
+### Tools
 
-- Draw, rectangle-fill, flood-fill, and select modes
-- Resize grid (add/trim any edge) via Edit > Resize Grid
-- Named cell labels (up to 8 chars); shared labels = group highlight
-- Protect cells from overpainting (lock icon); right-click or press `P`
-- Rectangular copy/paste of cell properties (Ctrl+C / Ctrl+V)
-- Middle-click eyedropper in draw mode picks a material
-- Undo/redo (configurable stack depth)
+- Draw, fill, select, copy/paste, undo/redo
+- Thermal resistance report (R_th = dT/Q)
+- Step history navigation, smooth step animation
+- Command palette (Ctrl+Shift+P), 30+ keyboard shortcuts
+- Save/load `.pytherm` files, export PNG and CSV
+- 15 example templates
 
-### UI
+## How the solver works
 
-- Zoomable/pannable grid canvas; material, heatmap, and heat flux view modes
-- 4 heatmap palettes: Classic, Viridis, Plasma, Grayscale
-- Floating temperature legend (Ctrl+L); delta-T overlay (Ctrl+D)
-- Isotherm lines overlay (toolbar); hotspot highlight overlay (toolbar)
-- Cell hover tooltip: live T, stored delta-E, thermal time constant τ, thermal resistance R
-- Selection aggregate stats in status bar (min/avg/max T for selected cells during playback)
-- Temperature vs. time plot for selected cells (multiple dockable panels, synchronized cursors)
-- Command palette (Ctrl+Shift+P) for all actions and materials
-- Save/load `.pytherm` JSON; PNG export; CSV export
-- Save/load temperature plots as `.pythermplot` files; File > Open Plot viewer
-- Convergence graph: dockable dT/dt vs time panel (log scale, SS threshold line)
-- Thermal resistance report (Analysis menu): R_th = dT/Q between cell groups
-- Step history navigation with `[` / `]` keys and timestamps
-- Smooth step animation (opt-in via Preferences)
-- Light and dark theme (Preferences)
-- Keyboard shortcuts dialog (Help > Keyboard Shortcuts, Ctrl+/)
+```
+1. Compute harmonic-mean interface conductances (k_r, k_l, k_u, k_d)
+2. Per-cell CFL: dt_safe = 0.9 * min(rho_cp / k_sum) * dx^2
+3. Sub-step: T_new = T + dt * flux * inv_rho_cp
+4. Inject heat flux: dT += flux_q * dt / rho_cp
+5. Re-pin fixed-T cells
+```
 
----
+| Decision | Why |
+|----------|-----|
+| Harmonic mean of k | Correct for materials in series -- arithmetic mean over-predicts by ~4000x |
+| Center-cell rho*Cp | Each cell stores its own energy; interface-averaging violates conservation |
+| Per-cell CFL | Global bound is ~2000x too conservative on mixed-material grids |
+| Explicit Euler | CFL guarantees stability; simple, vectorizable, good enough for interactive use |
+| Kelvin internally | No negative-temperature edge cases; unit conversion only at display layer |
 
-## Keyboard Shortcuts
+## Scope and limitations
+
+PyTherm models 2D transient conduction through heterogeneous isotropic materials with constant properties. It does **not** model convection, radiation, phase change, 3D geometry, contact resistance, or temperature-dependent material properties.
+
+This makes it good for thermal layout studies, teaching, and first-order engineering estimates. For anything that needs certification or high accuracy, use a proper FEA/CFD tool.
+
+## Keyboard shortcuts
 
 | Key | Action |
-| --- | --- |
+|-----|--------|
 | Space | Play / Pause |
-| R | Reset to ambient |
-| N | Single step |
-| F | Fit grid to window |
-| G | Toggle grid lines |
-| D / S / W | Draw / Select / Fill mode |
-| H / M | Heatmap / Material view |
-| P | Protect / Unprotect selected cells (select mode) |
-| Ctrl+D | Toggle temperature rise (dT) overlay |
-| Ctrl+U | Cycle unit (°C -> K -> °F -> R) |
-| Ctrl+A | Select all non-vacuum cells |
-| Ctrl+click | Toggle cell in selection |
-| Middle-click | Eyedropper -- pick material (draw mode) |
+| R | Reset |
+| D / S / W | Draw / Select / Fill |
+| Q | Cycle view (Material / Heatmap / Heat Flow) |
+| F | Fit to window |
+| G | Grid lines |
+| P | Protect cells |
 | [ / ] | Step history back / forward |
-| Escape | Deselect all / return to present (history) |
-| Delete / Backspace | Clear selection to Vacuum |
-| Ctrl+Z / Ctrl+Shift+Z | Undo / Redo |
-| Ctrl+C / Ctrl+V | Copy / Paste cell properties (select mode) |
-| Ctrl+E | Export view as PNG |
-| Ctrl+L | Toggle Temperature Legend |
-| Ctrl+, | Preferences |
-| Ctrl+Shift+H | Find hottest cell |
-| Ctrl+Shift+L | Find coldest cell |
-| Ctrl+Shift+P | Command Palette |
-| Ctrl+Shift+D | Debug Diagnostics |
-| Ctrl+/ | Keyboard Shortcuts |
-
-**Drawing:** Left-click/drag = paint, Shift+drag = rectangle fill, Ctrl+drag = straight line.
-
-**Right-click (select mode):** Copy / Paste properties, Protect / Unprotect, Select Group by label.
-
-**Edge BCs:** Set Top/Bottom/Left/Right independently in the toolbar: **Insulator** or **Sink** (held at ambient).
-
-**Bottom bar** shows simulated time, sub-steps/frame, injected power (W/m), and live energy balance.
-
----
-
-## Menus
-
-| Action | Location |
-| --- | --- |
-| New Grid | File > New Grid |
-| Open / Open Recent | File > Open |
-| Open Template | File > Open Template |
-| Return to Welcome Screen | File > Return to Welcome Screen |
-| Save / Save As | File > Save (Ctrl+S) |
-| Export Image | File > Export > Export as PNG (Ctrl+E) |
-| Export CSV | File > Export > Export Cell Data as CSV |
-| Materials Manager | Edit > Materials Manager |
-| Resize Grid | Edit > Resize Grid |
-| Reset Selection to Ambient | Edit > Reset Selection to Ambient |
-| Temperature Legend | View > Temperature Legend (Ctrl+L) |
-| Delta-T Overlay | View > Temperature Rise (dT) (Ctrl+D) |
-| Heat Flux Overlay | View > Heat Flux Overlay |
-| New Temperature Plot | View > New Temperature Plot |
-| Convergence Graph | View > Convergence Graph |
-| Find Hottest Cell | View > Find Hottest Cell (Ctrl+Shift+H) |
-| Find Coldest Cell | View > Find Coldest Cell (Ctrl+Shift+L) |
-| Thermal Resistance Report | Analysis > Thermal Resistance Report |
-| Open Plot | File > Open Plot |
-| Preferences | Tools > Preferences (Ctrl+,) |
-| Command Palette | Tools > Command Palette (Ctrl+Shift+P) |
-| Debug Diagnostics | Tools > Debug Diagnostics (Ctrl+Shift+D) |
-| Keyboard Shortcuts | Help > Keyboard Shortcuts (Ctrl+/) |
-
----
-
-## How It Works
-
-The FDM solver (`src/simulation/solver.py`) operates on NumPy arrays cached at the start of each frame:
-
-```text
-1. Compute harmonic-mean interface conductances (k_r, k_l, k_u, k_d)
-2. Per-cell CFL time step: dt_safe = 0.9 * min( rho_cp / k_sum ) * dx²
-3. Sub-step n times: T_new = T + dt * flux / rho_cp
-4. Inject heat flux: dT += flux_q * dt / rho_cp
-5. Re-pin fixed-T cells: T[fixed_mask] = T_fixed
-6. Emit T array to UI
-```
-
-| Decision | Rationale |
-| --- | --- |
-| Harmonic mean of k | Correct for materials in series; arithmetic mean over-predicts flux |
-| Center-cell rho\*Cp | Each cell stores its own energy; interface-averaging would violate conservation |
-| Per-cell CFL | Global bound is ~2000x too conservative on mixed-material grids |
-| Explicit time integration | Stability guaranteed by CFL; sufficient for interactive use |
-| Kelvin internally | No negative-temperature edge cases; conversions only at the display layer |
-
----
-
-## Architecture (for contributors)
-
-```text
-src/
-  app.py                 # create_app() -- all wiring (~1270 lines)
-  simulation/
-    cell.py              # Cell dataclass (material, T, is_fixed, is_flux, label, protected)
-    grid.py              # 2D array of Cells; snapshot/restore for undo; resize()
-    solver.py            # FDM engine -- harmonic mean of k, per-cell CFL sub-stepping
-    sim_clock.py         # QTimer loop: play/pause/step/reset, steady-state, smooth step
-    step_history.py      # StepHistory: circular T snapshot buffer for [/] navigation
-    thermal_resistance.py # compute_rth() -- R_th between cell groups
-    history.py           # GridHistory: 50-step undo/redo stack
-  ui/
-    toolbar.py           # Top toolbar: mode, dx, view, heatmap, borders, isotherms, hotspot
-    bottom_bar.py        # Play/Pause, Reset, Speed, Step, Stop-at-SS, time, energy display
-    grid_scene.py        # QGraphicsScene: material/heatmap rendering, overlays
-    grid_view.py         # QGraphicsView: zoom/pan, draw/select/fill, keyboard shortcuts
-    sidebar.py           # MaterialPicker + DrawPropertiesPanel + CellPropertiesPanel
-    main_window.py       # QMainWindow: menus, signals, dirty tracking
-  rendering/
-    heatmap_renderer.py  # heatmap_color(), LUT cache
-    material_renderer.py # cell_color(), draw_pin_icon(), draw_lock_icon(), draw_flame_icon()
-    units.py             # C/K/F/R conversion, TempSpinBox, fmt_energy()
-  models/
-    material.py          # Material frozen dataclass
-    material_registry.py # built-ins + custom, saves user_materials.json
-  utils/
-    paths.py             # get_bundle_data_dir/get_user_data_dir/get_templates_dir (frozen-exe safe)
-  io/
-    file_io.py           # save_pytherm / load_pytherm (.pytherm JSON, atomic writes)
-    recent_files.py      # Recent file list (persisted to user data dir)
-data/
-  materials.json         # 196 built-in materials (26+ subcategories)
-```
-
-**Key patterns:**
-
-- `nonlocal grid` in `create_app()` -- all closures share one `grid` ref, rebound on New/Open. Never capture `grid` as a default argument.
-- `pre_cell_modified` / `pre_group_modified` signals emitted BEFORE grid writes (for undo).
-- `paint_started` emitted once per brush stroke (not per cell) for undo granularity.
-- All JSON files use atomic writes: `.tmp` sibling + `os.replace()`.
-- Protected cells (`cell.protected`) are skipped by draw, flood-fill, delete, and paste. Toggle via right-click or `P`.
-- Fixed-T cells show a blue pin icon; heat-flux cells show a flame; protected cells show a yellow lock.
-
----
-
-## Model Scope and Assumptions
-
-PyTherm solves a specific, well-defined physics problem. Understanding what it models -- and what it does not -- is important for interpreting results correctly.
-
-### What is modeled
-
-- **2D transient conduction** -- Fourier's Law discretized on a uniform square grid. No depth axis; all energy quantities are per unit depth (J/m, W/m).
-- **Heterogeneous materials** -- harmonic mean of k at cell interfaces, correct for materials in thermal series.
-- **Isotropic, constant material properties** -- scalar k, rho, Cp per material; properties do not vary with temperature or direction.
-- **Interior boundary conditions** -- fixed-temperature (Dirichlet) cells and constant heat flux (Neumann, W/m²) cells.
-- **Edge boundary conditions** -- insulator (zero flux) or ambient sink (Dirichlet at ambient T), set per edge independently.
-
-### What is not modeled
-
-| Phenomenon | Implication |
-| --- | --- |
-| **Convection** | Fluid cells use only molecular k. Bulk mixing, natural convection, and forced convection are not simulated. Heat transfer at fluid interfaces is significantly underestimated for liquids and gases. |
-| **Radiation** | No surface-to-surface or surface-to-environment radiative exchange. Important above ~500 °C or in vacuum environments. |
-| **Thermal contact resistance** | Adjacent cells are assumed to be in perfect thermal contact. Real interfaces (TIM layers, gaps, rough surfaces) add resistance not captured here. |
-| **Volumetric heat generation** | No q_vol [W/m³] for Joule heating, chemical reactions, or nuclear heating. Point sources can be approximated with fixed-T or flux cells but are not volumetric. |
-| **Temperature-dependent properties** | k, rho, and Cp are constant for each material. Behavior at elevated or cryogenic temperatures -- where properties can shift significantly -- is not captured. |
-| **Anisotropic conductivity** | Each cell has a single scalar k. Fiber composites, rolled metals, and wood grain are treated as isotropic. |
-| **Phase change** | Melting, solidification, and latent heat are not modeled. |
-| **3D geometry** | All results are inherently 2D. Through-thickness gradients, edge effects, and out-of-plane heat paths are ignored. |
-| **Spatially varying ambient temperature** | The grid uses a single ambient temperature as reference. Non-uniform environmental conditions are not supported. |
-| **Implicit time integration** | The solver is explicit (forward Euler). CFL sub-stepping maintains stability, but very stiff problems (large k-contrast, small dx) require many sub-steps per frame. |
-
-These assumptions make PyTherm appropriate for qualitative thermal layout studies, educational demonstrations, and first-order engineering estimates in solid-dominated assemblies. For high-accuracy or certification-grade analysis, validate results against a tested FEA or CFD tool.
-
----
+| Ctrl+Shift+P | Command palette |
+| Ctrl+/ | Full shortcuts list |
 
 ## References
 
-Material properties (k, rho, Cp) sourced from:
+Material properties sourced from:
 
-> Incropera, F.P. et al. (2011). *Fundamentals of Heat and Mass Transfer*, 7th ed. Wiley. ISBN 978-0-470-50197-9.
-
----
+> Incropera, F.P. et al. (2011). *Fundamentals of Heat and Mass Transfer*, 7th ed. Wiley.
 
 ## License
 
-MIT License - Craig "Duke" Smith, 2026. See [LICENSE](LICENSE).
+MIT -- Craig "Duke" Smith, 2026. See [LICENSE](LICENSE).

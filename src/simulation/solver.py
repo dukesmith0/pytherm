@@ -13,7 +13,11 @@ _DEFAULT_BC: dict[str, str] = {
 
 
 def _hm(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Harmonic mean of two conductivity arrays at a cell interface."""
+    """Harmonic mean of two conductivity arrays at a cell interface.
+
+    Precondition: all values in a and b must be >= 0 (physical conductivity).
+    Returns 0 where either value is 0 (vacuum blocks heat flow).
+    """
     s = a + b
     with np.errstate(divide="ignore", invalid="ignore"):
         return np.where(s > 0, 2 * a * b / s, 0.0)

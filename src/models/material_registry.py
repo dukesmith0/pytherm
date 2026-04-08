@@ -82,15 +82,19 @@ class MaterialRegistry:
             ]
         }
         tmp = self._custom_path.with_suffix(".tmp")
-        with open(tmp, "w") as f:
-            json.dump(data, f, indent=2)
-        os.replace(tmp, self._custom_path)
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            os.replace(tmp, self._custom_path)
+        except Exception:
+            tmp.unlink(missing_ok=True)
+            raise
 
     def _load_custom(self) -> None:
         if not self._custom_path.exists():
             return
         try:
-            with open(self._custom_path) as f:
+            with open(self._custom_path, encoding="utf-8") as f:
                 data = json.load(f)
         except Exception as e:
             print(f"Warning: could not load {self._custom_path}: {e}", file=sys.stderr)
@@ -99,5 +103,5 @@ class MaterialRegistry:
             try:
                 m = Material(**entry, is_builtin=False)
                 self._custom[m.id] = m
-            except Exception:
-                pass  # skip malformed entries
+            except Exception as e:
+                print(f"Warning: skipped malformed custom material entry: {e}", file=sys.stderr)

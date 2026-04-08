@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         self._build_menu()
         self._build_central()
         self._update_title()
-        self.statusBar().showMessage("Ready")
+        self.statusBar().showMessage("Draw")
 
     def _build_menu(self) -> None:
         # ── File ──
@@ -306,8 +306,9 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _show_about(self) -> None:
-        from src.ui.welcome_dialog import make_logo_pixmap
+        from src.ui.welcome_dialog import make_logo_pixmap, _wc
 
+        c = _wc()
         dlg = QDialog(self)
         dlg.setWindowTitle("About PyTherm")
         dlg.setFixedWidth(380)
@@ -316,11 +317,10 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # Dark header matching the welcome dialog aesthetic
         header = QWidget()
         header.setAutoFillBackground(True)
         pal = header.palette()
-        pal.setColor(header.backgroundRole(), QColor(22, 22, 42))
+        pal.setColor(header.backgroundRole(), QColor(c["header_bg"]))
         header.setPalette(pal)
 
         hlayout = QHBoxLayout(header)
@@ -337,19 +337,19 @@ class MainWindow(QMainWindow):
         text_col.setContentsMargins(0, 0, 0, 0)
 
         title = QLabel("PyTherm")
-        title.setStyleSheet("color: #fff; font-size: 22px; font-weight: bold;")
+        title.setStyleSheet(f"color: {c['title']}; font-size: 22px; font-weight: bold;")
         text_col.addWidget(title)
 
         sub = QLabel("2D Heat Conduction Simulator")
-        sub.setStyleSheet("color: #9999cc; font-size: 11px;")
+        sub.setStyleSheet(f"color: {c['subtitle']}; font-size: 11px;")
         text_col.addWidget(sub)
 
         meta = QLabel(f'v{VERSION}  ·  Craig "Duke" Smith  ·  2026')
-        meta.setStyleSheet("color: #8888aa; font-size: 10px;")
+        meta.setStyleSheet(f"color: {c['meta']}; font-size: 10px;")
         text_col.addWidget(meta)
 
-        gh = QLabel('<a href="https://github.com/dukesmith0/pytherm" '
-                    'style="color:#4488bb;">github.com/dukesmith0/pytherm</a>')
+        gh = QLabel(f'<a href="https://github.com/dukesmith0/pytherm" '
+                    f'style="color:{c["link"]};">github.com/dukesmith0/pytherm</a>')
         gh.setOpenExternalLinks(True)
         gh.setStyleSheet("font-size: 10px;")
         text_col.addWidget(gh)
@@ -428,7 +428,7 @@ class MainWindow(QMainWindow):
 
     def _update_title(self) -> None:
         name = Path(self._current_file).name if self._current_file else None
-        file_part = f" \u2014 {name}" if name else ""
+        file_part = f" -- {name}" if name else ""
         dirty_part = " *" if self._dirty else ""
         self.setWindowTitle(f"PyTherm{file_part}{dirty_part}")
 
@@ -480,7 +480,7 @@ class MainWindow(QMainWindow):
 def _placeholder(layout: QHBoxLayout | QVBoxLayout, text: str) -> None:
     lbl = QLabel(text)
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    lbl.setStyleSheet("color: #999; font-size: 11px;")
+    lbl.setStyleSheet("color: #b0b0b0; font-size: 11px;")
     layout.addWidget(lbl)
 
 

@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 )
 
-from src.ui.temp_plot_panel import _PlotCanvas, _SERIES_COLORS
+from src.ui.temp_plot_panel import _PlotCanvas
 
 
 class PlotViewerDialog(QDialog):
@@ -26,7 +26,7 @@ class PlotViewerDialog(QDialog):
         bar = QHBoxLayout()
         series_names = list(data.get("series", {}).keys())
         info = QLabel(f"{len(series_names)} series, read-only")
-        info.setStyleSheet("color: #aaa; font-size: 10px;")
+        info.setStyleSheet("color: #b0b0b0; font-size: 10px;")
         bar.addWidget(info)
         bar.addStretch()
 

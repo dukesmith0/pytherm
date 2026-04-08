@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QToolBar,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -21,10 +22,10 @@ from src.rendering.units import TempSpinBox, delta_k_to_display, delta_display_t
 
 
 class Toolbar(QToolBar):
-    """Top toolbar -- draw/select/fill mode, speed, cell size, and all view controls.
+    """Top toolbar with two rows.
 
-    All content lives in a horizontally-scrollable inner widget so that items
-    are never hidden when the window is narrow.
+    Row 1 (always visible): mode, cell size, view toggle, borders, view utilities.
+    Row 2 (heatmap/flow only): min/max range, palette, isotherms, hotspot.
     """
 
     mode_changed                = pyqtSignal(str)          # "draw" | "select" | "fill"
@@ -40,6 +41,7 @@ class Toolbar(QToolBar):
     grid_lines_toggled          = pyqtSignal(bool)
     abbr_toggled                = pyqtSignal(bool)
     label_toggled               = pyqtSignal(bool)
+    heat_vectors_toggled        = pyqtSignal(bool)
     fit_view_requested          = pyqtSignal()
 
     def __init__(self, parent=None) -> None:
@@ -48,10 +50,19 @@ class Toolbar(QToolBar):
         self._isotherm_interval_k: float = 50.0
         self._hotspot_threshold_k: float = 373.15   # 100 °C
 
-        self._content = QWidget()
-        self._layout = QHBoxLayout(self._content)
-        self._layout.setContentsMargins(2, 0, 2, 0)
-        self._layout.setSpacing(2)
+        # Root container: two rows stacked vertically
+        root = QWidget()
+        root_layout = QVBoxLayout(root)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        # ══════════════════════════════════════════════════════════════════════
+        # ROW 1: always visible
+        # ══════════════════════════════════════════════════════════════════════
+        row1_widget = QWidget()
+        self._row1 = QHBoxLayout(row1_widget)
+        self._row1.setContentsMargins(2, 0, 2, 0)
+        self._row1.setSpacing(2)
 
         # -- Draw / Select / Fill mode ----------------------------------------
         self._btn_draw   = QPushButton("\u270f  Draw")
@@ -61,9 +72,9 @@ class Toolbar(QToolBar):
             btn.setCheckable(True)
             btn.setFixedWidth(72)
 
-        self._btn_draw.setToolTip("Draw mode \u2014 click or drag to paint cells with the active material (D)")
-        self._btn_select.setToolTip("Select mode \u2014 click or drag to select cells for group editing (S)")
-        self._btn_fill.setToolTip("Fill mode \u2014 click to flood-fill all contiguous same-material cells (W)")
+        self._btn_draw.setToolTip("Draw mode -- click or drag to paint cells with the active material (D)")
+        self._btn_select.setToolTip("Select mode -- click or drag to select cells for group editing (S)")
+        self._btn_fill.setToolTip("Fill mode -- click to flood-fill all contiguous same-material cells (W)")
 
         self._mode_group = QButtonGroup(self)
         self._mode_group.addButton(self._btn_draw)
@@ -71,20 +82,20 @@ class Toolbar(QToolBar):
         self._mode_group.addButton(self._btn_fill)
         self._btn_draw.setChecked(True)
 
-        self._layout.addWidget(self._btn_draw)
-        self._layout.addWidget(self._btn_select)
-        self._layout.addWidget(self._btn_fill)
+        self._row1.addWidget(self._btn_draw)
+        self._row1.addWidget(self._btn_select)
+        self._row1.addWidget(self._btn_fill)
 
         self._btn_draw.toggled.connect(lambda on: on and self.mode_changed.emit("draw"))
         self._btn_select.toggled.connect(lambda on: on and self.mode_changed.emit("select"))
         self._btn_fill.toggled.connect(lambda on: on and self.mode_changed.emit("fill"))
 
-        self._add_sep()
+        self._add_sep(self._row1)
 
         # -- Cell size (dx) ---------------------------------------------------
         dx_lbl = QLabel("Cell:")
-        dx_lbl.setStyleSheet("padding: 0 2px; color: #aaa;")
-        self._layout.addWidget(dx_lbl)
+        dx_lbl.setStyleSheet("padding: 0 2px; color: #b0b0b0;")
+        self._row1.addWidget(dx_lbl)
 
         self._dx_spin = QDoubleSpinBox()
         self._dx_spin.setRange(0.1, 100.0)
@@ -92,10 +103,10 @@ class Toolbar(QToolBar):
         self._dx_spin.setValue(1.0)
         self._dx_spin.setSuffix(" cm")
         self._dx_spin.setFixedWidth(80)
-        self._dx_spin.setToolTip("Physical cell size \u2014 changing this resets the simulation")
-        self._layout.addWidget(self._dx_spin)
+        self._dx_spin.setToolTip("Physical cell size -- changing this resets the simulation")
+        self._row1.addWidget(self._dx_spin)
 
-        self._add_sep()
+        self._add_sep(self._row1)
 
         # -- View mode toggle -------------------------------------------------
         self._btn_material = QPushButton("Material")
@@ -115,21 +126,99 @@ class Toolbar(QToolBar):
         self._view_group.addButton(self._btn_flux)
         self._btn_material.setChecked(True)
 
-        self._layout.addWidget(self._btn_material)
-        self._layout.addWidget(self._btn_heatmap)
-        self._layout.addWidget(self._btn_flux)
+        self._row1.addWidget(self._btn_material)
+        self._row1.addWidget(self._btn_heatmap)
+        self._row1.addWidget(self._btn_flux)
 
         self._btn_material.toggled.connect(lambda on: on and self._set_view("material"))
         self._btn_heatmap.toggled.connect(lambda on: on and self._set_view("heatmap"))
         self._btn_flux.toggled.connect(lambda on: on and self._set_view("flow"))
 
-        # -- Heatmap scale controls (hidden in material mode) -----------------
+        self._add_sep(self._row1)
+
+        self._row1.addStretch()
+
+        # -- Border boundary conditions ---------------------------------------
+        border_widget = QWidget()
+        bw = QHBoxLayout(border_widget)
+        bw.setContentsMargins(4, 0, 4, 0)
+        bw.setSpacing(2)
+        lbl = QLabel("Borders:")
+        lbl.setStyleSheet("padding: 0 2px; color: #b0b0b0;")
+        bw.addWidget(lbl)
+
+        self._border_btns: dict[str, QPushButton] = {}
+        self._border_labels: dict[str, str] = {
+            "top": "Top", "bottom": "Bot", "left": "Left", "right": "Right"
+        }
+        for key, display in self._border_labels.items():
+            btn = QPushButton(f"{display}: Insulated")
+            btn.setCheckable(True)
+            btn.setFixedWidth(100)
+            btn.setToolTip(f"{display} edge boundary condition.\n"
+                          f"Insulated: no heat crosses this edge (zero flux).\n"
+                          f"Fixed T: edge held at ambient temperature, heat flows freely.")
+            bw.addWidget(btn)
+            self._border_btns[key] = btn
+            btn.toggled.connect(lambda checked, k=key: self._on_border_toggled(k, checked))
+
+        self._row1.addWidget(border_widget)
+
+        self._add_sep(self._row1)
+
+        # -- View utilities ---------------------------------------------------
+        btn_fit = QPushButton("\u229f Fit")
+        btn_fit.setFixedWidth(56)
+        btn_fit.setToolTip("Fit grid to view (F)")
+        self._row1.addWidget(btn_fit)
+
+        self._btn_gridlines = QPushButton("Grid")
+        self._btn_gridlines.setCheckable(True)
+        self._btn_gridlines.setChecked(True)
+        self._btn_gridlines.setFixedWidth(46)
+        self._btn_gridlines.setToolTip("Toggle grid lines (G)")
+        self._row1.addWidget(self._btn_gridlines)
+
+        self._btn_abbr = QPushButton("Abbr.")
+        self._btn_abbr.setCheckable(True)
+        self._btn_abbr.setChecked(False)
+        self._btn_abbr.setFixedWidth(52)
+        self._btn_abbr.setToolTip("Show material abbreviation in each cell")
+        self._row1.addWidget(self._btn_abbr)
+
+        self._btn_label = QPushButton("Label")
+        self._btn_label.setCheckable(True)
+        self._btn_label.setChecked(True)
+        self._btn_label.setFixedWidth(52)
+        self._btn_label.setToolTip("Show cell label overlays")
+        self._row1.addWidget(self._btn_label)
+
+        self._btn_vectors = QPushButton("Vectors")
+        self._btn_vectors.setCheckable(True)
+        self._btn_vectors.setChecked(False)
+        self._btn_vectors.setFixedWidth(62)
+        self._btn_vectors.setToolTip("Show heat flow direction arrows (heatmap/flow mode)")
+        self._row1.addWidget(self._btn_vectors)
+
+        # Wrap row 1 in a scroll area
+        row1_scroll = QScrollArea()
+        row1_scroll.setWidget(row1_widget)
+        row1_scroll.setWidgetResizable(True)
+        row1_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        row1_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        row1_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        row1_scroll.setFixedHeight(38)
+        root_layout.addWidget(row1_scroll)
+
+        # ══════════════════════════════════════════════════════════════════════
+        # ROW 2: heatmap / flow controls (hidden in material mode)
+        # ══════════════════════════════════════════════════════════════════════
         self._hm_min_k: float = 273.15   # 0 C
         self._hm_max_k: float = 373.15   # 100 C
 
-        self._heatmap_controls = QWidget()
-        hm = QHBoxLayout(self._heatmap_controls)
-        hm.setContentsMargins(4, 0, 4, 0)
+        self._heatmap_row = QWidget()
+        hm = QHBoxLayout(self._heatmap_row)
+        hm.setContentsMargins(4, 2, 4, 2)
         hm.setSpacing(6)
 
         hm.addWidget(QLabel("Min:"))
@@ -151,6 +240,8 @@ class Toolbar(QToolBar):
         self._hm_max.setToolTip("Maximum temperature -- hot end of color gradient (manual bounds)")
         hm.addWidget(self._hm_max)
 
+        self._add_sep(hm)
+
         hm.addWidget(QLabel("Palette:"))
         self._palette_combo = QComboBox()
         for name in PALETTE_NAMES:
@@ -159,11 +250,7 @@ class Toolbar(QToolBar):
         self._palette_combo.setToolTip("Heatmap color palette")
         hm.addWidget(self._palette_combo)
 
-        _sep_iso = QFrame()
-        _sep_iso.setFrameShape(QFrame.Shape.VLine)
-        _sep_iso.setFixedWidth(1)
-        _sep_iso.setStyleSheet("background: #555; margin: 5px 2px;")
-        hm.addWidget(_sep_iso)
+        self._add_sep(hm)
 
         self._iso_check = QCheckBox("Isotherms")
         self._iso_check.setChecked(False)
@@ -179,11 +266,7 @@ class Toolbar(QToolBar):
         self._iso_spin.setToolTip("Temperature interval between isotherm lines")
         hm.addWidget(self._iso_spin)
 
-        _sep_hot = QFrame()
-        _sep_hot.setFrameShape(QFrame.Shape.VLine)
-        _sep_hot.setFixedWidth(1)
-        _sep_hot.setStyleSheet("background: #555; margin: 5px 2px;")
-        hm.addWidget(_sep_hot)
+        self._add_sep(hm)
 
         self._hot_check = QCheckBox("Hotspot >")
         self._hot_check.setChecked(False)
@@ -199,75 +282,13 @@ class Toolbar(QToolBar):
         self._hot_spin.setToolTip("Hotspot threshold temperature")
         hm.addWidget(self._hot_spin)
 
-        self._heatmap_controls.setVisible(False)
-        self._layout.addWidget(self._heatmap_controls)
+        hm.addStretch()
 
-        self._add_sep()
+        self._heatmap_row.setVisible(False)
+        root_layout.addWidget(self._heatmap_row)
 
-        self._layout.addStretch()
-
-        # -- Border boundary conditions ---------------------------------------
-        border_widget = QWidget()
-        bw = QHBoxLayout(border_widget)
-        bw.setContentsMargins(4, 0, 4, 0)
-        bw.setSpacing(2)
-        lbl = QLabel("Borders:")
-        lbl.setStyleSheet("padding: 0 2px; color: #aaa;")
-        bw.addWidget(lbl)
-
-        self._border_btns: dict[str, QPushButton] = {}
-        self._border_labels: dict[str, str] = {
-            "top": "Top", "bottom": "Bot", "left": "Left", "right": "Right"
-        }
-        for key, display in self._border_labels.items():
-            btn = QPushButton(f"{display}: Ins.")
-            btn.setCheckable(True)
-            btn.setFixedWidth(72)
-            btn.setToolTip(f"{display} edge \u2014 unchecked = insulator (zero flux), checked = ambient sink")
-            bw.addWidget(btn)
-            self._border_btns[key] = btn
-            btn.toggled.connect(lambda checked, k=key: self._on_border_toggled(k, checked))
-
-        self._layout.addWidget(border_widget)
-
-        self._add_sep()
-
-        # -- View utilities ---------------------------------------------------
-        btn_fit = QPushButton("\u229f Fit")
-        btn_fit.setFixedWidth(56)
-        btn_fit.setToolTip("Fit grid to view (F)")
-        self._layout.addWidget(btn_fit)
-
-        self._btn_gridlines = QPushButton("Grid")
-        self._btn_gridlines.setCheckable(True)
-        self._btn_gridlines.setChecked(True)
-        self._btn_gridlines.setFixedWidth(46)
-        self._btn_gridlines.setToolTip("Toggle grid lines (G)")
-        self._layout.addWidget(self._btn_gridlines)
-
-        self._btn_abbr = QPushButton("Abbr.")
-        self._btn_abbr.setCheckable(True)
-        self._btn_abbr.setChecked(False)
-        self._btn_abbr.setFixedWidth(52)
-        self._btn_abbr.setToolTip("Show material abbreviation in each cell")
-        self._layout.addWidget(self._btn_abbr)
-
-        self._btn_label = QPushButton("Label")
-        self._btn_label.setCheckable(True)
-        self._btn_label.setChecked(True)
-        self._btn_label.setFixedWidth(52)
-        self._btn_label.setToolTip("Show cell label overlays")
-        self._layout.addWidget(self._btn_label)
-
-        # -- Wrap content in a horizontal scroll area -------------------------
-        scroll = QScrollArea()
-        scroll.setWidget(self._content)
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setFixedHeight(38)
-        self.addWidget(scroll)
+        # Add root to toolbar
+        self.addWidget(root)
 
         # -- Wire all signals -------------------------------------------------
         self._dx_spin.valueChanged.connect(
@@ -284,6 +305,7 @@ class Toolbar(QToolBar):
         self._btn_gridlines.toggled.connect(self.grid_lines_toggled)
         self._btn_abbr.toggled.connect(self.abbr_toggled)
         self._btn_label.toggled.connect(self.label_toggled)
+        self._btn_vectors.toggled.connect(self.heat_vectors_toggled)
 
     # -- Public API -----------------------------------------------------------
 
@@ -314,7 +336,7 @@ class Toolbar(QToolBar):
             is_sink = bc.get(key, "insulator") == "sink"
             btn.setChecked(is_sink)
             label = self._border_labels[key]
-            btn.setText(f"{label}: {'Sink' if is_sink else 'Ins.'}")
+            btn.setText(f"{label}: {'Fixed T' if is_sink else 'Insulated'}")
             btn.blockSignals(False)
         self.boundary_conditions_changed.emit(bc)
 
@@ -350,20 +372,21 @@ class Toolbar(QToolBar):
 
     # -- Internal -------------------------------------------------------------
 
-    def _add_sep(self) -> None:
-        """Add a thin vertical separator line to the inner layout."""
+    @staticmethod
+    def _add_sep(layout: QHBoxLayout) -> None:
+        """Add a thin vertical separator line to the given layout."""
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.VLine)
         sep.setFixedWidth(1)
         sep.setStyleSheet("background: #444; margin: 4px 3px;")
-        self._layout.addWidget(sep)
+        layout.addWidget(sep)
 
     def activate_flow_mode(self) -> None:
         """Switch to heat flow view."""
         self._btn_flux.setChecked(True)
 
     def _set_view(self, mode: str) -> None:
-        self._heatmap_controls.setVisible(mode in ("heatmap", "flow"))
+        self._heatmap_row.setVisible(mode in ("heatmap", "flow"))
         self.view_mode_changed.emit(mode)
 
     def set_auto_init(self, auto: bool) -> None:
@@ -394,6 +417,6 @@ class Toolbar(QToolBar):
 
     def _on_border_toggled(self, key: str, checked: bool) -> None:
         display = self._border_labels[key]
-        self._border_btns[key].setText(f"{display}: {'Sink' if checked else 'Ins.'}")
+        self._border_btns[key].setText(f"{display}: {'Fixed T' if checked else 'Insulated'}")
         bc = {k: "sink" if btn.isChecked() else "insulator" for k, btn in self._border_btns.items()}
         self.boundary_conditions_changed.emit(bc)

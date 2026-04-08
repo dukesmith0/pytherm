@@ -13,9 +13,11 @@ from src.rendering.units import KelvinSpinBox
 # Speed options must match BottomBar._speed_combo options.
 _SPEED_OPTIONS: list[tuple[str, float]] = [
     ("1\u00d7",       1.0),
+    ("2\u00d7",       2.0),
+    ("5\u00d7",       5.0),
     ("10\u00d7",      10.0),
     ("100\u00d7",     100.0),
-    ("1\u202f000\u00d7",  1_000.0),
+    ("1 000\u00d7",   1_000.0),
 ]
 
 
@@ -30,7 +32,7 @@ class PreferencesDialog(QDialog):
 
         def _section(title: str) -> None:
             lbl = QLabel(f"  {title}")
-            lbl.setStyleSheet("font-weight: bold; color: #999; font-size: 10px; padding-top: 6px;")
+            lbl.setStyleSheet("font-weight: bold; color: #b0b0b0; font-size: 10px; padding-top: 6px;")
             form.addRow(lbl)
 
         _section("Appearance")

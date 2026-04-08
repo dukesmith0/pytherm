@@ -113,6 +113,19 @@ def create_app() -> tuple[QApplication, MainWindow]:
     sidebar.set_theme(prefs.theme)
 
     # ── Draw / Select / Fill mode ────────────────────────────────────────────
+    _current_mode: str = "draw"
+    _mode_labels = {"draw": "Draw", "select": "Select", "fill": "Fill"}
+
+    def _update_status(mode: str | None = None, n_selected: int = 0) -> None:
+        nonlocal _current_mode
+        if mode is not None:
+            _current_mode = mode
+        parts = [_mode_labels.get(_current_mode, _current_mode)]
+        if n_selected:
+            parts.append(f"{n_selected} selected")
+        window.statusBar().showMessage("  ·  ".join(parts))
+
+    toolbar.mode_changed.connect(lambda m: _update_status(mode=m))
     toolbar.mode_changed.connect(view.set_mode)
     toolbar.mode_changed.connect(sidebar.set_mode)
 
@@ -129,6 +142,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     def _on_cells_selected(cells: list[tuple[int, int]]) -> None:
         nonlocal _current_selection
         _current_selection = cells
+        _update_status(n_selected=len(cells))
         sidebar.show_cells(cells)
         for _p in _plot_panels:
             _p.set_tracked_cells(cells)
@@ -320,6 +334,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     toolbar.fit_view_requested.connect(view.fit_grid)
     toolbar.abbr_toggled.connect(scene.set_show_abbr)
     toolbar.label_toggled.connect(scene.set_show_label)
+    toolbar.heat_vectors_toggled.connect(scene.set_show_heat_vectors)
 
     # All closures below share 'grid' via nonlocal. _on_new_grid rebinds it
     # so Materials Manager, Save, etc. always operate on the live grid.
@@ -409,7 +424,14 @@ def create_app() -> tuple[QApplication, MainWindow]:
     def _apply_new_grid(new_grid: Grid, dx_m: float, *,
                         bc: dict | None = None,
                         file_path: str | None = None) -> None:
+        """Replace the active grid and resync all components.
+
+        Pauses the simulator first to prevent the QTimer from firing
+        mid-swap, then rebinds the shared grid reference and resets
+        all dependent state (history, plots, scene, sidebar, toolbar).
+        """
         nonlocal grid
+        sim_clock.pause()
         grid = new_grid
         _current_selection.clear()
         solver.dx = dx_m
@@ -641,7 +663,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
     def _prompt_save_before_continuing(action: str) -> bool:
         """Returns True if safe to proceed (saved or discarded), False if cancelled."""
         box = QMessageBox(window)
-        box.setWindowTitle(f"{action} \u2014 Unsaved Changes")
+        box.setWindowTitle(f"{action} -- Unsaved Changes")
         box.setText("You have unsaved changes. Save before continuing?")
         box.setIcon(QMessageBox.Icon.Warning)
         save_btn    = box.addButton("Save",    QMessageBox.ButtonRole.AcceptRole)
@@ -868,12 +890,24 @@ def create_app() -> tuple[QApplication, MainWindow]:
                 protected=cd.get("protected", False),
             )
 
+        # Check if any non-fixed cell has a non-ambient temperature (prior sim state)
+        _amb = new_grid.ambient_temp_k
+        _has_prior_state = any(
+            abs(new_grid.cell(r, c).temperature - _amb) > 0.01
+            for r in range(new_grid.rows) for c in range(new_grid.cols)
+            if not new_grid.cell(r, c).is_fixed and not new_grid.cell(r, c).material.is_vacuum
+        )
+
         ss = data.get("sim_settings", {})
         _apply_new_grid(
             new_grid, gd["dx_m"],
             bc=ss.get("boundary_conditions", _DEFAULT_BC),
             file_path=path if add_to_recent else None,
         )
+        if _has_prior_state:
+            window.statusBar().showMessage(
+                "Temperatures loaded from file -- press R to reset to ambient"
+            )
         if add_to_recent:
             _rebuild_recent_menu(add_recent(path))
 
@@ -1155,6 +1189,7 @@ def create_app() -> tuple[QApplication, MainWindow]:
         vacuum = registry.get("vacuum")
         grid.resize(top, right, bottom, left, vacuum)
         history.clear()
+        _step_history.clear()
         sim_clock.reset()
         sim_clock.set_grid(grid)
         scene.set_grid(grid)

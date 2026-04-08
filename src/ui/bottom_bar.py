@@ -93,22 +93,22 @@ class BottomBar(QToolBar):
 
         self._chk_steady = QCheckBox("Stop at SS")
         self._chk_steady.setToolTip(
-            "Run until steady state \u2014 pauses automatically when max \u0394T rate < 0.01 K/s"
+            "Run until steady state -- pauses automatically when max \u0394T rate < 0.01 K/s"
         )
         self._layout.addWidget(self._chk_steady)
 
         self._add_sep()
 
         self._time_label = QLabel("0:00:00.000")
-        self._time_label.setStyleSheet("padding: 0 8px; color: #aaa;")
+        self._time_label.setStyleSheet("padding: 0 8px; color: #b0b0b0;")
         self._layout.addWidget(self._time_label)
 
         self._substep_label = QLabel("")
-        self._substep_label.setStyleSheet("padding: 0 4px; color: #999; font-size: 11px;")
+        self._substep_label.setStyleSheet("padding: 0 4px; color: #b0b0b0; font-size: 11px;")
         self._layout.addWidget(self._substep_label)
 
         self._energy_label = QLabel("")
-        self._energy_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._energy_label.setStyleSheet("padding: 0 8px; color: #b0b0b0; font-size: 11px;")
         self._energy_label.setToolTip(
             "E: current stored energy above ambient\n"
             "ref: E_start + energy in from fixed cells + energy in from sinks\n"
@@ -117,14 +117,14 @@ class BottomBar(QToolBar):
         self._layout.addWidget(self._energy_label)
 
         self._power_label = QLabel("")
-        self._power_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._power_label.setStyleSheet("padding: 0 8px; color: #b0b0b0; font-size: 11px;")
         self._power_label.setToolTip(
             "Total heat injection rate from fixed-T and heat-flux cells (W per metre depth)"
         )
         self._layout.addWidget(self._power_label)
 
         self._dx_label = QLabel("")
-        self._dx_label.setStyleSheet("padding: 0 8px; color: #aaa; font-size: 11px;")
+        self._dx_label.setStyleSheet("padding: 0 8px; color: #b0b0b0; font-size: 11px;")
         self._dx_label.setToolTip("Physical cell size (set in toolbar)")
         self._layout.addWidget(self._dx_label)
 
@@ -134,7 +134,7 @@ class BottomBar(QToolBar):
         self._add_sep()
 
         amb_lbl = QLabel("Amb:")
-        amb_lbl.setStyleSheet("padding: 0 2px; color: #aaa;")
+        amb_lbl.setStyleSheet("padding: 0 2px; color: #b0b0b0;")
         self._layout.addWidget(amb_lbl)
 
         self._ambient_k: float = 293.15
@@ -144,19 +144,19 @@ class BottomBar(QToolBar):
         self._amb_spin.setValue(_units.to_display(self._ambient_k))
         self._amb_spin.setSuffix(f" {_units.suffix()}")
         self._amb_spin.setFixedWidth(100)
-        self._amb_spin.setToolTip("Ambient temperature \u2014 used as reset reference and for sink boundary conditions")
+        self._amb_spin.setToolTip("Ambient temperature -- used as reset reference and for sink boundary conditions")
         self._layout.addWidget(self._amb_spin)
 
         # -- Unit toggle (right-anchored) -------------------------------------
         self._add_sep()
 
         unit_lbl = QLabel("Unit:")
-        unit_lbl.setStyleSheet("padding: 0 2px; color: #aaa;")
+        unit_lbl.setStyleSheet("padding: 0 2px; color: #b0b0b0;")
         self._layout.addWidget(unit_lbl)
 
         self._unit_combo = QComboBox()
         self._unit_combo.setFixedWidth(58)
-        self._unit_combo.setToolTip("Temperature display unit \u2014 applies to all spinboxes and the heatmap labels")
+        self._unit_combo.setToolTip("Temperature display unit -- applies to all spinboxes and the heatmap labels")
         for u in ("\u00b0C", "K", "\u00b0F", "R"):
             self._unit_combo.addItem(u)
         self._layout.addWidget(self._unit_combo)

@@ -5,7 +5,14 @@
     "ambient_temp_k": 293.15,
     "dx_m": 0.005
   },
-  "sim_settings": {},
+  "sim_settings": {
+    "boundary_conditions": {
+      "top": "insulator",
+      "bottom": "insulator",
+      "left": "insulator",
+      "right": "insulator"
+    }
+  },
   "cells": [
     {
       "row": 0,

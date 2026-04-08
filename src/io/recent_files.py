@@ -23,8 +23,12 @@ def load_recent() -> list[str]:
 def _write_recent(files: list[str]) -> None:
     _RECENT_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = _RECENT_PATH.with_suffix(".tmp")
-    tmp.write_text(json.dumps(files, indent=2), encoding="utf-8")
-    os.replace(tmp, _RECENT_PATH)
+    try:
+        tmp.write_text(json.dumps(files, indent=2), encoding="utf-8")
+        os.replace(tmp, _RECENT_PATH)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def add_recent(path: str) -> list[str]:

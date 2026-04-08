@@ -92,9 +92,9 @@ class MaterialConflictDialog(QDialog):
         for mat in self._conflicts:
             row = QHBoxLayout()
             orig_lbl = QLabel(mat.name)
-            orig_lbl.setStyleSheet("color: #aaa; min-width: 120px;")
+            orig_lbl.setStyleSheet("color: #b0b0b0; min-width: 120px;")
             arrow = QLabel("\u2192")
-            arrow.setStyleSheet("color: #999; padding: 0 6px;")
+            arrow.setStyleSheet("color: #b0b0b0; padding: 0 6px;")
             edit = QLineEdit(f"{mat.name}-Copy")
             self._edits.append(edit)
             row.addWidget(orig_lbl)

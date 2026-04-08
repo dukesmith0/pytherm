@@ -308,7 +308,7 @@ class ConvergencePanel(QDockWidget):
 
         bar = QHBoxLayout()
         self._info_label = QLabel("max dT/dt vs time (log scale)")
-        self._info_label.setStyleSheet("color: #aaa; font-size: 10px;")
+        self._info_label.setStyleSheet("color: #b0b0b0; font-size: 10px;")
         bar.addWidget(self._info_label)
         bar.addStretch()
 

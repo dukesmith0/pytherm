@@ -29,11 +29,12 @@ class ResizeGridDialog(QDialog):
             sb.valueChanged.connect(self._update_preview)
             return sb
 
-        max_add = 500
-        self._top    = _spinbox(-current_rows + 1, max_add)
-        self._bottom = _spinbox(-current_rows + 1, max_add)
-        self._left   = _spinbox(-current_cols + 1, max_add)
-        self._right  = _spinbox(-current_cols + 1, max_add)
+        max_rows = 200 - current_rows
+        max_cols = 200 - current_cols
+        self._top    = _spinbox(-current_rows + 1, max(0, max_rows))
+        self._bottom = _spinbox(-current_rows + 1, max(0, max_rows))
+        self._left   = _spinbox(-current_cols + 1, max(0, max_cols))
+        self._right  = _spinbox(-current_cols + 1, max(0, max_cols))
 
         form.addRow("Add/trim top:",    self._top)
         form.addRow("Add/trim bottom:", self._bottom)
@@ -41,7 +42,7 @@ class ResizeGridDialog(QDialog):
         form.addRow("Add/trim right:",  self._right)
 
         self._preview = QLabel()
-        self._preview.setStyleSheet("color: #9999cc; font-size: 11px;")
+        self._preview.setStyleSheet("color: #b0b0cc; font-size: 11px;")
         form.addRow("Result:", self._preview)
         self._update_preview()
 
@@ -63,9 +64,11 @@ class ResizeGridDialog(QDialog):
         self._preview.setText(f"{new_r} \u00d7 {new_c}  (was {self._rows} \u00d7 {self._cols})")
         ok_btn = self.findChild(QDialogButtonBox)
         if ok_btn:
+            has_change = (self._top.value() != 0 or self._bottom.value() != 0
+                          or self._left.value() != 0 or self._right.value() != 0)
+            within_limits = new_r <= 200 and new_c <= 200
             ok_btn.button(QDialogButtonBox.StandardButton.Ok).setEnabled(
-                self._top.value() != 0 or self._bottom.value() != 0
-                or self._left.value() != 0 or self._right.value() != 0
+                has_change and within_limits
             )
 
     def values(self) -> tuple[int, int, int, int]:

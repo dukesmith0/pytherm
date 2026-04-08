@@ -4,26 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PyTherm - 2D Heat Conduction Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #16162a;
-      color: #cccccc;
-      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 14px;
+      background: #0F172A;
+      color: #CBD5E1;
+      font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 15px;
       line-height: 1.6;
       min-height: 100vh;
     }
 
-    a { color: #4488bb; text-decoration: none; }
-    a:hover { color: #88ccff; }
+    a { color: #3B82F6; text-decoration: none; }
+    a:hover { color: #60A5FA; }
 
     /* ── Header ── */
     .header {
-      background: #16162a;
-      border-bottom: 1px solid #2a2a45;
-      padding: 28px 48px;
+      background: #0F172A;
+      border-bottom: 1px solid #1E293B;
+      padding: 32px 48px;
       display: flex;
       align-items: center;
       gap: 24px;
@@ -31,8 +34,8 @@
 
     .header-logo {
       flex-shrink: 0;
-      width: 80px;
-      height: 80px;
+      width: 72px;
+      height: 72px;
     }
 
     .header-text { display: flex; flex-direction: column; gap: 4px; }
@@ -40,73 +43,74 @@
     .header-title {
       font-size: 36px;
       font-weight: 700;
-      color: #ffffff;
+      color: #F1F5F9;
       letter-spacing: -0.5px;
     }
 
-    .header-subtitle { font-size: 14px; color: #9999cc; }
+    .header-subtitle { font-size: 15px; color: #94A3B8; }
 
-    .header-meta { font-size: 12px; color: #555577; }
+    .header-meta { font-size: 12px; color: #475569; }
 
     .header-github {
       font-size: 12px;
-      color: #4488bb;
+      color: #3B82F6;
       display: flex;
       align-items: center;
       gap: 4px;
+      cursor: pointer;
     }
-    .header-github:hover { color: #88ccff; }
+    .header-github:hover { color: #60A5FA; }
 
     /* ── Main content ── */
     .content {
-      max-width: 760px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 40px 24px 64px;
+      padding: 48px 24px 64px;
     }
 
-    /* ── Description ── */
+    /* ── Hero description ── */
     .description {
-      background: #1e1e32;
-      border: 1px solid #2a2a45;
-      border-radius: 6px;
-      padding: 24px 28px;
-      margin-bottom: 32px;
-      color: #bbbbcc;
-      font-size: 14px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+      color: #94A3B8;
+      font-size: 15px;
       line-height: 1.75;
     }
 
     /* ── Section headers ── */
     .section-label {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: #555577;
+      letter-spacing: 1.5px;
+      color: #475569;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     /* ── Getting started ── */
     .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
 
     .step {
-      background: #1e1e32;
-      border: 1px solid #2a2a45;
-      border-radius: 5px;
-      padding: 14px 18px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 16px 20px;
       display: flex;
       align-items: flex-start;
       gap: 14px;
     }
 
     .step-num {
-      background: #2a7a6e;
+      background: #3B82F6;
       color: #ffffff;
       font-weight: 700;
       font-size: 12px;
       border-radius: 50%;
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -115,88 +119,132 @@
     }
 
     .step-body { flex: 1; }
-    .step-title { font-weight: 600; color: #ddddee; margin-bottom: 4px; }
-    .step-desc { color: #888899; font-size: 13px; }
+    .step-title { font-weight: 600; color: #E2E8F0; margin-bottom: 4px; }
+    .step-desc { color: #64748B; font-size: 13px; }
 
     code {
-      background: #0d0d1a;
-      border: 1px solid #333355;
-      border-radius: 3px;
-      padding: 1px 6px;
-      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
-      font-size: 12px;
-      color: #9999cc;
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+      color: #94A3B8;
     }
 
     pre {
-      background: #0d0d1a;
-      border: 1px solid #333355;
-      border-radius: 4px;
-      padding: 12px 16px;
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 14px 18px;
       margin-top: 6px;
-      font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
-      font-size: 12px;
-      color: #9999cc;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+      color: #94A3B8;
       overflow-x: auto;
     }
 
     /* ── Separator ── */
     .sep {
       border: none;
-      border-top: 1px solid #2a2a45;
-      margin: 28px 0;
+      border-top: 1px solid #1E293B;
+      margin: 32px 0;
     }
 
-    /* ── Features table ── */
-    .features-grid {
+    /* ── Bento feature grid ── */
+    .bento-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 32px;
+      gap: 12px;
+      margin-bottom: 36px;
     }
 
     .feature-card {
-      background: #1e1e32;
-      border: 1px solid #2a2a45;
-      border-radius: 5px;
-      padding: 14px 16px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 18px 20px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: #3B82F6; }
+
+    .feature-card.large {
+      grid-column: span 2;
+      display: flex;
+      gap: 20px;
+      align-items: center;
     }
 
-    .feature-title { font-weight: 600; color: #ddddee; margin-bottom: 3px; font-size: 13px; }
-    .feature-desc  { color: #777788; font-size: 12px; }
+    .feature-title { font-weight: 600; color: #E2E8F0; margin-bottom: 4px; font-size: 14px; }
+    .feature-desc  { color: #64748B; font-size: 13px; line-height: 1.5; }
 
-    /* ── Download button ── */
+    .stat {
+      font-size: 32px;
+      font-weight: 700;
+      color: #3B82F6;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Tech specs ── */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 36px;
+      font-size: 13px;
+    }
+
+    .specs-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #1E293B;
+      color: #94A3B8;
+      font-weight: 600;
+      border-bottom: 1px solid #334155;
+    }
+
+    .specs-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1E293B;
+      color: #CBD5E1;
+    }
+
+    .specs-table tr:last-child td { border-bottom: none; }
+
+    /* ── Buttons ── */
     .btn-primary {
       display: inline-block;
-      background: #2a7a6e;
+      background: #3B82F6;
       color: #ffffff;
-      font-weight: 700;
-      font-size: 13px;
-      padding: 10px 24px;
-      border-radius: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 6px;
       text-decoration: none;
-      transition: background 0.15s;
+      transition: background 0.2s;
+      cursor: pointer;
     }
-    .btn-primary:hover { background: #37a090; color: #ffffff; }
+    .btn-primary:hover { background: #2563EB; color: #ffffff; }
 
     .btn-secondary {
       display: inline-block;
-      background: #38385a;
-      color: #cccccc;
-      font-size: 13px;
-      padding: 10px 24px;
-      border-radius: 4px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      color: #CBD5E1;
+      font-size: 14px;
+      padding: 11px 24px;
+      border-radius: 6px;
       text-decoration: none;
-      transition: background 0.15s;
-      margin-left: 10px;
+      transition: background 0.2s, border-color 0.2s;
+      cursor: pointer;
     }
-    .btn-secondary:hover { background: #4a4a72; color: #ffffff; }
+    .btn-secondary:hover { background: #334155; border-color: #475569; color: #ffffff; }
 
-    .btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+    .btn-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 36px; }
 
     /* ── Footer ── */
     .footer {
-      border-top: 1px solid #2a2a45;
+      border-top: 1px solid #1E293B;
       padding: 24px 48px;
       display: flex;
       align-items: center;
@@ -204,16 +252,18 @@
       flex-wrap: wrap;
       gap: 12px;
       font-size: 12px;
-      color: #555577;
+      color: #475569;
     }
 
-    .footer a { color: #555577; }
-    .footer a:hover { color: #88ccff; }
+    .footer a { color: #475569; }
+    .footer a:hover { color: #60A5FA; }
 
-    @media (max-width: 600px) {
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
       .header { padding: 20px 20px; flex-wrap: wrap; }
       .content { padding: 24px 16px 48px; }
-      .features-grid { grid-template-columns: 1fr; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .feature-card.large { grid-column: span 1; flex-direction: column; }
       .footer { padding: 20px; }
     }
   </style>
@@ -223,7 +273,7 @@
   <!-- ── Header ───────────────────────────────────────────────────────────── -->
   <header class="header">
     <svg class="header-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
-      <rect width="80" height="80" fill="#1c1c28"/>
+      <rect width="80" height="80" fill="#1E293B" rx="8"/>
       <rect x="2"    y="2"    width="13" height="13" rx="2" fill="#ff0000"/>
       <rect x="17.6" y="2"    width="13" height="13" rx="2" fill="#ffb400"/>
       <rect x="33.2" y="2"    width="13" height="13" rx="2" fill="#95ff00"/>
@@ -254,7 +304,7 @@
     <div class="header-text">
       <div class="header-title">PyTherm</div>
       <div class="header-subtitle">2D Heat Conduction Simulator</div>
-      <div class="header-meta">v1.0.0 &nbsp;·&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;·&nbsp; 2026</div>
+      <div class="header-meta">v1.1.0 &nbsp;&middot;&nbsp; Made by Craig &#8220;Duke&#8221; Smith &nbsp;&middot;&nbsp; 2026</div>
       <a class="header-github" href="https://github.com/dukesmith0/pytherm">
         &#x2316;&nbsp; github.com/dukesmith0/pytherm
       </a>
@@ -264,28 +314,127 @@
   <!-- ── Content ──────────────────────────────────────────────────────────── -->
   <main class="content">
 
-    <!-- Description -->
+    <!-- Hero description -->
     <div class="description">
       PyTherm is an interactive 2D heat conduction simulator for the desktop. Paint a grid of real
-      materials, set fixed-temperature heat sources or constant heat flux sources, and watch Fourier conduction propagate in real
-      time. Built for students, educators, and engineers who want to explore thermal behavior
+      engineering materials, set fixed-temperature heat sources or constant heat flux sources,
+      and watch Fourier conduction propagate in real time. Built with Python, PyQt6, and NumPy
+      for students, educators, and thermal engineers who want to explore thermal behavior
       without spinning up a full FEA suite.
     </div>
 
     <!-- Download / links -->
     <p class="section-label">Get It</p>
     <div class="btn-row">
-      <a class="btn-primary" href="https://github.com/dukesmith0/pytherm/releases">&#x25BC;&nbsp; Download Latest</a>
+      <a class="btn-primary" href="https://github.com/dukesmith0/pytherm/releases">Download v1.1.0</a>
       <a class="btn-secondary" href="https://github.com/dukesmith0/pytherm">View on GitHub</a>
     </div>
+
+    <hr class="sep" />
+
+    <!-- ── Bento Feature Grid ─────────────────────────────────────────────── -->
+    <p class="section-label">Features</p>
+    <div class="bento-grid">
+
+      <!-- Large cards -->
+      <div class="feature-card large">
+        <div class="stat">196</div>
+        <div>
+          <div class="feature-title">Built-in engineering materials</div>
+          <div class="feature-desc">Metals, ceramics, polymers, construction, electronics, gases, liquids, minerals, and earth materials across 26+ subcategories. Create custom materials with your own properties.</div>
+        </div>
+      </div>
+
+      <div class="feature-card large">
+        <div class="stat">CFL</div>
+        <div>
+          <div class="feature-title">Per-cell adaptive sub-stepping</div>
+          <div class="feature-desc">Explicit FDM with harmonic-mean conductivity at interfaces. Per-cell CFL stability analysis is up to 2000x more efficient than global CFL for mixed-material grids.</div>
+        </div>
+      </div>
+
+      <!-- Standard cards -->
+      <div class="feature-card">
+        <div class="feature-title">Heat flow vectors</div>
+        <div class="feature-desc">Per-cell arrows showing heat flow direction and magnitude. Auto-decimated by zoom level with two-pass rendering for contrast.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Three view modes</div>
+        <div class="feature-desc">Material view, live temperature heatmap, and heat flow rate (W). Toggle with toolbar buttons or Q key.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Isotherms and hotspots</div>
+        <div class="feature-desc">Temperature contour lines over the heatmap. Highlight cells above a threshold in red. Customizable colors and line width.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Fixed-T and heat flux sources</div>
+        <div class="feature-desc">Pin cells to fixed temperatures or set constant flux (W/m&sup2; or W/m&sup3;). Negative flux for cooling. Volumetric or surface mode.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Energy conservation display</div>
+        <div class="feature-desc">Real-time stored energy, reference energy, and conservation error. Confirms solver correctness at a glance.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Thermal resistance report</div>
+        <div class="feature-desc">Compute R_th = dT/Q between source and sink cells. Copy results for engineering documentation.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Temperature vs. time plots</div>
+        <div class="feature-desc">Dockable plot panels with synchronized crosshairs. Pin points, Shift+click for cross-panel sync. Save as .pythermplot.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Convergence graph</div>
+        <div class="feature-desc">Log-scale dT/dt vs time. Threshold line shows when steady state is reached. Auto-pause on convergence.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Light and dark themes</div>
+        <div class="feature-desc">QPalette-based theming. Canvas, sidebar, plots, legend, tooltips, and dialogs all adapt. Dark default.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">15 example templates</div>
+        <div class="feature-desc">From 1D conduction bars to nuclear fuel rods, thermos flasks, re-entry tiles, and thermoelectric coolers.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Draw, fill, and select tools</div>
+        <div class="feature-desc">Paint cells, flood-fill regions, select and group-edit. Protected cells skip draw/fill/delete/paste.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Command palette</div>
+        <div class="feature-desc">Ctrl+Shift+P opens fuzzy search for all actions and materials. 30+ keyboard shortcuts.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Four temperature units</div>
+        <div class="feature-desc">Display in &deg;C, K, &deg;F, or Rankine. Type values with unit suffix (100C, 373K) to auto-convert.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-title">Step history navigation</div>
+        <div class="feature-desc">Browse past temperature snapshots with [ and ] keys. Escape returns to present state.</div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── Tech Specs ─────────────────────────────────────────────────────── -->
+    <p class="section-label">Technical Details</p>
+    <table class="specs-table">
+      <tr><th>Solver</th><td>Explicit forward Euler FDM with per-cell CFL sub-stepping</td></tr>
+      <tr><th>Interface model</th><td>Harmonic mean of k at cell interfaces (series resistance analogy)</td></tr>
+      <tr><th>Boundary conditions</th><td>Insulated (zero flux) or Fixed-T (ambient) per edge</td></tr>
+      <tr><th>Steady-state</th><td>Rate-based detection: max |dT|/dt &lt; 0.01 K/s (configurable)</td></tr>
+      <tr><th>Grid size</th><td>1&times;1 to 200&times;200 cells, configurable cell size</td></tr>
+      <tr><th>Internal units</th><td>Kelvin (conversions at display layer only)</td></tr>
+      <tr><th>Stack</th><td>Python 3.10+, PyQt6, NumPy</td></tr>
+      <tr><th>Tests</th><td>144 pytest tests (solver, grid, I/O, rendering, UI)</td></tr>
+      <tr><th>License</th><td>MIT</td></tr>
+    </table>
 
     <hr class="sep" />
 
     <!-- Getting started -->
     <p class="section-label">Getting Started</p>
 
-    <p style="color:#aaa; margin-bottom:16px;">
-      <strong style="color:#eee;">Option A: Standalone executable</strong> &mdash; no Python required
+    <p style="color:#94A3B8; margin-bottom:16px;">
+      <strong style="color:#E2E8F0;">Option A: Standalone executable</strong> &mdash; no Python required
     </p>
     <div class="steps">
       <div class="step">
@@ -307,165 +456,25 @@
       </div>
     </div>
 
-    <p style="color:#aaa; margin: 20px 0 16px;">
-      <strong style="color:#eee;">Option B: From source</strong> &mdash; for development or customization
+    <p style="color:#94A3B8; margin: 20px 0 16px;">
+      <strong style="color:#E2E8F0;">Option B: From source</strong> &mdash; for development or customization
     </p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-body">
-          <div class="step-title">Requirements</div>
-          <div class="step-desc">Python 3.10 or newer. PyQt6 and NumPy are the only dependencies.</div>
+          <div class="step-title">Clone and install</div>
+          <pre>git clone https://github.com/dukesmith0/pytherm.git
+cd pytherm
+pip install -r requirements.txt</pre>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-body">
-          <div class="step-title">Clone the repository</div>
-          <pre>git clone https://github.com/dukesmith0/pytherm.git
-cd pytherm</pre>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <div class="step-title">Install dependencies</div>
-          <pre>pip install -r requirements.txt</pre>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body">
           <div class="step-title">Run</div>
           <pre>python main.py</pre>
-          <div class="step-desc" style="margin-top:6px;">
-            A startup dialog lets you configure grid size and ambient temperature,
-            then click <strong style="color:#ddddee;">Create New Grid</strong> to begin.
-          </div>
         </div>
-      </div>
-    </div>
-
-    <hr class="sep" />
-
-    <!-- Features -->
-    <p class="section-label">Features</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-title">Real-time FDM solver</div>
-        <div class="feature-desc">Explicit finite-difference with CFL sub-stepping. Harmonic mean conductivity at interfaces.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">196 built-in materials</div>
-        <div class="feature-desc">Metals, ceramics, polymers, construction, electronics, gases, liquids, minerals, earth, and more across 26+ subcategories.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Draw, Fill, and Select tools</div>
-        <div class="feature-desc">Paint cells, flood-fill regions, inspect and edit individual or grouped cells.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Heatmap and material views</div>
-        <div class="feature-desc">Toggle between color-by-material and a live temperature heatmap with an auto-scaling legend.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Fixed-temperature sources</div>
-        <div class="feature-desc">Pin any cell to a fixed temperature or set a constant heat flux (W/m²) to model heaters, heat sinks, or boundary conditions.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Steady-state detection</div>
-        <div class="feature-desc">Optionally stop automatically when the simulation converges. Export the view as a PNG.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Cell info tooltip</div>
-        <div class="feature-desc">Hover over any cell for live temperature, energy, thermal time constant (τ), and resistance (R).</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Copy / paste cells</div>
-        <div class="feature-desc">Ctrl+C copies a cell's material and temperature; Ctrl+V pastes to all selected cells at once.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Grid coordinates</div>
-        <div class="feature-desc">Row and column indices appear at the grid edges when zoomed in, making large grids easier to navigate.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Paint temperature</div>
-        <div class="feature-desc">Optionally lock the painted temperature when drawing, so new cells start at a chosen temperature.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Four temperature units</div>
-        <div class="feature-desc">Display in &deg;C, K, &deg;F, or Rankine. Type a value with a unit suffix (e.g. 100C, 373K) in any spinbox to auto-convert.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Energy conservation display</div>
-        <div class="feature-desc">Bottom bar shows stored energy E, reference E_ref, and conservation error; confirms solver correctness in real time.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Isotherms and hotspot overlay</div>
-        <div class="feature-desc">Draw temperature contour lines over the heatmap. Highlight cells above a configurable threshold in red.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Protect cells from overpainting</div>
-        <div class="feature-desc">Lock any cell so draw, fill, delete, and paste operations skip it. Toggle with right-click or the P key.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Named cell labels and group highlight</div>
-        <div class="feature-desc">Assign short text labels to cells. Cells with a shared label form a group; selecting one highlights the whole group in orange.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Temperature vs. time plots</div>
-        <div class="feature-desc">Dockable plot panels track selected cells over time. Multiple panels with synchronized cursors and pinned points.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Command palette</div>
-        <div class="feature-desc">Ctrl+Shift+P opens a fuzzy-search palette for all actions and materials -- no menu hunting required.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Grid resize and selection tools</div>
-        <div class="feature-desc">Add or trim rows/cols from any edge. Find the hottest or coldest cell instantly. Reset selected cells to ambient temperature.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Convergence graph</div>
-        <div class="feature-desc">Dockable panel plots max dT/dt vs simulated time on a log scale. Threshold line shows when steady state is reached.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Thermal resistance report</div>
-        <div class="feature-desc">Compute R_th = dT/Q between source and sink cells. Copy results to clipboard for engineering documentation.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Save and load plots</div>
-        <div class="feature-desc">Export temperature-vs-time data as .pythermplot files. Open saved plots in a read-only viewer for comparison.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Step history navigation</div>
-        <div class="feature-desc">Browse through past temperature snapshots with [ and ] keys. Escape returns to the present state.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Heat flow view</div>
-        <div class="feature-desc">Third view mode showing heat flow rate (W) per cell. Identify thermal bottlenecks at a glance. Toggle with Q key.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Volumetric heat flux</div>
-        <div class="feature-desc">Flux cells support surface (W/m&sup2;) or volumetric (W/m&sup3;) modes. Negative flux for heat removal (TEC, cooling).</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Light and dark themes</div>
-        <div class="feature-desc">Switch between dark CAD-style and clean light theme. Canvas, sidebar, plots, legend all adapt. Persisted in Preferences.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Heatmap scale modes</div>
-        <div class="feature-desc">Static, Live, or Smart bounds. Auto-init from grid data or set manually. Reverse palette option.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">15 example templates</div>
-        <div class="feature-desc">From 1D conduction bars to nuclear fuel rods, thermos flasks, and thermoelectric coolers. Load from File > Templates.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Keyboard shortcuts reference</div>
-        <div class="feature-desc">Help &gt; Keyboard Shortcuts (Ctrl+/) shows every hotkey in a searchable table. 30+ shortcuts across 5 categories.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">9 example templates</div>
-        <div class="feature-desc">File &gt; Open Template includes PCB, heat sink, building wall, brake rotor, pipe cross-section, 1D conduction bar, and more.</div>
       </div>
     </div>
 
@@ -484,10 +493,10 @@ cd pytherm</pre>
 
   <!-- ── Footer ───────────────────────────────────────────────────────────── -->
   <footer class="footer">
-    <span>PyTherm v1.0.0 &nbsp;·&nbsp; MIT License</span>
+    <span>PyTherm v1.1.0 &nbsp;&middot;&nbsp; MIT License</span>
     <span>
       <a href="https://craigdukesmith.com">craigdukesmith.com</a>
-      &nbsp;&nbsp;·&nbsp;&nbsp;
+      &nbsp;&nbsp;&middot;&nbsp;&nbsp;
       <a href="https://github.com/dukesmith0/pytherm">GitHub</a>
     </span>
   </footer>

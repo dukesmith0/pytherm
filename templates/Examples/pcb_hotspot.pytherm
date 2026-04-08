@@ -1214,7 +1214,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 6,
@@ -1404,7 +1405,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 7,
@@ -1414,7 +1416,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 7,
@@ -1604,7 +1607,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 8,
@@ -1614,7 +1618,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 8,
@@ -1694,7 +1699,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
@@ -1704,7 +1711,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
@@ -1714,7 +1723,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
@@ -1724,7 +1735,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
@@ -1804,7 +1817,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 9,
@@ -1814,7 +1828,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 9,
@@ -1824,7 +1839,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1834,7 +1850,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1844,7 +1861,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1854,7 +1872,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1864,7 +1883,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1874,7 +1894,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1884,7 +1905,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1894,7 +1916,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
@@ -1904,7 +1928,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
@@ -1914,7 +1940,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
@@ -1924,7 +1952,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
@@ -1934,7 +1964,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1944,7 +1975,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1954,7 +1986,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1964,7 +1997,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1974,7 +2008,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1984,7 +2019,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -1994,7 +2030,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 9,
@@ -2004,7 +2041,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 10,
@@ -2014,7 +2052,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 10,
@@ -2024,7 +2063,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2034,7 +2074,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2044,7 +2085,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2054,7 +2096,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2064,7 +2107,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2074,7 +2118,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2084,7 +2129,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2094,7 +2140,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 10,
@@ -2104,7 +2152,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 10,
@@ -2114,7 +2164,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 10,
@@ -2124,7 +2176,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 10,
@@ -2134,7 +2188,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2144,7 +2199,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2154,7 +2210,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2164,7 +2221,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2174,7 +2232,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2184,7 +2243,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2194,7 +2254,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Trace"
     },
     {
       "row": 10,
@@ -2204,7 +2265,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 11,
@@ -2214,7 +2276,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 11,
@@ -2294,7 +2357,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 11,
@@ -2304,7 +2369,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 11,
@@ -2314,7 +2381,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 11,
@@ -2324,7 +2393,9 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 500000.0
+      "flux_q": 100000000.0,
+      "label": "Die",
+      "is_volumetric_flux": true
     },
     {
       "row": 11,
@@ -2404,7 +2475,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 12,
@@ -2414,7 +2486,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 12,
@@ -2604,7 +2677,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 13,
@@ -2614,7 +2688,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 13,
@@ -2804,7 +2879,8 @@
       "is_fixed": true,
       "fixed_temp_k": 303.15,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Sink"
     },
     {
       "row": 14,

@@ -28,6 +28,32 @@ _YEAR    = "2026"
 _GITHUB  = "https://github.com/dukesmith0/pytherm"
 
 
+def _wc():
+    """Welcome dialog / About dialog theme-aware colors."""
+    from PyQt6.QtWidgets import QApplication
+    p = QApplication.instance().palette()
+    is_dark = p.window().color().lightnessF() < 0.5
+    if is_dark:
+        return {
+            "header_bg": "#16162a", "title": "#fff", "subtitle": "#9999cc",
+            "meta": "#8888aa", "link": "#4488bb", "link_hover": "#88ccff",
+            "section": "#b0b0b0", "field": "#b0b0b0", "recent": "#b0b0b0",
+            "recent_hover_bg": "#333355", "recent_hover_fg": "#fff",
+            "sep": "#333", "btn_create_bg": "#2a7a6e", "btn_create_hover": "#37a090",
+            "btn_open_bg": "#38385a", "btn_open_fg": "#ccc",
+            "btn_open_hover_bg": "#4a4a72", "btn_open_hover_fg": "#fff",
+        }
+    return {
+        "header_bg": "#e0e0f0", "title": "#1e1e1e", "subtitle": "#5555aa",
+        "meta": "#666688", "link": "#2266aa", "link_hover": "#1155cc",
+        "section": "#666", "field": "#555", "recent": "#555",
+        "recent_hover_bg": "#d0d0e8", "recent_hover_fg": "#1e1e1e",
+        "sep": "#ccc", "btn_create_bg": "#2a7a6e", "btn_create_hover": "#37a090",
+        "btn_open_bg": "#d0d0e8", "btn_open_fg": "#333",
+        "btn_open_hover_bg": "#b8b8d8", "btn_open_hover_fg": "#1e1e1e",
+    }
+
+
 # ── Logo / icon drawing ──────────────────────────────────────────────────────
 
 def _heatmap_color(t: float) -> QColor:
@@ -114,10 +140,11 @@ class WelcomeDialog(QDialog):
         root.setSpacing(0)
 
         # ── Header: logo + branding ──────────────────────────────────────────
+        c = _wc()
         header = QWidget()
         header.setAutoFillBackground(True)
         pal = header.palette()
-        pal.setColor(header.backgroundRole(), QColor(22, 22, 42))
+        pal.setColor(header.backgroundRole(), QColor(c["header_bg"]))
         header.setPalette(pal)
 
         hlayout = QHBoxLayout(header)
@@ -134,25 +161,25 @@ class WelcomeDialog(QDialog):
         text_col.setContentsMargins(0, 0, 0, 0)
 
         lbl_title = QLabel("PyTherm")
-        lbl_title.setStyleSheet("color: #ffffff; font-size: 26px; font-weight: bold;")
+        lbl_title.setStyleSheet(f"color: {c['title']}; font-size: 26px; font-weight: bold;")
         text_col.addWidget(lbl_title)
 
         lbl_sub = QLabel("2D Heat Conduction Simulator")
-        lbl_sub.setStyleSheet("color: #9999cc; font-size: 12px;")
+        lbl_sub.setStyleSheet(f"color: {c['subtitle']}; font-size: 12px;")
         text_col.addWidget(lbl_sub)
 
         lbl_meta = QLabel(f"{_VERSION}  ·  Made by {_AUTHOR}  ·  {_YEAR}")
-        lbl_meta.setStyleSheet("color: #8888aa; font-size: 11px;")
+        lbl_meta.setStyleSheet(f"color: {c['meta']}; font-size: 11px;")
         text_col.addWidget(lbl_meta)
 
         btn_gh = QPushButton("⌖  github.com/dukesmith0/pytherm")
-        btn_gh.setStyleSheet("""
-            QPushButton {
+        btn_gh.setStyleSheet(f"""
+            QPushButton {{
                 background: transparent; border: none;
-                color: #4488bb; font-size: 11px;
+                color: {c['link']}; font-size: 11px;
                 text-align: left; padding: 0;
-            }
-            QPushButton:hover { color: #88ccff; }
+            }}
+            QPushButton:hover {{ color: {c['link_hover']}; }}
         """)
         btn_gh.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_gh.setFlat(True)
@@ -170,7 +197,7 @@ class WelcomeDialog(QDialog):
         blayout.setSpacing(12)
 
         # New simulation section
-        blayout.addWidget(_section_label("NEW SIMULATION"))
+        blayout.addWidget(_section_label("NEW SIMULATION", c["section"]))
 
         dim_row = QHBoxLayout()
         dim_row.setSpacing(8)
@@ -229,40 +256,40 @@ class WelcomeDialog(QDialog):
 
         btn_new = QPushButton("▶   Create New Grid")
         btn_new.setStyleSheet(
-            "QPushButton { background-color: #2a7a6e; color: #fff; padding: 9px 0; "
-            "border-radius: 4px; font-size: 13px; font-weight: bold; } "
-            "QPushButton:hover { background-color: #37a090; }"
+            f"QPushButton {{ background-color: {c['btn_create_bg']}; color: #fff; padding: 9px 0; "
+            f"border-radius: 4px; font-size: 13px; font-weight: bold; }} "
+            f"QPushButton:hover {{ background-color: {c['btn_create_hover']}; }}"
         )
         btn_new.clicked.connect(self._on_new)
         blayout.addWidget(btn_new)
 
-        blayout.addWidget(_sep())
+        blayout.addWidget(_sep(c["sep"]))
 
         # Open file
         btn_open = QPushButton("📂   Open Existing File...")
         btn_open.setStyleSheet(
-            "QPushButton { background-color: #38385a; color: #ccc; padding: 9px 0; "
-            "border-radius: 4px; font-size: 13px; } "
-            "QPushButton:hover { background-color: #4a4a72; color: #fff; }"
+            f"QPushButton {{ background-color: {c['btn_open_bg']}; color: {c['btn_open_fg']}; padding: 9px 0; "
+            f"border-radius: 4px; font-size: 13px; }} "
+            f"QPushButton:hover {{ background-color: {c['btn_open_hover_bg']}; color: {c['btn_open_hover_fg']}; }}"
         )
         btn_open.clicked.connect(self._on_open)
         blayout.addWidget(btn_open)
 
         # Recent files
         if recent_files:
-            blayout.addWidget(_sep())
-            blayout.addWidget(_section_label("RECENT FILES"))
+            blayout.addWidget(_sep(c["sep"]))
+            blayout.addWidget(_section_label("RECENT FILES", c["section"]))
             for path in recent_files[:5]:
                 name = Path(path).name
                 r_btn = QPushButton(f"  ▸  {name}")
                 r_btn.setToolTip(path)
-                r_btn.setStyleSheet("""
-                    QPushButton {
-                        background: transparent; border: none; color: #aaa;
+                r_btn.setStyleSheet(f"""
+                    QPushButton {{
+                        background: transparent; border: none; color: {c['recent']};
                         text-align: left; padding: 4px 8px; font-size: 12px;
                         border-radius: 3px;
-                    }
-                    QPushButton:hover { color: #fff; background: #333355; }
+                    }}
+                    QPushButton:hover {{ color: {c['recent_hover_fg']}; background: {c['recent_hover_bg']}; }}
                 """)
                 r_btn.clicked.connect(lambda _c, p=path: self._on_recent(p))
                 blayout.addWidget(r_btn)
@@ -300,20 +327,21 @@ class WelcomeDialog(QDialog):
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
-def _section_label(text: str) -> QLabel:
+def _section_label(text: str, color: str = "#b0b0b0") -> QLabel:
     lbl = QLabel(text)
-    lbl.setStyleSheet("color: #999; font-size: 10px; font-weight: bold;")
+    lbl.setStyleSheet(f"color: {color}; font-size: 10px; font-weight: bold;")
     return lbl
 
 
 def _field_label(text: str) -> QLabel:
+    c = _wc()
     lbl = QLabel(text)
-    lbl.setStyleSheet("color: #aaa; font-size: 12px;")
+    lbl.setStyleSheet(f"color: {c['field']}; font-size: 12px;")
     return lbl
 
 
-def _sep() -> QFrame:
+def _sep(color: str = "#333") -> QFrame:
     sep = QFrame()
     sep.setFrameShape(QFrame.Shape.HLine)
-    sep.setStyleSheet("background: #333; max-height: 1px;")
+    sep.setStyleSheet(f"background: {color}; max-height: 1px;")
     return sep

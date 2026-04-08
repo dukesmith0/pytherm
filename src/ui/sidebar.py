@@ -29,13 +29,13 @@ _theme = "dark"
 def _colors():
     if _theme == "light":
         return {
-            "text": "#1e1e1e", "text_dim": "#555", "text_mid": "#777",
+            "text": "#1e1e1e", "text_dim": "#555", "text_mid": "#555",
             "bg_input": "#fff", "border": "#bbb", "sep": "#ccc",
             "header_hover": "#ddd", "header_text": "#333",
             "group_bg": "#e8e8e8", "selected_bg": "#d0e8ff",
         }
     return {
-        "text": "#dcdcdc", "text_dim": "#999", "text_mid": "#aaa",
+        "text": "#dcdcdc", "text_dim": "#b0b0b0", "text_mid": "#b0b0b0",
         "bg_input": "#1e1e1e", "border": "#444", "sep": "#333",
         "header_hover": "#2e2e2e", "header_text": "#ccc",
         "group_bg": "#2a2a2a", "selected_bg": "#1a3a4a",

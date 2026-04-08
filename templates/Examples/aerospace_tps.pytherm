@@ -9,1402 +9,1562 @@
     {
       "row": 0,
       "col": 0,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 1,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 2,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 3,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 4,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 5,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 6,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 7,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 8,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 9,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 10,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 11,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 12,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 13,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 14,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 15,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 16,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 17,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 18,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 0,
       "col": 19,
-      "material_id": "aerogel",
+      "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 200.0
+      "flux_q": 50000.0,
+      "is_volumetric_flux": false,
+      "label": "Tile"
     },
     {
       "row": 1,
-      "col": 0,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 1,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 2,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 3,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 4,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 5,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 6,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 7,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 8,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 9,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 10,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 11,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 12,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 13,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 14,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 15,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 16,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 17,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 18,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 1,
-      "col": 19,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 0,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 1,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 2,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 3,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 4,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 5,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 6,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 7,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 8,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 9,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 10,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 11,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 12,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 13,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 14,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 15,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 16,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 17,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 18,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 2,
-      "col": 19,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 0,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 1,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 2,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 3,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 4,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 5,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 6,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 7,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 8,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 9,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 10,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 11,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 12,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 13,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 14,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 15,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 16,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 17,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 18,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 3,
-      "col": 19,
-      "material_id": "aerogel",
-      "temperature_k": 293.15,
-      "is_fixed": false,
-      "fixed_temp_k": 0.0,
-      "is_flux": false,
-      "flux_q": 0.0
-    },
-    {
-      "row": 4,
       "col": 0,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 1,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 2,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 3,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 4,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 5,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 6,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 7,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 8,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 9,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 10,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 11,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 12,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 13,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 14,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 15,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 16,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 17,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 18,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 4,
+      "row": 1,
       "col": 19,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 0,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 1,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 2,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 3,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 4,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 5,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 6,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 7,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 8,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 9,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 10,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 11,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 12,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 13,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 14,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 15,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 16,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 17,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 18,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
     },
     {
-      "row": 5,
+      "row": 2,
       "col": 19,
       "material_id": "alumina",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Tile"
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 6,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 7,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 8,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 9,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 10,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 11,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 12,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 13,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 14,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 15,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 16,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 17,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 18,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 3,
+      "col": 19,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 0,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 3,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 7,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 8,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 9,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 10,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 11,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 12,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 13,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 14,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 16,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 17,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 18,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 4,
+      "col": 19,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 0,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 1,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 2,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 3,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 4,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 5,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 6,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 7,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 8,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 9,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 10,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 11,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 12,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 13,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 14,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 15,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 16,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 17,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 18,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
+    },
+    {
+      "row": 5,
+      "col": 19,
+      "material_id": "aerogel",
+      "temperature_k": 293.15,
+      "is_fixed": false,
+      "fixed_temp_k": 0.0,
+      "is_flux": false,
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 0,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 1,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 2,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 3,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 4,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 10,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 11,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 12,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 13,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 14,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 15,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 16,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 17,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 18,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 6,
       "col": 19,
-      "material_id": "alumina",
+      "material_id": "aerogel",
       "temperature_k": 293.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Insul"
     },
     {
       "row": 7,
@@ -1414,7 +1574,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1424,7 +1585,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1434,7 +1596,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1444,7 +1607,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1454,7 +1618,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1464,7 +1629,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1474,7 +1640,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1484,7 +1651,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1494,7 +1662,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1504,7 +1673,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1514,7 +1684,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1524,7 +1695,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1534,7 +1706,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1544,7 +1717,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1554,7 +1728,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1564,7 +1739,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1574,7 +1750,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1584,7 +1761,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1594,7 +1772,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 7,
@@ -1604,7 +1783,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1614,7 +1794,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1624,7 +1805,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1634,7 +1816,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1644,7 +1827,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1654,7 +1838,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1664,7 +1849,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1674,7 +1860,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1684,7 +1871,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1694,7 +1882,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1704,7 +1893,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1714,7 +1904,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1724,7 +1915,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1734,7 +1926,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1744,7 +1937,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1754,7 +1948,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1764,7 +1959,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1774,7 +1970,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1784,7 +1981,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1794,7 +1992,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 8,
@@ -1804,7 +2003,8 @@
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1814,7 +2014,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1824,7 +2025,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1834,7 +2036,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1844,7 +2047,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1854,7 +2058,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1864,7 +2069,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1874,7 +2080,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1884,7 +2091,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1894,7 +2102,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1904,7 +2113,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1914,7 +2124,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1924,7 +2135,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1934,7 +2146,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1944,7 +2157,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1954,7 +2168,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1964,7 +2179,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1974,7 +2190,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1984,7 +2201,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -1994,7 +2212,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     },
     {
       "row": 9,
@@ -2004,7 +2223,8 @@
       "is_fixed": true,
       "fixed_temp_k": 400.0,
       "is_flux": false,
-      "flux_q": 0.0
+      "flux_q": 0.0,
+      "label": "Struct"
     }
   ],
   "custom_materials": [],

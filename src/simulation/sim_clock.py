@@ -175,7 +175,9 @@ class SimClock(QObject):
             self.pause()
 
     def _advance(self, dt_sim: float) -> None:
-        is_first_tick = (self._sim_time == 0.0)  # skip SS check on tick 1 (all-ambient start)
+        # Skip steady-state check on first tick: the grid starts at ambient,
+        # so delta_rate would be zero and falsely trigger convergence.
+        is_first_tick = (self._sim_time == 0.0)
         self._solver.ambient_k = self._grid.ambient_temp_k  # sync for sink BCs
         T = self._grid.temperature_array()
         if self._arr_cache is None:

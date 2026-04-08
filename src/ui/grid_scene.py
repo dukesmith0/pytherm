@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from PyQt6.QtCore import Qt, QRect, QRectF
+from PyQt6.QtCore import Qt, QPointF, QRect, QRectF
 from PyQt6.QtGui import QBrush, QColor, QFont, QImage, QLinearGradient, QPainter, QPen
 from PyQt6.QtWidgets import QGraphicsScene
 
@@ -72,6 +72,9 @@ class GridScene(QGraphicsScene):
 
         # Flux view bounds (set per frame in _draw_flux_view)
         self._flow_bounds: tuple[float, float] = (0.0, 1.0)
+
+        # Heat flow vector overlay
+        self._show_heat_vectors: bool = False
 
         # Hotspot overlay
         self._hotspot_enabled: bool = False
@@ -191,6 +194,10 @@ class GridScene(QGraphicsScene):
 
     def set_show_label(self, show: bool) -> None:
         self._show_label = show
+        self.update()
+
+    def set_show_heat_vectors(self, show: bool) -> None:
+        self._show_heat_vectors = show
         self.update()
 
     def set_show_delta(self, show: bool) -> None:
@@ -401,6 +408,10 @@ class GridScene(QGraphicsScene):
         # Hotspot highlight -- semi-transparent red on cells above threshold (all views)
         if self._hotspot_enabled and not math.isnan(self._hotspot_threshold_k):
             self._draw_hotspot(painter, g, cp, r0, r1, c0, c1)
+
+        # Heat flow vector arrows -- heatmap and flux modes
+        if self._view_mode in ("heatmap", "flow") and self._show_heat_vectors:
+            self._draw_heat_vectors(painter, g, cp, zoom, r0, r1, c0, c1)
 
         # Isotherm lines -- heatmap and flux modes
         if self._view_mode in ("heatmap", "flow") and self._isotherm_enabled:
@@ -704,6 +715,133 @@ class GridScene(QGraphicsScene):
                     label,
                 )
 
+    def _draw_heat_vectors(self, painter: QPainter, g: Grid, cp: int,
+                           zoom: float,
+                           r0: int, r1: int, c0: int, c1: int) -> None:
+        """Draw heat flow direction arrows on cells in heatmap/flow modes.
+
+        Computes per-cell (q_x, q_y) from interface fluxes using harmonic-mean k.
+        Arrow length proportional to magnitude. Decimated every Nth cell for
+        large grids to avoid visual clutter.
+        """
+        rows, cols = g.rows, g.cols
+        cell_px_screen = cp * zoom
+
+        # Auto-decimation: show every Nth cell based on zoom level
+        if cell_px_screen >= 24:
+            skip = 1
+        elif cell_px_screen >= 12:
+            skip = 2
+        elif cell_px_screen >= 6:
+            skip = 4
+        else:
+            skip = 8
+
+        # Compute (q_x, q_y) for each visible cell
+        vectors: list[tuple[int, int, float, float]] = []  # (r, c, qx, qy)
+        max_mag = 0.0
+
+        for r in range(r0, r1):
+            if r % skip != 0:
+                continue
+            for c in range(c0, c1):
+                if c % skip != 0:
+                    continue
+                cell = g.cell(r, c)
+                if cell.material.is_vacuum or cell.material.k == 0:
+                    continue
+                k_c = cell.material.k
+                T_c = cell.temperature
+                # Fourier's law: q = -k * grad(T). Compute cell-centered flux
+                # by averaging interface fluxes. Always divide by 2 so boundary
+                # cells (with one missing neighbor = zero flux) stay consistent.
+                qx = 0.0
+                qy = 0.0
+
+                # Right interface: flux in +x direction
+                if c + 1 < cols:
+                    nb = g.cell(r, c + 1)
+                    if not nb.material.is_vacuum and nb.material.k > 0:
+                        k_eff = 2.0 * k_c * nb.material.k / (k_c + nb.material.k)
+                        qx += k_eff * (T_c - nb.temperature)  # positive = heat flows right (hot→cold)
+                # Left interface: flux in +x direction
+                if c - 1 >= 0:
+                    nb = g.cell(r, c - 1)
+                    if not nb.material.is_vacuum and nb.material.k > 0:
+                        k_eff = 2.0 * k_c * nb.material.k / (k_c + nb.material.k)
+                        qx += k_eff * (nb.temperature - T_c)  # positive = heat flows right (hot→cold)
+                # Bottom interface: flux in +y direction (downward in screen)
+                if r + 1 < rows:
+                    nb = g.cell(r + 1, c)
+                    if not nb.material.is_vacuum and nb.material.k > 0:
+                        k_eff = 2.0 * k_c * nb.material.k / (k_c + nb.material.k)
+                        qy += k_eff * (T_c - nb.temperature)
+                # Top interface: flux in +y direction
+                if r - 1 >= 0:
+                    nb = g.cell(r - 1, c)
+                    if not nb.material.is_vacuum and nb.material.k > 0:
+                        k_eff = 2.0 * k_c * nb.material.k / (k_c + nb.material.k)
+                        qy += k_eff * (nb.temperature - T_c)
+
+                qx *= 0.5
+                qy *= 0.5
+
+                mag = math.sqrt(qx * qx + qy * qy)
+                if mag > 0:
+                    vectors.append((r, c, qx, qy))
+                    if mag > max_mag:
+                        max_mag = mag
+
+        if not vectors or max_mag == 0:
+            return
+
+        # Draw arrows in scene coordinates (scale naturally with zoom).
+        # Two-pass rendering: dark outline first, then bright fill for contrast.
+        max_len = cp * 0.38  # arrow half-length (tip to center)
+        head_len = cp * 0.14  # arrowhead barb length
+        shaft_w = max(1.0, cp * 0.06)  # shaft thickness in scene coords
+
+        for pass_idx in range(2):
+            if pass_idx == 0:
+                # Outline pass: dark, slightly thicker
+                pen = QPen(QColor(0, 0, 0, 180))
+                pen.setWidthF(shaft_w + max(1.0, cp * 0.03))
+            else:
+                # Fill pass: bright white
+                pen = QPen(QColor(255, 255, 255, 230))
+                pen.setWidthF(shaft_w)
+            pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+            pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+            painter.setPen(pen)
+
+            for r, c, qx, qy in vectors:
+                mag = math.sqrt(qx * qx + qy * qy)
+                frac = mag / max_mag
+                length = max_len * max(frac, 0.15)  # floor so tiny arrows are still visible
+
+                # Normalize direction
+                dx_n = qx / mag
+                dy_n = qy / mag
+
+                # Cell center
+                cx = c * cp + cp * 0.5
+                cy = r * cp + cp * 0.5
+
+                # Shaft: from tail to tip
+                tx = cx + dx_n * length
+                ty = cy + dy_n * length
+                fx = cx - dx_n * length * 0.5
+                fy = cy - dy_n * length * 0.5
+                painter.drawLine(QPointF(fx, fy), QPointF(tx, ty))
+
+                # Arrowhead barbs (extend backward from tip toward tail)
+                angle = math.atan2(dy_n, dx_n)
+                hl = head_len * max(frac, 0.3)
+                for da in (2.6, -2.6):  # ~149 degrees from shaft direction
+                    hx = tx + hl * math.cos(angle + da)
+                    hy = ty + hl * math.sin(angle + da)
+                    painter.drawLine(QPointF(tx, ty), QPointF(hx, hy))
+
     def _draw_isotherms(self, painter: QPainter, g: Grid, cp: int,
                         r0: int, r1: int, c0: int, c1: int) -> None:
         """Draw isotherm contour lines using marching squares.
@@ -744,9 +882,12 @@ class GridScene(QGraphicsScene):
         def _interp(va: float, vb: float, thresh: float,
                     ax: float, ay: float, bx: float, by: float) -> tuple[float, float]:
             dt = vb - va
-            frac = (thresh - va) / dt if abs(dt) > 1e-12 else 0.5
+            frac = (thresh - va) / dt if abs(dt) > 1e-6 else 0.5
             return ax + frac * (bx - ax), ay + frac * (by - ay)
 
+        t_range = t_max - t_min
+        if t_range > 0 and interval > 0:
+            interval = max(interval, t_range / 500)
         first_thresh = math.ceil(t_min / interval) * interval
         thresh = first_thresh
         _max_passes = 500

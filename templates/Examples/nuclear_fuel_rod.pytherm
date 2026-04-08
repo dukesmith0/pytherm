@@ -417,7 +417,7 @@
     {
       "row": 2,
       "col": 7,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -549,7 +549,7 @@
     {
       "row": 3,
       "col": 4,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -560,7 +560,7 @@
     {
       "row": 3,
       "col": 5,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -571,7 +571,7 @@
     {
       "row": 3,
       "col": 6,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -582,7 +582,7 @@
     {
       "row": 3,
       "col": 7,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -593,7 +593,7 @@
     {
       "row": 3,
       "col": 8,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -604,7 +604,7 @@
     {
       "row": 3,
       "col": 9,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -615,7 +615,7 @@
     {
       "row": 3,
       "col": 10,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -703,7 +703,7 @@
     {
       "row": 4,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -714,7 +714,7 @@
     {
       "row": 4,
       "col": 4,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -725,7 +725,7 @@
     {
       "row": 4,
       "col": 5,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -736,7 +736,7 @@
     {
       "row": 4,
       "col": 6,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -747,18 +747,19 @@
     {
       "row": 4,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 4,
       "col": 8,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -769,7 +770,7 @@
     {
       "row": 4,
       "col": 9,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -780,7 +781,7 @@
     {
       "row": 4,
       "col": 10,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -791,7 +792,7 @@
     {
       "row": 4,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -868,7 +869,7 @@
     {
       "row": 5,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -879,7 +880,7 @@
     {
       "row": 5,
       "col": 4,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -890,62 +891,67 @@
     {
       "row": 5,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 5,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 5,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 5,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 5,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 5,
       "col": 10,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -956,7 +962,7 @@
     {
       "row": 5,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1033,7 +1039,7 @@
     {
       "row": 6,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1044,7 +1050,7 @@
     {
       "row": 6,
       "col": 4,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1055,62 +1061,67 @@
     {
       "row": 6,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 6,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 6,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 6,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 6,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 6,
       "col": 10,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1121,7 +1132,7 @@
     {
       "row": 6,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1187,7 +1198,7 @@
     {
       "row": 7,
       "col": 2,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1198,7 +1209,7 @@
     {
       "row": 7,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1209,84 +1220,91 @@
     {
       "row": 7,
       "col": 4,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 10,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 7,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1297,7 +1315,7 @@
     {
       "row": 7,
       "col": 12,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1363,7 +1381,7 @@
     {
       "row": 8,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1374,7 +1392,7 @@
     {
       "row": 8,
       "col": 4,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1385,62 +1403,67 @@
     {
       "row": 8,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 8,
       "col": 10,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1451,7 +1474,7 @@
     {
       "row": 8,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1528,7 +1551,7 @@
     {
       "row": 9,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1539,7 +1562,7 @@
     {
       "row": 9,
       "col": 4,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1550,62 +1573,67 @@
     {
       "row": 9,
       "col": 5,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
       "col": 6,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
       "col": 8,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
       "col": 9,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 9,
       "col": 10,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1616,7 +1644,7 @@
     {
       "row": 9,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1693,7 +1721,7 @@
     {
       "row": 10,
       "col": 3,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1704,7 +1732,7 @@
     {
       "row": 10,
       "col": 4,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1715,7 +1743,7 @@
     {
       "row": 10,
       "col": 5,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1726,7 +1754,7 @@
     {
       "row": 10,
       "col": 6,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1737,18 +1765,19 @@
     {
       "row": 10,
       "col": 7,
-      "material_id": "alumina",
+      "material_id": "uranium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
       "is_flux": true,
-      "flux_q": 50000000.0,
-      "label": "Fuel"
+      "flux_q": 300000000.0,
+      "label": "Fuel",
+      "is_volumetric_flux": true
     },
     {
       "row": 10,
       "col": 8,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1759,7 +1788,7 @@
     {
       "row": 10,
       "col": 9,
-      "material_id": "air",
+      "material_id": "helium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1770,7 +1799,7 @@
     {
       "row": 10,
       "col": 10,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1781,7 +1810,7 @@
     {
       "row": 10,
       "col": 11,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1869,7 +1898,7 @@
     {
       "row": 11,
       "col": 4,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1880,7 +1909,7 @@
     {
       "row": 11,
       "col": 5,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1891,7 +1920,7 @@
     {
       "row": 11,
       "col": 6,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1902,7 +1931,7 @@
     {
       "row": 11,
       "col": 7,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1913,7 +1942,7 @@
     {
       "row": 11,
       "col": 8,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1924,7 +1953,7 @@
     {
       "row": 11,
       "col": 9,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -1935,7 +1964,7 @@
     {
       "row": 11,
       "col": 10,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,
@@ -2067,7 +2096,7 @@
     {
       "row": 12,
       "col": 7,
-      "material_id": "ss304",
+      "material_id": "zirconium",
       "temperature_k": 323.15,
       "is_fixed": false,
       "fixed_temp_k": 0.0,

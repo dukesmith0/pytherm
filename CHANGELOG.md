@@ -1,5 +1,43 @@
 # PyTherm Changelog
 
+## v1.1.0 -- 2026-04-01
+
+### Added
+
+- **Heat flow vector overlay**: per-cell (q_x, q_y) arrows showing heat flow direction and magnitude. Auto-decimation based on zoom level. Two-pass rendering (dark outline + white fill) for contrast against any palette. Toggle via "Vectors" toolbar button.
+- **Two-row toolbar**: Row 1 (always visible) has mode/cell/view/borders/utilities. Row 2 (heatmap/flow modes only) has Min/Max/Palette/Isotherms/Hotspot. Prevents horizontal overflow at 1280px.
+- **File open prior-state alert**: opening a .pytherm file with non-ambient temperatures shows a status bar hint ("press R to reset"), preserving resume-simulation workflow.
+- **Contextual status bar**: shows current mode + selection count instead of static "Ready". Wired to mode_changed and cells_selected.
+- **pytest test suite**: migrated from custom framework to pytest in debug/ (13 test files + conftest.py, 161 tests).
+
+### Changed
+
+- **Security hardening** (7 fixes): file size limit (50 MB), grid dimension validation (1-200), logged material parse errors, UTF-8 encoding on custom material save, preference value clamping, HTML-escaped crash dialog, temp file cleanup on write failure.
+- **Theme-aware dialogs**: Welcome dialog and About dialog use palette-derived colors for dark/light themes. Tooltip follows theme. All secondary text meets WCAG AA contrast (>= 4.5:1).
+- **BC button labels**: "Ins." renamed to "Insulated", "Sink" renamed to "Fixed T" for clarity.
+- **Exception handling**: `except BaseException` narrowed to `except Exception` at 4 file-save sites.
+- **Grid rebind safety**: simulator pauses before grid reference swap in `_apply_new_grid()`.
+- **Isotherm robustness**: interpolation threshold raised from 1e-12 to 1e-6; interval auto-clamped to prevent >500 rendering passes.
+
+### Bug Fixes
+
+- Grid rebind race condition: QTimer could fire between grid swap and sim reset, causing one-frame desync.
+- Isotherm interpolation: near-zero temperature deltas produced extreme line positions.
+- Isotherm pass cap: small intervals with large temperature ranges silently produced incomplete contours.
+- **Template physics audit** (14 templates fixed):
+  - nuclear_fuel_rod: alumina->uranium fuel, ss304->zirconium clad, air->helium gap, surface->volumetric flux at 300 MW/m^3
+  - brake_rotor: heat flux moved from edge to friction face, 50->5 MW/m^2, BCs corrected
+  - cpu_heatsink: die flux 50->2.5 MW/m^2 (~80W total, realistic for desktop CPU)
+  - aerospace_tps: flux 200 W/m^2 -> 50 kW/m^2 (low-end orbital re-entry)
+  - building_wall: dx 5cm->1cm, grid 10x22->10x74, realistic layer thicknesses
+  - thermoelectric_cooler: cooling flux -20 MW/m^2 -> -500 kW/m^2
+  - pipe_cross_section: added sink BCs (was all-insulated with no heat escape)
+  - All templates: version fields removed, labels added, explicit BCs where missing
+
+### Known Issues
+
+None.
+
 ## v1.0.0 -- 2026-03-15
 
 ### Added
@@ -56,7 +94,7 @@ None.
 
 None.
 
-## v0.5.1 — 2026-03-11
+## v0.5.1 -- 2026-03-11
 
 ### Changed
 
@@ -75,7 +113,7 @@ None.
 
 None.
 
-## v0.5.0 — 2026-03-10
+## v0.5.0 -- 2026-03-10
 
 ### Added
 
@@ -117,7 +155,7 @@ None.
 
 None.
 
-## v0.4.0 — 2026-03-06
+## v0.4.0 -- 2026-03-06
 
 ### Added
 
@@ -150,11 +188,11 @@ None.
 - **B-PLOT-LABEL-EMPTY**: second plot panels started with an empty label dropdown. Fixed by calling `refresh_labels()` in `TempPlotPanel.__init__`.
 - **B-BC-RADIO**: Fixed T and Heat Flux radio buttons in both `CellPropertiesPanel` and `GroupEditPanel` could not be toggled back after the first switch. Root cause: `_flux_radio.toggled` was not connected to `_on_mode_radio_toggled`, so only the deselect event (`checked=False`) fired when switching. Also fixed the fixed-temperature spinbox showing -273 °C for flux cells by always populating it in `show_cell`, using `cell.temperature` as fallback when `fixed_temp <= 1 K`.
 
-## v0.3.0 — 2026-03-04
+## v0.3.0 -- 2026-03-04
 
 ### Added
 
-- **Redesigned About dialog**: dark header with app icon, subtitle, version, and GitHub link — matches the welcome dialog aesthetic.
+- **Redesigned About dialog**: dark header with app icon, subtitle, version, and GitHub link -- matches the welcome dialog aesthetic.
 - **Base material selector**: New Grid dialog and welcome dialog now include a material dropdown so the grid can be filled with any material instead of always defaulting to Vacuum.
 - **Zoom to Selection**: Ctrl+Shift+F fits the view to the selected cells' bounding box.
 - **Copy/Paste cell properties**: Ctrl+C in select mode copies the first selected cell's material, temperature, and heat-source state to a clipboard; Ctrl+V pastes to all selected cells.
@@ -169,11 +207,11 @@ None.
 ### Performance
 
 - **Viewport culling**: `drawBackground` and `drawForeground` now clamp all cell loops to the visible rect. 100x fewer iterations when zoomed in on a large grid.
-- **Heatmap bounds cache**: `_heatmap_bounds()` computed once per frame in `drawBackground` and reused by `_draw_abbr`, `_draw_color_legend` — was called 3x per frame previously.
-- **QColor cache**: `cell_color()` caches `QColor(hex_string)` by material color string — eliminates up to 40,000 hex parses per frame on large grids.
+- **Heatmap bounds cache**: `_heatmap_bounds()` computed once per frame in `drawBackground` and reused by `_draw_abbr`, `_draw_color_legend` -- was called 3x per frame previously.
+- **QColor cache**: `cell_color()` caches `QColor(hex_string)` by material color string -- eliminates up to 40,000 hex parses per frame on large grids.
 - **Fixed-cell position set**: lock-icon loop now iterates a cached `_fixed_cells` set (O(fixed count)) instead of scanning all cells every frame (O(N)).
 
-## v0.2.0 — 2026-03-04
+## v0.2.0 -- 2026-03-04
 
 ### Added
 
@@ -184,9 +222,9 @@ None.
 - **Bug report button**: `Help > Report a Bug` opens the GitHub Issues page.
 - **Export view as image**: `File > Export View as Image` (Ctrl+E) saves the current canvas as a PNG file.
 - **Common liquids material library**: 8 new built-in liquid materials (Water, Seawater, Ethylene Glycol, Antifreeze 50/50, Engine Oil, Hydraulic Fluid, Gasoline, R-134a) in a new "Liquids" category.
-- **Searchable material picker**: filter bar above the material list in the sidebar — type to filter by name or abbreviation.
+- **Searchable material picker**: filter bar above the material list in the sidebar -- type to filter by name or abbreviation.
 - **Bottom toolbar**: view-related controls (Material/Heatmap toggle, heatmap scale, border conditions, temperature unit, Fit/Grid/Abbr) moved to a dedicated bottom toolbar so the top toolbar focuses on simulation controls.
-- **Fill (paint bucket) tool**: flood-fill mode button in the toolbar (W key) — click any cell to fill all contiguous same-material cells with the active material using BFS.
+- **Fill (paint bucket) tool**: flood-fill mode button in the toolbar (W key) -- click any cell to fill all contiguous same-material cells with the active material using BFS.
 - **Heatmap color legend**: a vertical gradient scale bar with min/max temperature labels appears in the bottom-right corner of the viewport in heatmap mode.
 - **Sub-step count display**: solver sub-step count per tick shown next to the sim-time in the top toolbar.
 
@@ -199,7 +237,7 @@ None.
 | B-SF | Material search filter now also matches abbreviations (e.g. "Cu", "FR4", "LN2"). |
 | B-CT | New grid cells default `fixed_temp` to `ambient_temp_k` instead of absolute zero. |
 
-## v0.1.0 — 2026-03-04
+## v0.1.0 -- 2026-03-04
 
 ### Major Changes
 

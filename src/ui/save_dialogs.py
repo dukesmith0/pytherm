@@ -38,7 +38,7 @@ class CustomMaterialsBundleDialog(QDialog):
             "Materials used in the grid are required and pre-selected."
         )
         desc.setWordWrap(True)
-        desc.setStyleSheet("color: #aaa; font-size: 11px; padding-bottom: 6px;")
+        desc.setStyleSheet("color: #b0b0b0; font-size: 11px; padding-bottom: 6px;")
         layout.addWidget(desc)
 
         container = QWidget()

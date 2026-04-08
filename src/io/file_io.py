@@ -9,6 +9,7 @@ from src.simulation.grid import Grid
 from src.version import VERSION
 
 PYTHERM_VERSION = 1
+MAX_PYTHERM_BYTES = 50 * 1024 * 1024  # 50 MB
 
 
 def save_pytherm(
@@ -67,9 +68,13 @@ def save_pytherm(
     }
 
     tmp = path.with_suffix(".tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        os.replace(tmp, path)
+    except Exception:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def _validate_pytherm(data: dict, require_version: bool = True) -> None:
@@ -83,6 +88,12 @@ def _validate_pytherm(data: dict, require_version: bool = True) -> None:
     for key in ("rows", "cols", "ambient_temp_k", "dx_m"):
         if key not in data["grid"]:
             raise ValueError(f"Missing required field: 'grid.{key}'")
+    rows = data["grid"]["rows"]
+    cols = data["grid"]["cols"]
+    if not isinstance(rows, int) or not 1 <= rows <= 200:
+        raise ValueError(f"grid.rows must be an integer between 1 and 200, got {rows!r}")
+    if not isinstance(cols, int) or not 1 <= cols <= 200:
+        raise ValueError(f"grid.cols must be an integer between 1 and 200, got {cols!r}")
     if not isinstance(data["cells"], list):
         raise ValueError("Field 'cells' must be an array")
 
@@ -93,6 +104,12 @@ def load_pytherm(path: Path, require_version: bool = True) -> dict:
     Raises ValueError if the file format version is unrecognised or structure is invalid.
     When require_version=False (templates), missing version field is allowed.
     """
+    size = path.stat().st_size
+    if size > MAX_PYTHERM_BYTES:
+        raise ValueError(
+            f"File is too large ({size / 1024 / 1024:.1f} MB). "
+            f"Maximum supported size is {MAX_PYTHERM_BYTES // 1024 // 1024} MB."
+        )
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     _validate_pytherm(data, require_version=require_version)

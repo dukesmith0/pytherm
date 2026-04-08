@@ -7,6 +7,17 @@ from src.rendering import units as _units
 from src.simulation.cell import Cell
 
 
+def _tc():
+    """Theme-aware tooltip colors."""
+    p = QApplication.instance().palette()
+    is_dark = p.window().color().lightnessF() < 0.5
+    if is_dark:
+        return {"bg": "#252525", "border": "#555", "name": "#eee",
+                "pos": "#b0b0b0", "detail": "#c0c0c0"}
+    return {"bg": "#f8f8f8", "border": "#bbb", "name": "#1e1e1e",
+            "pos": "#555", "detail": "#333"}
+
+
 class CellTooltip(QWidget):
     """Frameless floating tooltip that follows the cursor, showing cell info."""
 
@@ -18,8 +29,9 @@ class CellTooltip(QWidget):
             | Qt.WindowType.WindowStaysOnTopHint,
         )
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        c = _tc()
         self.setStyleSheet(
-            "CellTooltip { background-color: #252525; border: 1px solid #555; border-radius: 4px; }"
+            f"CellTooltip {{ background-color: {c['bg']}; border: 1px solid {c['border']}; border-radius: 4px; }}"
         )
 
         layout = QVBoxLayout(self)
@@ -27,11 +39,11 @@ class CellTooltip(QWidget):
         layout.setSpacing(2)
 
         self._name = QLabel()
-        self._name.setStyleSheet("font-weight: bold; color: #eee; font-size: 12px;")
+        self._name.setStyleSheet(f"font-weight: bold; color: {c['name']}; font-size: 12px;")
         layout.addWidget(self._name)
 
         self._pos    = QLabel()
-        self._pos.setStyleSheet("color: #777; font-size: 10px;")
+        self._pos.setStyleSheet(f"color: {c['pos']}; font-size: 10px;")
         layout.addWidget(self._pos)
 
         self._k      = QLabel()
@@ -43,7 +55,7 @@ class CellTooltip(QWidget):
         self._flux_info = QLabel()
         for lbl in (self._k, self._alpha, self._temp, self._energy,
                     self._tau, self._resist, self._flux_info):
-            lbl.setStyleSheet("color: #aaa; font-size: 11px;")
+            lbl.setStyleSheet(f"color: {c['detail']}; font-size: 11px;")
             layout.addWidget(lbl)
 
     def update_cell(self, cell: Cell, dx_m: float, ambient_k: float,
